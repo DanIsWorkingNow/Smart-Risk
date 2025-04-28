@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Shariah Risk Assessment{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Shariah Risk Assessment</h2>
+
+<!-- Form Layout -->
+<form method="POST">
+  <div class="row">
+    <!-- Personal Details Left Side -->
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="application_id">Application ID</label>
+        <input type="text" class="form-control" id="application_id" name="application_id" required>
+      </div>
+      <div class="form-group">
+        <label for="amount_requested">Loan Amount Requested (RM)</label>
+        <input type="number" step="0.01" class="form-control" id="amount_requested" name="amount_requested" required>
+      </div>
+      <div class="form-group">
+        <label for="purpose_of_financing">Purpose of Financing</label>
+        <input type="text" class="form-control" id="purpose_of_financing" name="purpose_of_financing" required>
+      </div>
+    </div>
+
+    <!-- Personal Details Right Side -->
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="application_date">Application Date</label>
+        <input type="date" class="form-control" id="application_date" name="application_date" required>
+      </div>
+      <div class="form-group">
+        <label for="customer_name">Customer Name</label>
+        <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+      </div>
+      <div class="form-group">
+        <label for="customer_category">Customer Category</label>
+        <select class="form-control" id="customer_category" name="customer_category">
+          <option value="Corporate">Corporate</option>
+          <option value="Personal">Personal</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Divider for Shariah Risk Parameters -->
+    <div class="col-12">
+      <hr>
+      <h4 class="text-center">Shariah Risk Parameters</h4>
+      <hr>
+    </div>
+
+    <!-- Shariah Risk Assessment (Lower Half) -->
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="riba">Riba (Interest)</label>
+        <select class="form-control" id="riba" name="riba">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="gharar">Gharar (Uncertainty)</label>
+        <select class="form-control" id="gharar" name="gharar">
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="maysir">Maysir (Gambling)</label>
+        <select class="form-control" id="maysir" name="maysir">
+          <option value="Present">Present</option>
+          <option value="Absent">Absent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="business_description">Business Description</label>
+        <textarea class="form-control" id="business_description" name="business_description" required></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit Button -->
+  <button type="submit" class="btn btn-primary">Analyse</button>
+</form>
+{% endblock %}

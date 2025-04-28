@@ -1,0 +1,38 @@
+<!-- File path: templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Risk Dashboard</h1>
+<div class="stats">
+    <div class="stat-box">
+        <h3>Total Loans</h3>
+        <p>{{ loans|length }}</p>
+    </div>
+    <div class="stat-box">
+        <h3>High Risk Loans</h3>
+        <p>{{ loans|selectattr('risk_score', '>=', 70)|list|length }}</p>
+    </div>
+</div>
+
+<h2>Recent Applications</h2>
+<table>
+    <tr>
+        <th>Applicant</th>
+        <th>Amount</th>
+        <th>LTV Ratio</th>
+        <th>DTI Ratio</th>
+        <th>Risk Score</th>
+    </tr>
+    {% for loan in loans[-5:] %}
+    <tr>
+        <td>{{ loan.applicant_name }}</td>
+        <td>${{ "%.2f"|format(loan.amount) }}</td>
+        <td>{{ "%.2f"|format(loan.ltv_ratio) }}</td>
+        <td>{{ "%.2f"|format(loan.dti_ratio) }}</td>
+        <td class="risk-{{ 'high' if loan.risk_score >=70 else 'medium' if loan.risk_score >=50 else 'low' }}">
+            {{ "%.2f"|format(loan.risk_score) }}%
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

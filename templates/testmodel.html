@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Test Shariah Model{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Test Shariah Compliance Model</h2>
+<form method="POST">
+  <div class="form-group">
+    <label for="business_description">Business Description</label>
+    <textarea class="form-control" id="business_description" name="business_description" rows="4" required></textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Test Model</button>
+</form>
+
+{% if risk_score %}
+  <hr>
+  <h4>Model Output:</h4>
+  <p><strong>{{ risk_score }}</strong></p>
+  <p>The business description has been evaluated for Shariah compliance.</p>
+{% endif %}
+{% endblock %}

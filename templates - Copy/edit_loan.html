@@ -1,0 +1,16 @@
+<!-- File path: templates/edit_loan.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Edit Loan Application</h1>
+
+<div class="loan-form">
+    <form method="POST">
+        <input type="text" name="applicant_name" value="{{ loan.applicant_name }}" required>
+        <input type="number" step="0.01" name="amount" value="{{ loan.amount }}" required>
+        <input type="number" step="0.01" name="ltv_ratio" value="{{ loan.ltv_ratio }}" min="0" max="1" required>
+        <input type="number" step="0.01" name="dti_ratio" value="{{ loan.dti_ratio }}" min="0" max="1" required>
+        <button type="submit">Update Loan</button>
+    </form>
+</div>
+{% endblock %}

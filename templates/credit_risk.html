@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Credit Risk Analysis{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>Credit Risk Analysis</h2>
+  <form method="POST" action="{{ url_for('credit_risk_calculate', loan_id=loan.id) }}">
+    <!-- Display read-only fields -->
+    <div class="form-group">
+      <label>Application ID</label>
+      <input type="text" class="form-control" value="{{ loan.id }}" readonly>
+    </div>
+    <div class="form-group">
+      <label>Customer Name</label>
+      <input type="text" class="form-control" value="{{ loan.customer_name }}" readonly>
+    </div>
+
+    <!-- Example input fields for risk parameters -->
+    <div class="form-group">
+      <label for="ltv">Loan-to-Value (LTV) Ratio</label>
+      <input type="number" step="0.01" name="ltv" class="form-control" id="ltv" required>
+    </div>
+    <div class="form-group">
+      <label for="dti">Debt-to-Income (DTI) Ratio</label>
+      <input type="number" step="0.01" name="dti" class="form-control" id="dti" required>
+    </div>
+    <div class="form-group">
+      <label for="ccr">Collateral Coverage Ratio (CCR)</label>
+      <input type="number" step="0.01" name="ccr" class="form-control" id="ccr" required>
+    </div>
+    <div class="form-group">
+      <label for="ead">Exposure at Default (EAD)</label>
+      <input type="number" step="1" name="ead" class="form-control" id="ead" required>
+    </div>
+    <div class="form-group">
+      <label for="credit_score">Credit Score</label>
+      <input type="number" step="1" name="credit_score" class="form-control" id="credit_score" required>
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" class="btn btn-primary">CALCULATE</button>
+    <button type="button" class="btn btn-secondary" onclick="location.href='{{ url_for('index') }}'">CANCEL</button>
+  </form>
+</div>
+{% endblock %}

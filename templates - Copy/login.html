@@ -1,0 +1,17 @@
+<!-- File path: templates/login.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-form">
+    <h2>SMART-Risk Login</h2>
+    {% if error %}
+    <div class="alert">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <p>Demo Credentials: admin/admin</p>
+</div>
+{% endblock %}

@@ -1,0 +1,590 @@
+[
+  {
+    "text": "UUMJLS 8, 1-15 (2017)\nSHARIAH RISK MANAGEMENT PROCESS\nFOR ISLAMIC FINANCIAL INSTITUTIONS IN\nTHE CONTEXT OF SHARIAH GOVERNANCE\nFRAMEWORK 2010\nRusni Hassan\nInstitut Perbankan dan Kewangan Islam,\nUniversiti Islam Antarabangsa Malaysia."
+  },
+  {
+    "text": "E-mail: hrusni@iium.edu.my\nAhmad Azam Othman\nKulliyyah Undang-undang\nAhmad Ibrahim, Universiti Islam Antarabangsa Malaysia."
+  },
+  {
+    "text": "E-mail: aazam@iium.edu.my\nMuhammad Naim Omar\nAhmad Ibrahim\nKulliyyah Undang-undang,\nUniversiti Islam Antarabangsa Malaysia."
+  },
+  {
+    "text": "E-mail: mhdnaim@iium.edu.my\nMohammad Deen Mohd."
+  },
+  {
+    "text": "Napiah\nKulliyyah Undang-undang Ahmad Ibrahim,\nUniversiti Islam Antarabangsa Malaysia."
+  },
+  {
+    "text": "E-mail: mdeen@iium.edu.my\nMohamad Asmadi Abdullah\nKulliyyah Undang-undang\nAhmad Ibrahim, Universiti Islam Antarabangsa Malaysia."
+  },
+  {
+    "text": "E-mail: masmadi@iium.edu.my\nAdnan Yusoff\nUniversiti Tenaga Nasional."
+  },
+  {
+    "text": "Karim\nBank Pembangunan Islam Dunia."
+  },
+  {
+    "text": "E-mail: syahmikarim@yahoo.co.uk\nAbstract: Shariah compliance is the backbone of Islamic banks."
+  },
+  {
+    "text": "As\nan institution established within the ambit of Shariah, Islamic banks\nare expected to ensure that their aims, activities, operations and\n1\nUUMJLS 8, 1-15 (2017)\nmanagement adhere to the Shariah principles and values."
+  },
+  {
+    "text": "Failure\nto comply with Shariah, will expose Islamic Financial Institutions\n(IFIs) to Shariah non-compliance risk."
+  },
+  {
+    "text": "Subsequently, it is an\nessential duty of the IFIs to manage Shariah risk properly."
+  },
+  {
+    "text": "In order\nto effectively manage the risk vulnerability of the IFIs, proper\nmeasures for risk management have been put in place in different\nframeworks that are either domestic or international based."
+  },
+  {
+    "text": "In the\nMalaysian context, IFIs are guided by relevant regulations such as\nthe Shariah Governance Framework 2010, IFSB principles and\nIslamic Financial Services Act 2013 with regards to Shariah risk\nmanagement."
+  },
+  {
+    "text": "This research examined the regulatory requirements\nof the Shariah risk management process for Islamic financial\ninstitutions that operate in Malaysia, in the context of the Guidelines\non Shariah Governance Framework 2010 issued by the Central Bank\nof Malaysia."
+  },
+  {
+    "text": "The paper discusses the concept of “risk”, “Shariah\nrisk” and “Shariah non-compliant risk” in the context of Islamic\nFinancial Institutions and also examines the process adopted by the\nMalaysian IFIs in managing the Shariah risk."
+  },
+  {
+    "text": "The hypotheses that\nthe paper seeks to establish are that there are differences between\nthe concept of Shariah risk and Shariah non-compliant risk; and\nthat the Shariah risk management process adopted by the IFIs are\ndifferent than the conventional risk management process due to the\nunique features and requirements of the IFIs."
+  },
+  {
+    "text": "Keywords: Shariah, Risk management, Islamic Financial\nInstitutions."
+  },
+  {
+    "text": "Abstrak: Pematuhan Syariah adalah tulang belakang bank Islam."
+  },
+  {
+    "text": "Sebagai sebuah institusi yang ditubuhkan dalam bidang Syariah, bank\nIslam dijangka memastikan bahawa matlamat, aktiviti, operasi dan\npengurusan mereka mematuhi prinsip dan nilai Syariah."
+  },
+  {
+    "text": "Kegagalan\nmematuhi Syariah, akan mendedahkan Institusi Kewangan Islam\n(IFIs) kepada risiko ketidakpatuhan Syariah."
+  },
+  {
+    "text": "Selepas itu, adalah\ntanggungjawab penting IFI untuk menguruskan risiko Syariah\ndengan betul."
+  },
+  {
+    "text": "Untuk mengatasi kelemahan risiko IFI secara\nberkesan, langkah-langkah yang sewajarnya untuk pengurusan\nrisiko telah dilaksanakan dalam rangka kerja yang berbeza sama\nada di dalam negeri atau antarabangsa."
+  },
+  {
+    "text": "Dalam konteks Malaysia,\nIFI dipandu oleh peraturan yang berkaitan seperti Rangka Kerja\nTadbir Urus Syariah 2010, prinsip IFSB dan Akta Perkhidmatan\nKewangan Islam 2013 berkaitan dengan pengurusan risiko Syariah."
+  },
+  {
+    "text": "2\nUUMJLS 8, 1-15 (2017)\nKajian ini mengkaji keperluan pengawalseliaan proses pengurusan\nrisiko Syariah untuk institusi kewangan Islam yang beroperasi di\nMalaysia, dalam konteks Garis Panduan mengenai Rangka Tadbir\nUrus Syariah 2010 yang dikeluarkan oleh Bank Negara Malaysia."
+  },
+  {
+    "text": "Makalah ini membincangkan konsep “risiko”, “risiko Syariah” dan\n“risiko tidak patuh Syariah” dalam konteks Institusi Kewangan Islam\ndan juga mengkaji proses yang diterima pakai oleh IFI Malaysia\ndalam menguruskan risiko Syariah."
+  },
+  {
+    "text": "Hipotesis ini bertujuan untuk\nmelihat perbezaan antara konsep risiko Syariah dengan risiko tidak\npatuh Syariah; dan proses pengurusan risiko Syariah yang diterima\npakai oleh IFIs adalah berbeza daripada proses pengurusan risiko\nkonvensional disebabkan oleh ciri-ciri unik dan keperluan IFI."
+  },
+  {
+    "text": "Kata kunci: Syariah, Pengurusan risiko, Institusi Kewangan Islam."
+  },
+  {
+    "text": "INTRODUCTION\nIt is an undeniable fact that IFIs face more types of risk than their\nconventional counterparts."
+  },
+  {
+    "text": "The IFIs have to bear all sorts of risk that\nare faced by conventional banks."
+  },
+  {
+    "text": "In addition to that, the requirement\nof Shariah compliance places another burden on the IFIs to ensure\nall their its activities and operations comply with Shariah rules and\nprecepts."
+  },
+  {
+    "text": "This fact can be seen in the light of the risk exposure of IFIs."
+  },
+  {
+    "text": "The IFIs are exposed to all kinds of risk faced by the conventional\nbanks such as credit risk, market risk, liquidity risk and operational\nrisk."
+  },
+  {
+    "text": "However, the list of risk exposure for IFIs does not stop there\nsince the IFIs face some other unique risks relating to the failure to\nadhere to Shariah principles in their businesses and operations."
+  },
+  {
+    "text": "SHARIAH RISK IN IFIS\nMost literature equate Shariah risk to Shariah non-compliance risk."
+  },
+  {
+    "text": "Both terms refer to same meaning that relates to the risk that will\narise due to the violation of Shariah rules or rulings made by the\nregulator."
+  },
+  {
+    "text": "On the other hand, the IFSB-1 considers Shariah non-\ncompliance risk as a subset of operational risk.1 According to Balz,\nShariah risk can be regarded as “the chance that an Islamic financial\ntransaction is challenged on the grounds that it does not comply with\n1 See IFSB 1 (2005) on discussion about Operational risk, 39\n3\nUUMJLS 8, 1-15 (2017)\nIslamic Law”.2 In conventional banking, the law plays a vital role in\nensuring that the contract will be enforceable in court."
+  },
+  {
+    "text": "However, the\nposition is different in Islamic banking because Shariah principles\nare regarded and viewed as a risk which enables the parties to\nchallenge the validity of the contract on the basis that it does not\nconform to the Islamic legal principle."
+  },
+  {
+    "text": "Karim Ginena defines Shariah risk as “the risk of financial losses\nthat IFI may experience as a result of non-compliance with Shariah\nprecepts in activities, as ascertained by the SSB or pertinent\nauthority in the relevant jurisdiction”3 Apart from that, in some\nliterature, the Shariah non-compliance risk is associated with the\ndivergence of opinion among the scholars on the nature and validity\nof the financial transactions and products.4 De Lorenzo addressed\nthis issue by introducing a term ‘fatwa risk’ to describe the risk that\noriginates from the differences of fatwa among the scholars.5 Fatwa\nrisk is perceived as one type of risk since Shariah rulings which are\nsolely based on one madzhab will not be accepted globally.6\nKamal Abdel Karim and Hassan Yusuf asserted that Shariah non-\ncompliance risk can take place at different stages of the operations\nand activities of the IFIs.7The risk in each stage may lead to different\nconsequences."
+  },
+  {
+    "text": "Firstly, the risk may occur when the contract contains\nsome elements of interest, gambling or uncertainty."
+  },
+  {
+    "text": "Secondly, the\narea of the formulation and implementation mechanism of the\nproduct may also be prone to Shariah non-compliance risk."
+  },
+  {
+    "text": "Thirdly,\nthe risk may emerge when the process of the structured product is\nnot implemented as advised by the board."
+  },
+  {
+    "text": "This scenario takes place\nwhen the management of the IFI adds or deletes some processes\n2 Killian Balz, Shariah Risk, How Islamic Finance has transformed Islamic\nContract Law?"
+  },
+  {
+    "text": "Islamic Legal Studies Program, Harvard Law School:\nCambridge (2008)\n3 Karim Ginena, Shari‘ah risk and corporate governance of Islamic banks,\nCorporate Governance, Vol."
+  },
+  {
+    "text": "86-103\n4 Greuning, H. V. and Iqbal, Z., Risk Analysis for Islamic Banks."
+  },
+  {
+    "text": "(World Bank,\nWashington:2008), 23\n5 De Lorenzo, Shariah non-compliance risk, Chicago Journal of International\nLaw, Vol."
+  },
+  {
+    "text": "6 Rusni Hassan, Agus Triyanta and Adnan Yusoff, Shariah compliance process In\nMalaysian Islamic banking, [2011] 5 Malayan Law Journal Lxxx\n7 Kamal Abdel Karim Hassan and Hassan Ahmed Yusuf, Investment risk In\nIslamic finance: Instruments and market, (Bloomsbury Information Ltd: 2010),\n52\n4\nUUMJLS 8, 1-15 (2017)\nwhich were not initially presented to the Shariah board during the\napproval."
+  },
+  {
+    "text": "The last category relates to the differences of opinion\namong the scholars in the interpretation of the Shariah principles."
+  },
+  {
+    "text": "The product may be declared null and void by other scholars or\nregulatory bodies due to the defects in product formulation or the\ndifferences in the interpretation of the Shariah principles, procedures\nand processes."
+  },
+  {
+    "text": "This study suggests that Shariah risk should be defined as the\nweaknesses in the overall Shari’ah control processes which may\nlead to events that adversely impact IFIs."
+  },
+  {
+    "text": "It covers the end – to– end\nprocess from Shariah decision–making stages to the implementation\nof the decision and also the occurrence of Shariah non-compliance\nevents due to lapses or failures in the processes, people, system and\nexternal facts or circumstances."
+  },
+  {
+    "text": "SHARIAH RISK MANAGEMENT FRAMEWORK\nThe Oxford Dictionary for Business defines risk management as\n“a process that aims to help organizations to understand, evaluate,\nand take actions on all their risk.8 Similarly, risk management can\nbe defined as “the process by which managers satisfy the need\nto manage Bank’s risk exposure by identifying key risk factors;\nobtaining consistent, understandable, operational risk measures;\nchoosing which risk to reduce, and which to increase and by what\nmeans; and establishing procedures to monitor the resulting risk\npositions.9 Basel Committee for Banking Supervision (2001) defines\nfinancial risk management as a sequence of four processes:\n(1) The identification of events into one or more broad categories\nof market, credit, operational and other risks into specific sub-\ncategories;\n(2) The measurement and assessment of risks using data and risk\nmodel;\n(3) The monitoring and reporting of the risk assessments on a\ntimely basis; and\n(4) The control of these risks by senior management."
+  },
+  {
+    "text": "8 Oxford Dictionary of Business and Management, Oxford University Press,\nNew York, 486\n9 Abdul Ghafar Ismail, Money, Islamic Banks and the real Economy, Cengage\nLearning Asia Pte Ltd. (Singapore, 2010), 242\n5\nUUMJLS 8, 1-15 (2017)\nAn identical definition for risk management was provided under\nIFSB 1 (2005) where risk management was defined as a process that\nconsists of risk identification, measurement, mitigation, monitoring,\nreporting and control."
+  },
+  {
+    "text": "On the other hand, Shariah Governance\nFramework defines Shariah risk management as “a function that\nconsists of identifying, measuring, monitoring and controlling the\nShariah non-compliance risks in order to mitigate the risks arising\nfrom non-compliance events”.10 The Shariah risk management must\nbe systematic to enable the bank to have an effective business and\nactivities without being exposed to unacceptable risks.11\nThus, apart from credit, market, liquidity and operational risk\nmanagement, Shariah risk management control function must form\none of the parts in IFI’s integrated risk management framework.12\nThis technical and complex function requires qualified or\nexperienced risk management officers who have good Shariah\nknowledge to effectively perform such function.13 The Shariah non-\ncompliance risk management function as outlined by the SGF in\nsummary involves the following14:\ni."
+  },
+  {
+    "text": "Facilitating the process of identifying, measuring, controlling\nand monitoring Shariah non-compliance risks inherent in the\nIFI’s operation."
+  },
+  {
+    "text": "Formulating and recommending appropriate Shariah non-\ncompliance risk management practices and guidelines; and\niii."
+  },
+  {
+    "text": "Developing and implementing processes for Shariah non-\ncompliance risk awareness in the IFI."
+  },
+  {
+    "text": "The first function mentioned in the above paragraph generally\ninvolves a flow of process."
+  },
+  {
+    "text": "The process flow of such structure begins\nwith the identification of the potential Shariah non-compliance risk,\nfollowed by assessment and measurement of the risk."
+  },
+  {
+    "text": "The next step\n10 Principle 7.15 of SGF\n11 Ibid."
+  },
+  {
+    "text": "12 Principle 7.16 of SGF\n13 Principle 7.17 of SGF\n14 Principle of 7.18 of SGF (Further details should be referred to SGF)\n6\nmanagement framework.12 This technical and complex function requires qualified or\nexperienced risk management officers who have good Shariah knowledge to effectively\nperform such function.13 The Shariah non-compliance risk management function as\noutlined by the SGF in summary involves the following14:\ni."
+  },
+  {
+    "text": "Facilitating the process of identifying, measuring, controlling and monitoring\nShariah non-compliance risks inherent in the IFI’s operation."
+  },
+  {
+    "text": "Formulating and recommending appropriate Shariah non-compliance risk\nmanagement practices and guidelines; and\niii."
+  },
+  {
+    "text": "Developing and implementing processes for Shariah non-compliance risk\nawareness in the IFI."
+  },
+  {
+    "text": "UUMJLS 8, 1-15 (2017)\nThe first function mentioned in the above paragraph generally involves a flow of process."
+  },
+  {
+    "text": "is monitoring and controlling the Shariah non-compliance risk and\nThe process flow of such structure begins with the identification of the potential Shariah\nfinally the reporting process15."
+  },
+  {
+    "text": "The diagram below shows the process\nnon-compliance risk, followed by assessment and measurement of the risk."
+  },
+  {
+    "text": "The next step\nflow of a Shariah non-compliance risk management structure in IFIs."
+  },
+  {
+    "text": "is monitoring and controlling the Shariah non-compliance risk and finally the reporting\nprocess15."
+  },
+  {
+    "text": "The diagram below shows the process flow of a Shariah non-compliance risk\nmanagement structure in IFIs."
+  },
+  {
+    "text": "Risk Identification Risk Measurement Risk Monitoring/ Controlling\nFiguFrei g1.u Srhear i1ah."
+  },
+  {
+    "text": "RSihska Mriaanhag Remiesnkt PMrocaenssa gement Process\nRisk Identification\nRRiisskk i dIednteifnicattiifionc raeltaitoesn to process of understanding the nature and impact of the risk to\ncurrent and future activities of the institution.16 The main purpose of the identification\nRisk identification relates to process of understanding the nature and\nprocess is to identify the main causal factors that lead to the non-compliance events."
+  },
+  {
+    "text": "The\nimpact of the risk to current and future activities of the institution.16\nmain causal factors that contribute to the occurrence of non-compliance events are people,\nThe main purpose of the identification process is to identify the\nprocess and system."
+  },
+  {
+    "text": "Any weaknesses or shortcomings arising from the incompetency of\nmain causal factors that lead to the non-compliance events."
+  },
+  {
+    "text": "The\npeople, insufficiency of process or an ineffective system may lead to events that can\nm a i n c a u s a l f a c t o r s that contribute to the occurrence of non-\n12 c Proinmciplep 7.l1i6a ofn SGcFe events are people, process and system."
+  },
+  {
+    "text": "Any weaknesses\n13 Principle 7.17 of SGF\n14 o Prrin ciplse ohf 7o.1r8 tocf SoGFm (Fuirnthegr dset ails ashrouilsd iben regfe rred ftor SoGFm) the incompetency of people,\n15 Mohd Nazri, “Shariah Governance Framework – Shariah Compliance Risk Management”, Bank Islam, <\ninhttsp:/u/wfwfiw.bcanikeisnlamc.cyom .omyf/e np/Droocumceentss/csin foo/2r0 1a3-4nth AisniaIeslafmficeBcantkiinvgCeon fseryencset-CeRmM.p dmf> (aaccyes selde 2a5 Ndov etmob ere, 2v01e3)n ts\n16 David B. Hertz and Howard Thomas, Risk analysis and its applications, (Chichester: Wiley, 1983),11\nthat can trigger Shariah non-compliance risk."
+  },
+  {
+    "text": "The people mentioned\n5\nabove are the people that are responsible in the management of IFIs."
+  },
+  {
+    "text": "Any weaknesses or shortcomings arising from lack of qualified\npersonnel to carry out the task in maintaining the compliance with\nShariah in all activities and operations of IFIs are the risk that need\nto be properly managed."
+  },
+  {
+    "text": "Thus, it is incumbent on the management\nof IFI to provide comprehensive training and also to establish an\nefficient standard operating procedure and policies within the IFI to\nreduce the occurrence of mistakes and negligence among the staffs."
+  },
+  {
+    "text": "The enrichment of human capital in the IFI will definitely reduce\nthe occurrences of mistakes by the staffs in the commission of their\ntasks.17\n15 Mohd Nazri, “Shariah Governance Framework – Shariah Compliance Risk\nManagement”, Bank Islam, http://www.bankislam.com.my/en/Documents/\ncinfo/2013-4thAsiaIslamicBankingConference-CRM.pdf (accessed 25 November,\n2013)\n16 David B. Hertz and Howard Thomas, Risk analysis and its applications, (Chich-\nester: Wiley, 1983),11\n17 Principle 2.14 of SGF\n7\nUUMJLS 8, 1-15 (2017)\nProcess is another risk factor that needs to be managed by the IFIs."
+  },
+  {
+    "text": "Process in this context refers to the process involved in product\ndevelopment adopted in the operation of IFIs either the pre-product\napproval, i.e."
+  },
+  {
+    "text": "process of product structuring and developing prior\nto introduction to the market as well as the post-product approval\nprocess, i.e."
+  },
+  {
+    "text": "process after the product has been offered to the\ncustomers and transactions have been carried out).18 The process\nadopted in the pre-product approval involves the issuance of Shari’ah\ndecisions, product structuring, vetting of contracts and agreements\nas well as compliance checks before the product is offered to the\ncustomers."
+  },
+  {
+    "text": "On the other hand, the process involved in the post-\nproduct approval includes Shariah audit and Shariah review that are\nconducted to ensure compliance with Shariah in the implementation\nof every product offered to the customers."
+  },
+  {
+    "text": "Shariah non-compliance\nrisk may occur during these processes due to unclear processes,\npolicies, procedures, or responsibilities; inadequate internal\nShariah governance arrangements; and/or insufficient disclosure\nand transparency."
+  },
+  {
+    "text": "As such SGF requires that all IFIs shall put in\nplace the appropriate mechanism to ensure that all key functions\nare able to effectively discharge their responsibilities."
+  },
+  {
+    "text": "Apart from\nthat, the board is also expected to perform diligent oversight of the\neffective functioning of Shariah governance within IFIs,19 including\nthe appointment of the Shariah committee.20 The most important\nthing that must be established in the mind of each organ working\nwithin the IFI is the effective communication between the organs."
+  },
+  {
+    "text": "All organs in the IFI must work together in ensuring adherence to\nShariah in all activities and operations."
+  },
+  {
+    "text": "The summary of the factors\ncontributing to the ineffective process are as follows:\nSystem inefficiency may also expose the IFIs to great risk."
+  },
+  {
+    "text": "Information Technology system plays a vital part in the operation\nof IFIs."
+  },
+  {
+    "text": "It is well known that IFI pledges to ensure all its activities\nwill be in line with Shariah."
+  },
+  {
+    "text": "Similarly, the products offered to the\npublic must be guaranteed to be in line with Shariah."
+  },
+  {
+    "text": "Therefore, the\nIT system used by the IFIs must have Shariah compliance status that\nis capable of ensuring strict adherence to Shariah in all contracts\n18 Appendix 7 of SGF\n19 Ibid."
+  },
+  {
+    "text": "20 Principle 2.3 of SGF\n8\nUUMJLS 8, 1-15 (2017)\nentered into by the IFIs.21 However, most IFIs adopt the IT system\nmodules that are created for conventional banking and thus are not\nsuitable for IFIs."
+  },
+  {
+    "text": "Inexperienced vendors, non-timely support, non-\nuser-friendly system, and system mistakes are the most common\nfactors that expose IFIs to Shariah non-compliant risk."
+  },
+  {
+    "text": "In addition to the above factors, there are possible factors that\nexternally endanger IFIs operation."
+  },
+  {
+    "text": "Factors such as lack of\nsupervision by the regulators and unclear laws and regulations\nare the most frequent factors in this category."
+  },
+  {
+    "text": "The following table\nsimplifies the events that can lead to Shariah non-compliance risk:\nShariah non-compliance risk\nPeople Process System External Event\n• Fatwa risk • Lack & • Process • Lack of\n• Falsification of Unclear and system supervision\ninformation, fraud, processes, accounting by\nmisrepresentation, policies, mismatched, regulator\nnegligence."
+  },
+  {
+    "text": "inadequate • Unclear\n• Guideline • Inadequate product law and\nviolations and internal modules, poor regulations\nunapproved Shariah reporting, and\nproducts, governance unapproved\ntransactions, arrangements."
+  },
+  {
+    "text": "or legal • Insufficient • Inexperienced\ndocumentation."
+  },
+  {
+    "text": "disclosure and vendors,\n• Insufficient transparency."
+  },
+  {
+    "text": "non-timely\nresources, support, non-\ninadequate training user-friendly\nand negligence."
+  },
+  {
+    "text": "system,\nand system\nmistakes."
+  },
+  {
+    "text": "Risk Measurement and Assessment\nThe next step in risk management is the measurement and assessment\nof risk."
+  },
+  {
+    "text": "This study suggests that Shariah non-compliance risk in the\ncontext of IFIs should be measured according to the status of aqad\nor contracts entered into by the IFIs due to the fact that the main\nactivities of the IFIs are offering specific aqad in the form of financing,\n21 Ahcene Lahsasna, 15\n9\nand negligence."
+  },
+  {
+    "text": "Risk Measurement and Assessment\nThe next step in risk management is the measurement and assessment of risk."
+  },
+  {
+    "text": "This study\nsUugUgMestJsL Sth a8t, S1h-1ar5i a(h2 0n1o7n)-compliance risk in the context of IFIs should be measured\naccording to the status of aqad or contracts entered into by the IFIs due to the fact that the\nminavine ascttmivietinest oaf nthde aIFnIys aoret hofeferr iancgt sipveictiyfi.c Taqhaids iins t hthe efo rfma cotf tfhinaant cdinigs,t iinnvgesutmisehnet s\naInFdI san yf rootmher tahcetivirit yc."
+  },
+  {
+    "text": "oTnhivs eins ttihoe nfaaclt cthoaut nditsetirnpgauirsthse sw IFhIes rfero mth teh elira tctoenrv edntoio nnaol t\ncboausnete rtpharetsi rw bheurse itnhee slast taerc dcoo nrdoti nbags et oth eairq baudsi.n eAsss a cscuocrdhin, ga tnoy a qnaod.n A-cs osumchp, lainayn t\nneovne-cnotmsp tlhiaantt eovcenctus rtrhsa t iosc tcour rbs ei sm toe baes umreeadsu rwedh wethhetehre ri tit rreennddeersr sth teh aeq aadq taod b et o\nebiteh eer ivtohied r( bvaotili)d, ir(rbegautlialr) ,( fairsirde)g our lpaerrm (ifsasisbilde )(s oahri hp).e 2r2m Thise smibealseu r(esmaehnti hof) .S 2h2a rTiahh e\nnmone-acosmuprleiamnceen rtis ok fa cScohradriniga hto nthoen s-tactousm ofp cloiantnraccet irsi bsek saucmcmoarridziend gin t toh et hfoell oswtaintgu s\ndoiafg craomn: tract is be summarized in the following diagram:\n•the non-compliance events lead to invalidation of contract and non-recognition of income."
+  },
+  {
+    "text": "Severe\n•financing gambling activities or investment in production of alcohol and liquor."
+  },
+  {
+    "text": "•contract with defect in accessory attribute (wasf)."
+  },
+  {
+    "text": "Medium •example: existence of invalid condition in contract, problem with the delivery of the subject matter,\ninsufficient information about the suject matter (jahalah)."
+  },
+  {
+    "text": "•the events that do not lead to the consequences mentioned under high and medium type of risk."
+  },
+  {
+    "text": "Tolerable\n•example: improper advertisement about product and indecent attire among the staffs."
+  },
+  {
+    "text": "The risk will be classified as ‘severe’ if the non-compliance event\nleads to the invalidation of contracts or non-recognition of income.23\nThe risk will be classified as ‘severe’ if the non-compliance event leads to the invalidation\nA contract entered into by the IFI and the customer that involves\nof contracts or non-recognition of income.23 A contract entered into by the IFI and the\nnon-halal income like financing gambling activities is one of clear\ncustomer that involves non-halal income like financing gambling activities is one of clear\nexample of severe risk."
+  },
+  {
+    "text": "The middle type of risk (medium) relates\nexample of severe risk."
+  },
+  {
+    "text": "The middle type of risk (medium) relates to a situation where\nto a situation where conditions of the aqad are not fulfilled24 such\nconditions of the aqad are not fulfilled24 such as when the parties have inserted\nas when the parties have inserted unreasonable conditions into the\nunreasonable conditions into the contract."
+  },
+  {
+    "text": "The tolerable risk, on the other hand, relates to\ncontract."
+  },
+  {
+    "text": "The tolerable risk, on the other hand, relates to the events\nthe events that do not lead to the consequences mentioned under the severe and medium\nthat do not lead to the consequences mentioned under the severe and\n22 Hmasseand Aihumemd Y ursiufs, kShsar.ia2h5 nFono-corm pelixanacem riskp: Mleea,s uirenmdenet acnde tnreattm mento, Isdlaemi co Ffin aanctet Nirewes , aVmol.8o, Isnsuge 3 t9h, 5e O cIt F20I1s1,\naccessed via < http://www.islamicfinancenews.com/print_ID.asp?nm=23913> 24 March 2014."
+  },
+  {
+    "text": "23 Ibsidt.a ffs may lead to reputational risk since the staffs of Islamic Bank\n24 Ibid."
+  },
+  {
+    "text": "are expected to wear decent attire."
+  },
+  {
+    "text": "Similarly, improper marketing\nthrough indecent posters made by8 IFI may also tarnish the reputation\nof the institution."
+  },
+  {
+    "text": "Risk Monitoring\nThe last stage in the risk management process deals with risk\nmonitoring and controlling."
+  },
+  {
+    "text": "Risk monitoring can be used to ensure\n22 Hassan Ahmed Yusuf, Shariah non-compliance risk: Measurement and\ntreatment, Islamic Finance News, Vol.8, Issue 39, 5 Oct 2011, accessed via\nhttp://www.islamicfinancenews.com/print_ID.asp?nm=2391324 March 2014."
+  },
+  {
+    "text": "25 Ahcene Lahsasna, 42\n10\nUUMJLS 8, 1-15 (2017)\nthat risk management practices are sound and effective."
+  },
+  {
+    "text": "Proper risk\nmonitoring also helps IFIs to discover mistakes an early stage rather\nthan suffering the bad consequences from dormant untraceable\nrisks.26 The risk monitoring mechanism must monitor the variables\nand factors that can lead to Shariah non-compliance risk."
+  },
+  {
+    "text": "The\nmonitoring process utilizes data collected from the previous audit\nor inspection.27\nOne of the tools used in risk monitoring is Key Risk Indicator\n(KRI)."
+  },
+  {
+    "text": "KRI is a mathematical formula that includes all parameters\nthat describe the operational variation of specific operations within\nspecific business lines.28 KRI can be used as a tool in measuring the\nactual value of the cause and effect arising from non-compliance\nevents."
+  },
+  {
+    "text": "KRI will predict possible occurrences of non-compliance\nevents to enable the IFIs to take reasonable preventive and corrective\nmeasures to avoid any loss arising from such non-compliance\nevents."
+  },
+  {
+    "text": "Young states that KRIs are mostly quantitative measures\nintended to provide insight into operational risk exposures and\ncontrol measures.29\nFor example, on previous occasions, the Shariah non-compliance\nrisk was discovered from the employees’ mistake and negligence."
+  },
+  {
+    "text": "The risk monitoring mechanism will focus on ensuring that a\nsimilar risk will not happen again in the future."
+  },
+  {
+    "text": "The risk monitoring\nmechanism will check and analyze the sources of the risk to ensure\nthat the events leading to risk from such factors will not occur again."
+  },
+  {
+    "text": "The application of this tool depends heavily on the information and\ndata that refers to the Key Risk Indicators."
+  },
+  {
+    "text": "In the table below, we will provide some examples of KRI to monitor\npotential sources of Shariah non-compliance risk."
+  },
+  {
+    "text": "26 Al-Tamimi, Risk Management Practices: An Empirical Analysis of the UAE\nCommercial Banks, Finance India, Vol."
+  },
+  {
+    "text": "27 Romzie Rosman, 254\n28 Kalyvas, L and Akkizidis, I."
+  },
+  {
+    "text": "Integrating market, credit and operational risk:\nA complete guide for bankers and risk professionals, (Risk Books Incisive\nFinancial Publishing Ltd. London, 2006),124\n29 Young, J."
+  },
+  {
+    "text": "Operational risk management: The practical application of a\nqualitative approach."
+  },
+  {
+    "text": "Pretoria, 2006)\n11\nUUMJLS 8, 1-15 (2017)\nSources of Events Some Key Risk\nShariah Non- Indicators\ncompliance risk\nPeople • Fatwa risk • Staff turnover rates\n• Fraud and misrepresentation • Staff training and\n• Incompetent staff experience level\n• Non-performance of obligation • Number of approvals\nthat are not\ncompliant to Shariah\nrules and principles\nProcess • Unclear process and policies • Number of contracts\nthat are inconsistent\nwith IFI’s policies\n• Settlement failure\nrate\n• Number of defaults\n• Number of contracts\nthat are not Shariah\ncompliant\nSystem • It is not Shariah compliant • Number of contacts\nthat are not Shariah\ncompliant\n• System failure rate\n• Number of failed\noperations\nREGULATORY REQUIREMENT ON REPORTING\nThe requirement to report to the relevant authority about potential\nrisks that may take place within IFI is a statutory requirement under\nMalaysian law, i.e."
+  },
+  {
+    "text": "in Section 28 of the IFSA, whereby failure to\nnotify the non-compliance with Shariah may render any person\nliable to a huge amount of penalty.30 The reporting requirement will\nensure that any weakness or shortcoming within the IFI is properly\ndisclosed to the relevant authority."
+  },
+  {
+    "text": "The Shariah Committee is under\nobligation to report any non-compliance with Shariah to the board\n30 Section 28(5) provides that failure to report the Shari’ah non-compliance within\nthe IFI may render a person liable to imprisonment for a term not exceeding\neight years or to a fine not exceeding twenty-five million ringgit or to both."
+  },
+  {
+    "text": "12\nUUMJLS 8, 1-15 (2017)\nto get that matter rectified31."
+  },
+  {
+    "text": "If the above step is not sufficient to\ncure the non-compliance, then the matter should be brought to the\nBNM.32\nThere are two types of non-compliance events, namely potential and\nactual that must be reported."
+  },
+  {
+    "text": "When the IFI realizes or suspects that if is\ndealing with non-compliance business or activities, the management\nof IFI must immediately bring such matter to the attention of the\nShariah committee."
+  },
+  {
+    "text": "The Shariah committee shall, upon such report,\ndeliberate and investigate on such matter to ascertain whether that\nthe event is potential or actual Shariah non-compliant."
+  },
+  {
+    "text": "In the event\nthe Shariah committee concludes that such event is actual Shariah\nnon-compliant, then the IFI shall immediately notify the board and\nBNM about the matter."
+  },
+  {
+    "text": "The immediate rectification plan to cure the\nnon-compliance must be made made within 30 days from the date\non which the non-compliance event was realized by the IFI."
+  },
+  {
+    "text": "On the other hand, if the Shariah committee concludes that the\nreported event is a potential Shariah non-compliance, the IFI must\nalso notify the matter to Bank Negara Malaysia."
+  },
+  {
+    "text": "An event will be\nconsidered as potential non-compliance when the Shariah committee\nis still deliberating and investigating the matter."
+  },
+  {
+    "text": "The event shall\nbe reported to Bank Negara Malaysia as potential Shariah non-\ncompliance until a final decision on the matter has been reached\nby the Shariah committee."
+  },
+  {
+    "text": "The rationale behind the mandatory\nreporting obligation for potential non-compliance is to put the IFIs\non the same level playing field in the management of Shariah non-\ncompliance."
+  },
+  {
+    "text": "If the reporting of potential non-compliance is not\nobligatory, there is a possibility that many IFIs will treat most of the\nnon-compliance events as potential to evade the reporting process to\nBank Negara."
+  },
+  {
+    "text": "Therefore, the mandatory nature of reporting potential\nnon-compliance will inculcate a healthy treatment of Shariah\nnon-compliance in all IFIs in the sense that any non-compliance,\nregardless of whether it is actual or potential, must be disclosed\nto Bank Negara Malaysia."
+  },
+  {
+    "text": "Reports about potential Shariah non-\ncompliance events shall be made on a monthly basis based on the\ncalendar year."
+  },
+  {
+    "text": "The report must be made to Bank Negara Malaysia\nwithin two weeks after the end of each month."
+  },
+  {
+    "text": "We can see that the\n31 Principle 3.6 of SGF\n32 Principle 3.7 of SGF\n13\nUUMJLS 8, 1-15 (2017)\ntimeline for reporting of potential Shariah non-compliance is more\nflexible and lenient as compared to the reporting of actual non-\ncompliance since the IFIs have enough time to deliberate on the\nmatter."
+  },
+  {
+    "text": "CONCLUSION\nShariah risk management is a process that is essential to IFIs as\nit facilitates the IFIs to prevent any occurrence of Shariah non-\ncompliance events that can lead to direct loss as well as indirect\nloss."
+  },
+  {
+    "text": "The direct loss arising from a Shariah non-compliance risk\nmay be due to breaches and violations of the terms of the contract\nthat cause invalidation of the contract."
+  },
+  {
+    "text": "In contrast, the legal and\nreputational risk is the indirect factor that potentially leads to loss."
+  },
+  {
+    "text": "A\nlegal suit brought against an IFI for Shariah non-compliance in their\noperation is an example of indirect loss since the loss is still subject\nto the judgement of court."
+  },
+  {
+    "text": "Thus, the IFIs are required to ensure that\nthe process adopted in Shariah risk management is effective and\nefficient."
+  },
+  {
+    "text": "The IFIs may utilise a similar risk management process as\nthat applied in the risk management of a conventional bank as long\nas they comply with Shariah principles."
+  },
+  {
+    "text": "The main exception to the\nabove assertion relates to the way should be measured Shariah non-\ncompliance risk."
+  },
+  {
+    "text": "This study suggests that measurement of Shariah\nnon-compliance risk should be made based on the status of aqad."
+  },
+  {
+    "text": "This exception relies on the unique feature of Islamic Finance where\nevery single transaction entered into by the IFIs must be in line with\nShariah to avoid any events that can affect the validity of a contract."
+  },
+  {
+    "text": "REFERENCES\nAbdul Ghafar Ismail."
+  },
+  {
+    "text": "Money, Islamic banks and the real\neconomy."
+  },
+  {
+    "text": "Singapore: Cengage Learning Asia Pte."
+  },
+  {
+    "text": "Ltd\nAl-Tamimi, H. (2002)."
+  },
+  {
+    "text": "Risk management practices: An empirical\nanalysis of the UAE."
+  },
+  {
+    "text": "Finance India, XVI\n(3), 1045-1057."
+  },
+  {
+    "text": "14\nUUMJLS 8, 1-15 (2017)\nDeLorenzo, Yusuf Talal."
+  },
+  {
+    "text": "Chicago\nJournal of International Law, 7(2)."
+  },
+  {
+    "text": "Greuning, H. V., & Iqbal, Z."
+  },
+  {
+    "text": "Risk analysis for Islamic Banks."
+  },
+  {
+    "text": "Washington, DC: World Bank."
+  },
+  {
+    "text": "Shariah non-compliance risk: Measurement\nand treatment."
+  },
+  {
+    "text": "Islamic Finance News, 8(39), Retrieved from\nhttp://www.islamicfinancenews.com/print_ID.asp?nm=23913\nHertz, D. B., & Thomas, H. (1983)."
+  },
+  {
+    "text": "Risk analysis and its applications."
+  },
+  {
+    "text": "Chichester: John Wiley & Sons."
+  },
+  {
+    "text": "Kalyvas, L., & Akkizidis, I."
+  },
+  {
+    "text": "Integrating market, credit\nand operational risk: A complete guide for bankers and\nrisk professionals."
+  },
+  {
+    "text": "London: Risk Books Incisive Financial\nPublishing Ltd.\nKamal Abdel Karim Hassan, & Hassan Ahmed Yusuf."
+  },
+  {
+    "text": "Investment risk in Islamic finance: Instruments and market."
+  },
+  {
+    "text": "Bloomsbury Information Ltd\nKarim Ginena."
+  },
+  {
+    "text": "Shari’ah risk and corporate governance of\nIslamic banks."
+  },
+  {
+    "text": "Shariah Risk, How Islamic Finance has\ntransformed Islamic Contract Law?"
+  },
+  {
+    "text": "Islamic Legal Studies\nProgram."
+  },
+  {
+    "text": "Cambridge: Harvard Law School."
+  },
+  {
+    "text": "Shariah Governance Framework – Shariah\nCompliance Risk Management."
+  },
+  {
+    "text": "Retrieved from\nhttp://www.bankislam.com.my/en/Documents/cinfo/2013-\n4thAsiaIslamicBankingConference-CRM.pdf\nOxford Dictionary of Business and Management (p. 486)."
+  },
+  {
+    "text": "New\nYork: Oxford University Press."
+  },
+  {
+    "text": "Rusni Hassan, Agus Triyanta, & Adnan Yusoff."
+  },
+  {
+    "text": "Shariah\ncompliance process in Malaysian Islamic banking."
+  },
+  {
+    "text": "Malayan\nLaw Journal, 5(lxxx-xcvii)."
+  },
+  {
+    "text": "Operational risk management: The practical\napplication of a qualitative approach."
+  },
+  {
+    "text": "Pretoria: Van Schaik\nPublishers."
+  }
+]

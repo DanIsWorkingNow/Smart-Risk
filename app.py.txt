@@ -1,0 +1,109 @@
+from flask import Flask, render_template, request, redirect, url_for, session
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SECRET_KEY'] = 'your_secret_key_123'
+db = SQLAlchemy(app)
+
+# Database Models
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    password = db.Column(db.String(80))
+    role = db.Column(db.String(20))  # admin/credit_officer/shariah_officer
+
+class LoanApplication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    applicant_name = db.Column(db.String(100))
+    amount = db.Column(db.Float)
+    ltv_ratio = db.Column(db.Float)
+    dti_ratio = db.Column(db.Float)
+    risk_score = db.Column(db.Float)
+    status = db.Column(db.String(20))
+
+# Create tables and admin user
+with app.app_context():
+    db.create_all()
+    if not User.query.filter_by(username='admin').first():
+        admin = User(username='admin', password='admin', role='admin')
+        db.session.add(admin)
+        db.session.commit()
+
+# Routes
+@app.route('/')
+def home():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return redirect(url_for('dashboard'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username, password=password).first()
+        if user:
+            session['logged_in'] = True
+            session['role'] = user.role
+            return redirect(url_for('dashboard'))
+        return render_template('login.html', error='Invalid credentials')
+    return render_template('login.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    loans = LoanApplication.query.all()
+    return render_template('dashboard.html', loans=loans)
+
+@app.route('/loans')
+def loans():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    loans = LoanApplication.query.all()
+    return render_template('loans.html', loans=loans)
+
+@app.route('/add_loan', methods=['POST'])
+def add_loan():
+    def calculate_risk(ltv, dti):
+        return round((ltv * 0.6 + dti * 0.4) * 100, 2)
+    
+    new_loan = LoanApplication(
+        applicant_name=request.form['applicant_name'],
+        amount=float(request.form['amount']),
+        ltv_ratio=float(request.form['ltv_ratio']),
+        dti_ratio=float(request.form['dti_ratio']),
+        risk_score=calculate_risk(float(request.form['ltv_ratio']), float(request.form['dti_ratio'])),
+        status='Pending'
+    )
+    db.session.add(new_loan)
+    db.session.commit()
+    return redirect(url_for('loans'))
+
+@app.route('/delete_loan/<int:id>')
+def delete_loan(id):
+    loan = LoanApplication.query.get(id)
+    db.session.delete(loan)
+    db.session.commit()
+    return redirect(url_for('loans'))
+
+@app.route('/edit_loan/<int:id>', methods=['GET', 'POST'])
+def edit_loan(id):
+    loan = LoanApplication.query.get(id)
+    if request.method == 'POST':
+        loan.applicant_name = request.form['applicant_name']
+        loan.amount = float(request.form['amount'])
+        loan.ltv_ratio = float(request.form['ltv_ratio'])
+        loan.dti_ratio = float(request.form['dti_ratio'])
+        db.session.commit()
+        return redirect(url_for('loans'))
+    return render_template('edit_loan.html', loan=loan)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+if __name__ == '__main__':
+    app.run(debug=True)

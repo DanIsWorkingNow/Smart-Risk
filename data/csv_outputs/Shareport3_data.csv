@@ -1,0 +1,996 @@
+text
+"International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+ENHANCING SHARIAH GOVERNANCE: THE KEY RISK
+INDICATORS FOR MANAGING SHARIAH NON-
+COMPLIANCE RISK IN ISLAMIC FINANCIAL
+INSTITUTIONS
+Nurul Syazwani Mohd Noor
+Faculty of Business and Management,
+Universiti Sultan Zainal Abidin, Kuala Nerus, Terengganu
+Hamizah Muhammad
+Academy of Contemporary Islamic Studies (ACIS),
+Universiti Teknologi MARA, Dungun, Terengganu
+Juliana Arifin
+Faculty of Business and Management,
+Universiti Sultan Zainal Abidin, Kuala Nerus, Terengganu
+Puspa Liza Ghazali
+Faculty of Business and Management,
+Universiti Sultan Zainal Abidin, Kuala Nerus, Terengganu
+Roslida Abdul Razak
+Faculty of Business and Management,
+Universiti Sultan Zainal Abidin, Kuala Nerus, Terengganu
+ABSTRACT
+The whole process of Shariah compliance in Islamic financial institutions (IFIs) needs adequate attention."
+"This is because Shariah non-compliance risk (SNCR) may cause not only unrecognition of income, but also
+contribute to the implications on the existing risk profiles."
+"The objective of this study is to propose selected
+key risk indicators (KRIs) for SNCR."
+"At first, it is necessary to review the implications of SNCR on existing
+risk profiles in order to examine to what extent the relationship between risks may give some ideas in
+determining KRIs for SNCR."
+"This study is conducted through a literature review of existing academic
+journals, related reports, and statutes."
+"The methodology began with addressing the criteria for good KRIs for
+risks."
+"This study suggests the selected KRIs for SNCR, in the level considered in a stress testing programme
+for Shariah risk management."
+"This study also suggests several KRIs for SNCR such as number of new
+Shariah-related complaints and the amount of impure income as a percentage of total income."
+"Overall, this
+study has several implications to the Islamic finance industry, and can be a reference for IFIs in structuring
+their own comprehensive risk management to enhance the effectiveness of the Shariah governance practice."
+" Corresponding author: Faculty of Business and Management, Universiti Sultan Zainal Abidin, Gong Badak Campus, 21300
+Kuala Nerus, Terengganu."
+"Email: syazwanimnoor@unisza.edu.my
+1165
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+Keywords: Risk, Shariah, Key Risk Indicators, Stress Testing, Islamic finance
+Received: 9th February 2024
+Accepted: 16th October 2024
+https://doi.org/10.33736/ijbs.8574.2024
+1."
+"INTRODUCTION
+Shariah risk or Shariah non-compliance risk (SNCR) has been the most concerning aspect in
+Islamic finance."
+"Instead of the first one, most of the studies give better attention to the second
+terminology in explaining the meaning."
+"Both terminologies are often defined as the risk that
+arises from the bank’s failure to comply with rules and principles determined by the relevant
+Shariah regulatory councils (IFSB, 2016)."
+"In 2010, the regulatory body, Bank Negara Malaysia
+(BNM), established the Shariah Governance Framework (2010) to provide a comprehensive
+guideline for Islamic banking institutions to deliberate their activities and operations under
+Shariah principles."
+"This framework has superseded the guidelines on the Governance of Shariah
+Committee for the IFIs that regulates the governance of Shariah committee of an IFI in 2004."
+"In
+2019, BNM has again issued the most recent guideline, the Shariah Governance Policy
+Document, which came into force in April 2020 to replace the Shariah Governance Framework
+(2010)."
+"Thus, it was found that the Shariah risk management is an important Shariah function to
+ensure effective risk management of Shariah non-compliance (Ariffin, 2022)."
+"Shariah compliance is the core element and the most predominant aspect in the business
+operations of the IFIs."
+"Failure to adhere to Shariah principles and values in carrying out the
+financial activities, business, and operations may lead the IFI to be exposed to the risk of non-
+compliance."
+"This includes the risk of voidable contracts in IFIs due to non-compliance with
+Shariah principles and requirements."
+"The other Shariah non-compliance events may include poor
+governance, a lack of Shariah-qualified officers, and inadequate control mechanisms (Oz et al.,
+2016; Omar & Hassan, 2019)."
+"In addition to the financial impact, risk includes non-financial
+implications, which affect the image and reputation of IFIs as well as not receive blessings from
+Allah SWT."
+"Therefore, it is responsible for IFI to ensure that all businesses, operation affairs and
+activities are Shariah compliant (Islamic Financial Services Act 2013 (IFSA 2013)."
+"If the entire
+Shariah compliance process is not given sufficient attention, SNCR may cause not only
+unrecognition of income, but also contribute to implications on the existing risk profiles in IFIs
+such as credit risk, market risk, reputational risk, and legal and compliance risk (Ginena, 2014;
+Ginena & Hamid, 2015; Hassan, 2016; Bhatti, 2019; Ariffin, 2022)."
+"Therefore, SNCR needs
+effective risk management to minimise the risk exposure that may cause such implications."
+"After the financial crisis in 2007 to 2008, stress testing appeared as one of the tools for risk
+management practicing among institutions."
+"It is a kind of risk mitigation measure begun in 2009
+as a means to ensure that U.S. banks had sufficient capital in the wake of the losses from the
+2008 financial crisis (Schneider et al., 2023)."
+"Since then, more emergence developments and
+evolutions have taken place on the stress testing due to some factors such as sophistication of
+supervisory stress testing and the increased emphasis of supervisors on the effectiveness of
+banks’ own capital planning process."
+"In the presence of SNCR, there is little guidance on how to
+select and use risk indicators in relation to the risk for the purpose of stress testing."
+"It is an area
+that has been believed to be particularly challenging for many supervisors in addressing SNCR in
+1166
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+stress testing programmes."
+"Hence, there is a need for further guidance in this area."
+"As far as
+Islamic banking institutions are established, the supervisor (except in Malaysia) does not
+consider the SNCR as part of the stress testing programme (IFSB, 2016)."
+"Therefore, the present
+study attempts to address ideas from the relationship between SNCR and the existing risk profiles
+and hence, provides selected key risk indicators (KRIs) for SNCR for the purpose of stress
+testing programme."
+"Specifically, the objective of this study is to reach a consensus of which and
+how many KRIs are good for SNCR."
+The rest of this study is organised as follows.
+"Section two (below) provides a review of the
+implications of SNCR on the existing risk profiles."
+"Section three points out the material risks in
+relation to operational and Shariah while section four underlies criteria of good KRIs for risk."
+"Section five summarises the selecting KRIs for SNCR and section six gives an example of stress
+testing in the presence of SNCR."
+Section seven then gives some concluding remarks.
+"A REVIEW OF SHARIAH NON-COMPLIANCE RISK AND THE EXISTING RISK
+PROFILES
+Contracts that originate from violations of Islamic law, or Shariah, may be void."
+"There will be
+far-reaching consequences, such as participant disappointment, financial loss, and potential legal
+or regulatory action against the IFIs business (Aziz & Rahman, 2023)."
+"Other risks’ incidence and
+management are probably going to be impacted as well."
+"Besides the unrecognition of income and
+the loss incurred by IFIs, SNCR may also give impact to the existing risk profiles."
+"The
+implications of SNCR on credit risk, market risk, reputational risk, as well as legal and
+compliance risk are addressed in the following discussions."
+"View 1: SNCR and credit risk
+SNCR in IFIs, if not catered well, may reduce the confidence of customers, shareholders,
+depositors, and employees as stakeholders."
+"This is because they realise that the institution is not
+living up to its commitments (IFSB, 2014)."
+"This may result in few implications, for example,
+customers breaching their financing contracts with the IFI will result in credit risk."
+"There might
+be three reasons for customer unwilling to meet their obligations and breaching the contract; the
+belief that the contract that they entered into has been avoided on Shariah grounds, non-
+confidence in the institution’s practices, or the feeling of being betrayed by the institution
+(Ginena & Hamid, 2015)."
+"If the contract is nullified due to Shariah violations, then this would
+lead to the emergence of impermissible income and the exclusion of the corresponding
+transaction’s profits from the bank’s income (AAOIFI; Ginena, 2014)."
+"Furthermore, breaching
+the trust and confidence of investors/depositors can lead to dire consequences, including
+withdrawal and insolvency risk (Swartz, 2013)."
+"View 2: SNCR and market risk
+SNCR may also have an interaction with market risk in some cases."
+"For instance, if an IFI owns
+investment in stocks and they are found to be non-Shariah compliant for some reasons such as
+the debt-to-market capitalisation ratio exceeding 30%, then, the IFI is under an obligation to
+liquidate these equities."
+"This case may occur at a time when the equities are valued at less than
+1167
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+the price of purchase, which leads to losses (Ginena, 2014)."
+"While some Shariah supervisory
+board members may allow a limited time period for market conditions to improve in order to
+minimise the losses, such a period may not be sufficient especially during an economic downturn
+(Ginena & Hamid, 2015; Bhatti, 2019)."
+"View 3: SNCR and reputational risk
+Reputational risk is “the risk arising from negative perception on the part of customers,
+counterparties, shareholders, investors or regulators that can adversely affect an IFI’s ability to
+maintain existing, or establish new, business relationships, and continued access to sources of
+funding.” (IFSB, 2014)."
+IFIs’ activities involve the general public to a great extent.
+"Therefore,
+earning and preserving their trust and confidence is crucial for an institution’s success."
+"IFIs
+cannot lose their credibility of governing Shariah in their operations and transactions because
+such credibility is at the core of their business (Omar & Hassan, 2019; Ginena & Hamid, 2015,
+Bhatti, 2019; Hanefah et al., 2020)."
+"View 4: SNCR and legal and compliance risk
+SNCR can also lead to legal and compliance risk."
+"The Basel Committee on Banking Supervision
+(BCBS) defines legal risk as “the possibility that lawsuits, adverse judgements or contracts that
+turn out to be unenforceable can disrupt or adversely affect the operations or condition of a
+bank.” An IFI that claims in its memorandum or/and articles of association that it adheres to the
+tenets of Shariah, yet fails to deliver the claims may find itself facing lawsuits from stakeholders
+disgruntled with the false advertising."
+"It likely shows the non-commitment of the institution to its
+claims."
+"One of the examples of SNCR leading to legal risk can be seen from the case in the UK,
+in which making false statements about provision of services is an offence under the Trade
+Descriptions Act of 1968."
+"Likewise, making misleading or untrue representations of products or
+services in order to make money is an offence under the Fraud Act of 2006."
+"Other examples
+include uncertainty in interpreting certain Shariah clauses in courts and the possible
+unenforceability of Shariah contracts in secular law jurisdictions, which negatively affects market
+discipline (DeLorenzo & McMillen, 2007)."
+"On the other hand, SNCR can also lead to
+compliance risk."
+"BCBS defines compliance risk as “the risk of legal or regulatory sanctions, material financial loss,
+or loss to reputation a bank may suffer as a result of its failure to comply with laws, regulations,
+rules, related self-regulatory organisation standards, and codes of conduct applicable to its
+banking activities.” BNM defines compliance risk as “the legal and regulatory risk arising from
+noncompliance to legal and regulatory requirements.” For example, an IFI that fails to set up
+prudent internal Shariah governance arrangements even though it is required by the regulator to
+do so."
+"In such cases, the IFI may be fined for its contraventions or even lose its licence to operate."
+"In the case of Malaysia, IFSA 2013 requires IFIs to comply with the Shariah principles at all
+times."
+The relationship between the above-mentioned risks to each other depends on the IFIs.
+"Every IFI
+shows a different relationship between reputational risk, credit risk, market risk, and legal and
+1168
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+compliance risk (Htay & Salman, 2013)."
+"This may be due to the fact that different IFIs may have
+a different approach in measuring the risks."
+"For many reasons, market and credit risk have often
+been treated as if they are unrelated sources of risk; the risk types have been measured separately,
+managed separately, and economic capital against each risk type has been assessed separately in
+both historical and practical (BCBS, 2009)."
+"Based on the above discussions, SNCR as part of
+operational risk is found to have significant implications to the risk profiles i.e."
+"credit risk,
+market risk, reputational risk, and legal and compliance risk."
+"Furthermore, SNCR may even result in other various implications to the Islamic banking industry
+as a whole such as fund withdrawals, higher costs to attract deposits, direct and indirect financial
+losses, liquidity issues, bank runs, bank failure, and financial instability (Ali, 2003; Ginena,
+2014)."
+"These implications, however, depend on the size of the Islamic banking industry in the
+respective country."
+"Not only that, it may also tarnish the reputation of the industry, which is
+driven by the trust of stakeholders."
+"From that, the designed model of the possible implications of
+SNCR is illustrated as in Figure 1."
+"Figure 1: Possible Implications of Shariah Non-Compliance Risk on Islamic Banking Industry
+Non-Financial/Non-Material Loss
+Spiritual Blemishes, Not Getting Blessings
+SNCR
+the risk of void Financial/Material Loss
+contracts due to may
+non-compliance lead to Credit Risk
+with Shariah
+Market Risk
+principles and
+requirements
+Reputational Risk
+Legal Risk
+may result in
+Compliance Risk
+Fund withdrawals, higher cost to attract deposits, direct and indirect financial losses, liquidity
+issues, bank runs, bank failure, financial instability, and industry smearing
+Source: Modified from Ali (2003), Ginena (2014), and Omar & Hassan (2019)
+3."
+"MATERIAL RISKS IN RELATION TO OPERATIONAL AND SHARIAH
+SNCR falls under operational considerations and is relevant to ensure ‘operations are executed in
+adherence to the applicable Shariah rules and principles as per the fatwa, policies and procedures
+approved by the institutions offering Islamic financial services (IIFS)’s Shariah Board’ (IFSB,
+1169
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+2005)."
+"Before the KRIs for SNCR are selected, it is necessary to identify matters relating to the
+SNCR."
+"Therefore, the material risks include the events that result in the risk."
+"The loss of income
+and asset value may be potentially affected by both the internal and external events."
+"An IFI is
+influenced by the developments of the external environment in which it is called to operate, as
+well as by its internal procedures and processes (Hanefah et al, 2020)."
+"Both events may create an
+operational risk and SNCR."
+"The external events may be created by a wide range of different
+events ranging from power failures to floods or earthquakes to terrorist attacks."
+"The events can
+have a major impact on an IFI."
+"Therefore, IFI should be aware that both expected and unexpected
+changes to its operations can be major sources of operational risk (Ginena & Hamid, 2015; Bhatti,
+2019)."
+"It should have in place appropriate arrangements, having regard to the nature, scale, and
+complexity of its operation, to ensure that it can continue to function and meet its regulatory
+obligations in the event of an unforeseen interruption."
+"These arrangements should be regularly
+updated and tested to ensure their effectiveness."
+"Meanwhile, the internal events may arise due to the failures or inadequacies in any of the IFI’s
+people, processes and systems (e.g."
+"the information technology, risk management or human
+resources management processes and systems), or those of its outsourced service providers."
+"Operational risk arising from human resources management may refer to a range of issues such
+as mismanaged or poorly trained employees; the potential of employees for negligence, wilful
+misconduct; conflict of interests; fraud; and rogue trading (Chaudhury, 2010)."
+"Therefore, the
+emergence of mistrust, failure to communicate, low morale, and cynicism among staff members,
+as well as increased turnover of staff, should be regarded as indicative for potential increase in
+operational risk (Abdullah et al., 2011)."
+"Operational risk differs from other Islamic banking risks
+in that it is typically not directly taken in return for an expected reward, but exists in the natural
+course of corporate activity, and this affects the risk management process."
+"The internal events
+also include legal risk such as exposure to fines, penalties, or punitive damages resulting from
+supervisory actions, as well as private settlements (Karimah, 2022)."
+"SNCR is one of the risks that
+arise due to internal events."
+"As a publicly licensed institution and operating as a business entity, Islamic banks including its
+directors, management, and staff must operate in compliance with Shariah laws, rules,
+regulations, and industry standards."
+"Hence, SNCR is also familiar with the risk to earnings or
+capital that result from violations or non-conformance with the Shariah rules and principles,
+regulations, or prescribed practices, industry practices, or ethical standards determined by the
+Shariah supervisory council (IFSB, 2005)."
+"The Shariah non-compliance matter has recently
+become more significant by being explicitly tied to important Islamic banking legislation, such as
+IFSA (2013)."
+"Section 28 (3) of the Act sets out clearly the obligations and responsibilities of a
+financial institution in the case of Shariah non-compliance, and the subsequent reporting and
+disclosure process."
+"Compliance violations expose the IFI to regulatory sanction, fines, and civil money penalties."
+"For
+example, in Malaysia, under Section 245 of the Act, the Central Bank can impose a penalty on
+Islamic bank for failing to comply with: any provision of the Act, regulations made under the Act,
+any order made, or any direction issued under the Act by the Central Bank or any standards,
+condition, restriction, specification, requirement under the Act."
+"Penalties and consequences of
+not following Shariah non-compliance reporting procedures can be severe."
+"Directors and officers
+may also be personally liable for compliance failures."
+"Compliance violations may result in the
+1170
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+loss of an Islamic bank’s “rating”, causing damaging consequences, such as the loss of its full-
+fledged Islamic banking status."
+"Since, IFIs deal with the contractual features of a product or services."
+"The valid (sahih) contract
+arises if: (i) the pillars and conditions of the contract are fulfilled and (ii) establish the legal
+implications (for example the transfer of ownership) that Shariah has assigned."
+"The contract
+becomes invalid (ghayr sahih) if both could not be fulfilled upon the execution."
+"The invalid
+contract can be divided into irregular (fasid) or void (batil)."
+"There are several elements that lead
+towards a fasid contract, namely insufficient information with respect to the subject matter (asset),
+the price and the delivery time, and the existence of an invalid condition, (for example purchase
+undertaking in a mudarabah contract and capital providers are guaranteed of their capital)."
+"There
+are several forms that a contract becomes batil, which include selling impure items such as pork
+and wine; and a sale contract with excessive uncertainty i.e."
+"selling something non-existent and
+something undeliverable (birds in the sky) (Zuhayli, 1996, 2001; Mansuri, 2006; Ayub, 2007;
+Najeeb, 2014)."
+"However, there are treatments associated with respective categories of invalid contracts."
+"Neither
+contracting party can recognise the income realised from the invalid contract."
+"Income must be
+purified."
+"First, if the contract fails to satisfy one or more pillars of the contract."
+"The income
+should be returned to its owner."
+"Second, if the underlying asset employed in the contract is an
+item prohibited by Shariah such as wine, pork, and interest."
+"The income should be channelled to
+public benefit (Dusuki et al., 2012, 2013)."
+"It shows that the Shariah non-compliance would affect
+the income either it would be returned to its owner or to charity organisation."
+"Therefore, SNCR which are considered as part of operational risks affect the capital requirement."
+"The treatment of this risk in relation to capital requirements is a new departure that was
+introduced in Basel II."
+"In applying a capital adequacy framework, the international standards
+have used “proxies”, such as gross income or a “business indicator”, to calculate the operational
+risk capital charge on the banking industry (Oz et al., 2016)."
+"However, the use of gross income as
+the basic indicator for operational risk measurement could be misleading in IFIs."
+"This is because
+a large volume of transactions such as in commodities and the use of structured finance raise
+operational exposures that will not be captured by gross income."
+"The standardised approach that
+allows for different business lines is better suited, but still requires adaptation to the needs of IFIs."
+"In particular, SNCR due to the features of the contract, all need to be explicitly considered for
+risk measurement."
+"Currently, the indicators for SNCR are missing."
+"CRITERIA OF GOOD KEY RISK INDICATORS (KRIs)
+KRIs are measurable metrics or indicators that track exposure or loss."
+"Anything that can perform
+the same function can be considered as a risk indicator (Wicaksono & Wijayati, 2023)."
+"According to Bank Negara Malaysia (BNM), “Key Risk Indicators” or “KRIs” refer to
+information that will provide insight into the operational risk exposure and are used to monitor
+the main drivers of exposure associated with the key risks."
+"KRIs help in defining the likelihood
+of unfavourable situations that could impact an institution’s business continuity (Cernisevs et al.,
+2023)."
+"There is no consensus about which and how many criteria must be present in order to
+1171
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+select the KRIs (Davies et al., 2006; Davies & Haubenstock, 2002; Hoffman, 2002; Finlay, 2004;
+Scandizzo, 2005)."
+"However, most of the studies believe that the ideal features of KRIs are that
+they are effective in tracking the risk, they are comparable within and outside IFI, and they are
+practical and easy to use (Mouatassim & Ibenrissoul, 2015)."
+"In Europe, Van Den Brink and
+Leipoldt (2022) suggest that, to become more relevant, KRIs should be recast as predominantly
+business (first line of defence) driven and made practical rather than theoretical."
+"KRIs should
+have certain characteristics before they can be used as a risk management tool (Young, 2012; Liu,
+2023)."
+Table 1 provides some criteria for assessing indicators against these three objectives.
+"Table 1: Criteria for Good KRIs
+Criteria Indicators should
+Relevance • relevance to what is being monitored (risk exposure, control effectiveness
+indicators and measure performance)."
+• be linked to an IFI’s SNCR.
+"• be able to provide management with both a quantum as to current levels of
+exposure and the degree to which such exposures are changing over time."
+"Comparable • be numbers or counts (number of days, employees, etc."
+"), monetary values,
+percentages, ratios, time duration or a value from some pre-defined rating
+set (such as that used by a credit rating agency), monitor risk."
+• be comparable over time.
+• be reported with primary values.
+• be meaningful without interpretation to some more subjective measure.
+"Predictable • be able to provide a leading, lagging, or current perspective of an IFI’s
+SNCR exposure."
+"Easy to • reflect two characteristics – (i) data used for the indicator should be simple
+Monitor and relatively cost effective to collect and quantify; (ii) assure and distribute
+- data should be relatively easy to interpret, understand and monitor."
+Auditable • be easy to understand and use.
+• sources of indicators should be properly documented.
+Source: Author’s summary based on Davies et al.
+(2006); Mouatassim & Ibenrissoul (2015); Hassan et al.
+"(2017);
+Ariffin (2022); Liu (2023)
+However, each criteria is believed to have its own shortcoming."
+"First, the relevance of an
+indicator is the relevance that can change over time and can also change when there is an
+emergence of new and existing exposures, whether they are mitigated or no longer cause a
+consequence."
+"One technique that can be used to check and maintain the relevance of selected
+indicators is to link updates to the indicator programme with the completion of risk and control
+self-assessments, drawing on the experience, knowledge and understanding that IFI’s business
+entities/areas (such as business units and functions, Shariah control function, management,
+Shariah committee, board and other parties) have of their SNCR exposures and associated
+indicators."
+"In this manner, it may be useful to think of potential indicators from the following
+perspectives: Does it help identify existing risks?"
+Does it help quantify or measure the risk?
+"Does
+it help monitor the exposure?"
+Does it help manage the exposure and its consequences?
+"The roles of different IFI’s business entities/areas or individuals within the IFI should also be
+taken into consideration when determining relevance."
+"In many cases, the business entity/area that
+1172
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+can provide data for some specific indicator may have a different perspective on associated
+SNCR exposures to those business entities that use the data for exposure monitoring purposes in
+which the relevance of the indicator and its data over time should focus on the following errors or
+factor."
+"(i) Operational error, which refers to an operational error in the offering of a Shariah
+compliant product that invalidates the Shariah contract being used for the product."
+"Among the
+potential causes of operational error could be: lack of Shariah understanding; lack of Shariah
+related operational guidelines; system issues/errors; and human error; (ii) Documentation error,
+which refers to an error in the documentation of a Shariah compliant product that invalidates the
+Shariah contract being used for the product."
+"Among the potential causes of documentation error
+are: failure to comply with the specific Shariah pre-requisites for a valid contract or transaction;
+and the existence of non-Shariah compliant term(s) in the relevant documents that may invalidate
+the transaction; (iii) External factor, which refers to an external factor, for example on impure
+income for Securities and Fund Services (SFS)’s institutional clients."
+"It happens when certain
+securities belonging to the clients that were initially Shariah compliant, have been re-classified as
+Shariah non-compliant."
+"As a result, the income from those particular securities is considered as
+impure income and will be channelled to charity."
+"Second, when implementing a new indicator, the measurement technique should be agreed
+amongst the stakeholders to ensure that everyone agrees with what the value represents, how it is
+calculated, what is included or excluded, and how variances in the values will be handled."
+"Third, indicators can provide a leading, lagging, or current perspective of an IFI’s SNCR
+exposure."
+"However, it is important to bear in mind that the indicator data collection process itself
+almost invariably implies a historical perspective – by the time the data is collected, quality
+assured and distributed, time has elapsed, and hence the data is “lagging”."
+"In reality, many
+indicators are both lagging and current."
+"For example, the number of unresolved customer
+complaints in which such complaints relate to issues that have already occurred (the lagging
+aspect), but still needs to be addressed (the current aspect)."
+"Lagging and current indicators can
+also have a leading element to them that may need to be considered."
+"In the case of unresolved
+customer complaints, an IFI’s failure to address these could give rise to a costly lawsuit at some
+point in the future and or bad publicity, leading to reduced sales."
+"Truly leading indicators are rare and are usually related to causal drivers within the business
+environment within which the IFI operates; they tend to be measures of the state of people,
+process, technology and the market that affects the level of risk in a particular IFI."
+"A leading or
+preventative indicator can be something as simple as the number of limit breaches on market or
+risk exposures, or cash movements, or the average length of delays in executing particular
+activities."
+"In themselves, such occurrences may not be loss events in their own right, but if their
+value starts to increase this may point to the potential for a higher frequency or severity of
+operational loss events."
+"In the case of fully predictive indicators, which predict what is going to
+happen, rather than simply infer that something is changing, single indicators by themselves are
+of little use, as they need context in order to become predictive."
+"Fourth, a crucial aspect relating to the data collection process is quality assurance."
+"The
+collection cycle needs to incorporate specific deadlines for submission and should be auditable in
+terms of data sources and collection channels."
+"There should also be an independent quality
+control process to ensure that erroneous or misleading data is not sent to management."
+"1173
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+5."
+"CHARACTERISTICS OF KRIs FOR SHARIAH NON-COMPLIANCE RISK –
+THE CASE IN MALAYSIAN ISLAMIC FINANCIAL INSTITUTIONS
+Having a good understanding of the desirable characteristics of a KRI, it comes to the stage
+where they must be selected and bundled into a programme for a business area or unit or the
+organisation overall."
+"Accordingly, the construction of a KRI programme ideally starts with an
+individual business unit."
+"Based on the Shariah governance framework in Malaysia (Shariah
+Governance Framework, 2020) and BNM Operational Risk Integrated Online Network (ORION)
+(2021), there are five important components involved in selecting KRIs."
+"The selection of the
+KRIs should become the agenda of the business unit, Shariah Control Officer (SCO),
+management, Shariah committee, and board."
+"Each component has specific responsibilities
+relating to the risk."
+"First, the business unit."
+This component is a segment of the organisational structure of an IFI.
+"It
+represents a specific business function and a definite place on the organisational chart, under the
+domain of a manager."
+"A business unit may also be referred to as a department, division or a
+functional area (such as treasury, compliance and internal audit) within an IFI or of any other
+IFIs entity which are working along with them."
+"Second, the Shariah Control Officer is referred to
+as the employee of an IFI."
+"SCO tries to ensure that the Shariah principles, rules, standards and
+regulations as provided by the Shariah Committee and Shariah Advisory Council (SAC) at the
+Central Bank or other regulatory bodies resolutions are observed by IFI while offering Islamic
+finance products and services."
+Third is the management of an IFI responsible for managing the business on a daily basis.
+"The
+management is also responsible for observing and implementing Shariah rulings and decisions
+made by the SAC and the Shariah Committee respectively."
+"Besides, the management is expected
+to provide information and disclosure that are complete and accurate to the Shariah Committee in
+a timely manner, and shall be transparent on any areas that need clarification by the Shariah
+Committee to enable the Shariah Committee to discharge its duties effectively."
+"Hence, it is the
+responsibility of the management to allocate adequate resources and manpower to support the
+Shariah governance framework that commensurate with the size, complexity, and nature of the
+IFI’s business."
+"Fourth, Shariah Committee means the Shariah Committee (SC) consisting of minimum five
+learned and qualified Shariah scholars appointed as the SC members of an IFI by the board and
+approved by the regulator."
+"The committee shall be responsible and accountable for all its
+decisions, views and opinions related to Shariah matters."
+"They also shall be responsible to review
+and advise the board on the scenarios and key assumptions regarding risks unique to Shariah
+contracts and Shariah non-compliance used in the stress testing programme."
+"Lastly is the board
+which is a body of elected or appointed members who jointly oversee the activities of an IFI."
+"It is
+ultimately accountable and responsible for the overall Shariah governance framework and
+Shariah compliance of the IFI, by putting in place the appropriate mechanism to discharge the
+responsibilities."
+"1174
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+Since KRIs are supposed to track key SNCR, the first step in KRI selection is to identify the area
+of highest SNCR for the business unit in question."
+"It is important to have a consistent and
+comprehensive approach to this analysis."
+"And this can be done by risk mapping or profiling each
+business unit, or leveraging risk-and-control self-assessment (RCSA) or profiling contractual
+assessment programmes that are already in place."
+"The analysis should focus on component
+processes or business functions within each business, considering how they work, and where a
+material loss has been or could be experienced."
+"Once high-risk areas are identified, businesses should consider existing indicators or metrics that
+could be leveraged or new ones created to help anticipate a loss, monitor an exposure, measure
+the SNCR, manage the exposure or loss, or report on the SNCR and its implications."
+"An
+inventory of existing KRIs as suggested in Column 2, Table 2, as well as the identification of the
+high SNCR for which there are not currently KRIs in place, is often a good first step in this
+process."
+"Then, a gap analysis is done."
+"Having identified the gaps, it is important to consider a
+variety of KRIs against each source of SNCR."
+"Each source of SNCR is reported in Column 1,
+Table 2."
+"Each KRI reflects the specific causal element, which may come into play if a loss occurs."
+"Ultimately, however, to keep the number of KRIs being monitored to a manageable number, it is
+necessary to select the few that best reflect the business unit’s collective understanding of the
+root causes of each potential problem."
+"This selection should also be guided by consideration of
+the quality of the potential indicators against the effectiveness, comparability, and ease-of-use
+criteria discussed above, as well as their contribution to the goal of obtaining a reasonable mix of
+leading, current, and lagging indicators."
+"This is an art rather than a science at the moment, but, in
+the hands of experienced practitioners in the business, should represent a reasonable start."
+"Of
+course, fine-tuning the KRIs will naturally occur over time as the business learns and gains
+experience with these relationships."
+"Once selected, each indicator needs to be defined and specified as reported in Column 3, Table 2,
+to ensure clarity of interpretation and implementation."
+"For example, complaints that have been
+lodged by customers pertaining to Shariah non-compliance aspects of Islamic contracts are
+included in transparency and proper implementation of Islamic contracts by IFIs (such as legal
+documents were not properly signed)."
+"The next step is to establish bands of acceptance that essentially codify SNCR appetite, and
+triggers for escalation and/or some other form of action."
+"For example, on a monthly basis,
+Shariah non-compliance matters should be escalated to the Shariah Control Officer and Shariah
+Committee Meeting for further clarity or guidance."
+"Then, indicators are assessed on an ongoing
+basis against this framework of reference."
+"In the case of high-frequency, low-impact exposures, it is often useful for managers to think
+about different ranges of indicator value as calling for different kinds of action: low-risk range:
+no action required; medium-risk range: some action required; and high-risk range: issue to be
+escalated to management and board; other actions required urgently to mitigate damage."
+Thresholds can be set to define each range and trigger each kind of response.
+"After a threshold is
+breached, actions taken by managers to accept or mitigate the risk should be recorded."
+Thresholds and escalation triggers are important risk management tools.
+"KRI thresholds will vary
+from IFI to IFI, depending on management’s risk appetite, as well as strategy and ability."
+"For
+1175
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+SNCR the thresholds may be quite high and others lower."
+"They can also change over time, if
+there is a strategic decision to manage risk down (or sometimes up)."
+"Managers will become more
+experienced at setting the appropriate level of threshold over time."
+"This is where art meets
+science as there can be no one-size-fits-all approach or algorithm for thresholds."
+"It is subjective
+and based upon the managers’ risk appetite and experience, and that of their peers within the
+institutions."
+The question is what is a reasonable number of KRIs?
+"Many financial institutions have a very
+large number."
+"This may be justified by the heterogeneity of operational risks and complexity of
+financial services and products."
+"It is believed that a large diverse institution would reasonably use
+between several hundred and a few thousand indicators in middle management."
+"Of course, these
+cannot all be reported to senior levels of management."
+"Accordingly, it is very important to have
+an appropriate strategy for reporting and aggregating KRIs to senior management and the board."
+"Table 2: Key Risk Indicator for Shariah Non-Compliance Risk
+Sources Key Risk Indicators Description KRI Programme
+(KRIs)
+B S M S B O
+u s in e s s U
+n its
+h a ria h C o
+n tro
+a n a g e m e
+n t
+h a ria h C o
+m m
+o a rd th e r p a rtie
+s
+&
+F
+u
+n
+l
+O
+ffic
+itte
+e
+c e
+tio r
+n
+s
+Internal Number of new Complaints lodged by √ √ √
+Research/ Shariah-related customers on potential non-
+ORMS complaints compliance with Shariah
+requirements in product
+implementation, legal
+documentation, product
+brochures, transparency,
+etc."
+"Legal cases Legal cases/dispute Leading indicators to √ √
+filed in in court and uncover emerging Shariah
+arbitration on the issues and potential impact
+basis of Shariah to the institution and
+matters (in number) industry
+1176
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+Shariah Shariah approval not Potential Shariah issues that √ √ √
+Supervisory on unanimous basis may pose SNCR to Islamic
+Council (Number of instances) bank and industry
+(SSC)
+SSC Percentage of cases Leading indicators in √ √
+where proposal for determining inadequacies in
+product/ processes in Shariah
+documentation/ support and research
+material was rejected
+by internal Shariah
+Committee and
+regulators
+Internal Number of Leading indicators to √ √
+Research/ Resignation/ prompt that there is
+ORMS termination/ inadequate qualified
+transferred of Shariah Shariah background
+Qualified (Shariah personnel to handle crucial
+Degree) personnel to aspect of Shariah research
+perform Shariah and review
+function (research and
+review)
+Internal Number of new Leading indicators to √ √
+Research/ appointments of prompt that there are
+ORMS Shariah Qualified inadequate qualified
+Personnel Shariah background
+personnel to handle crucial
+aspect of Shariah research
+and review
+Internal Number of Leading indicators to √ √
+Research/ resignation/ prompt that there is
+ORMS termination/transferre inadequate Shariah trained
+d of Shariah Trained personnel to handle crucial
+(training in fiqh Shariah support functions
+Muamalat) Personnel i.e."
+"SNCR and audit
+to perform Shariah
+support function
+(audit and risk)
+Internal Number of new Leading indicators to √ √
+Research/ appointments of prompt that there is
+ORMS Shariah Trained inadequate Shariah trained
+Personnel personnel to handle crucial
+Shariah support functions
+i.e."
+"SNCR and audit
+Internal Percentage of number Leading indicators as a √ √
+Research/ of incidences that triggering mechanism that
+ORMS papers or proposals the proposal or paper
+submitted to the submitted to the Shariah
+Shariah Committee Committee expose to higher
+not in accordance risk of human error."
+"with the stipulated
+submission time
+1177
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+frame as specified in
+the internal charter."
+"new product
+proposal - 2 weeks,
+product legal
+documentation - 3
+weeks, brochure - 5
+days)
+Internal Number of instances To monitor the trend as √ √
+Research/ of Shariah approval approval done outside the
+ORMS being done via meeting may pose risk of
+circulation to error or non-holistic Shariah
+committee members decision
+External An amount of impure To measure the income √
+research/ income as a realised from the invalid
+news percentage of total contract
+income
+Source: Author’s summary based on BNM Key Risk Indicators Taxonomy (Operational Risk Integrated Online Network
+(ORION) Policy Document)
+Note: Operational Risk Management System (ORMS) such as Operational Risk Integrated Online Network (ORION)
+which was introduced by Bank Negara Malaysia on 3 May 2017."
+"There are two requirements on monthly reporting
+required by BNM to be reported via ORION, i.e."
+on (i) Litigation and (ii) Complaints.
+"CONCLUSION AND DIRECTIONS FOR FUTURE RESEARCH
+SNCR may cause not only unrecognition of income, but also contribute to the implications on the
+existing risk profiles such as credit risk, market risk, reputational risk, and legal and compliance
+risk."
+"In order to mitigate SNCR, this study tries to reach a consensus of which and how many
+characteristics must be presented."
+"Previous studies have no consensus about which and how
+many characteristics must be present in order to select KRIs for SNCR."
+"However, the study
+reached the ideal characteristics of KRIs such as effective in tracking the risk, comparable within
+and outside IFI, and practical as well as easy to use."
+"Subsequently, this study has suggested
+several KRIs for SNCR to be considered in a stress testing programme, such as number of new
+Shariah-related complaints and the amount of impure income as a percentage of total income."
+"The results will be great ideas and become a reference for IFIs in structuring their own
+comprehensive risk management and internal control system."
+"REFERENCES
+Abdullah, M., Shahimi, S., & Ismail, A. G. (2011)."
+"Operational risk in Islamic banks:
+Examination of issues."
+"Qualitative Research in Financial Markets 3(2), 131–151
+Ali, A. M. (2000)."
+The emerging Islamic financial architecture: the way ahead.
+"In Proceedings of
+the Fifth Harvard University Forum on Islamic Finance: Islamic Finance: Dynamics and
+Development (Vol."
+"http://doi.org/10.1109/MPOT.2010.939756
+Ariffin, N. M. (2022)."
+Sharīʿah Risk Management Practices in Malaysian Islāmic Banks.
+"International Journal of Economics, Management and Accounting, 30(1), 101–123."
+"1178
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+Ayub, M. (2007)."
+John Wiley and Sons.
+"Aziz, M. R. A., & Rahman, N. N. A."
+"Systematic Review: Shariah Non-Compliance
+(SNC) in Islamic Banking and Finance."
+"Al-Qanatir: International Journal of Islamic
+Studies, 31(2), 1–10."
+"Shariah Governance Framework, 1-50."
+"Operational Risk Integrated Online Network (ORION) Policy
+Document."
+Basel Committee on Banking Supervision (BCBS).
+Customer Due Diligence for Banks.
+Basel Committee on Banking Supervision (BCBS).
+"Compliance and the Compliance
+Function in Banks."
+Basel Committee on Banking Supervision (BCBS).
+"Findings on the interaction of market
+and credit risk."
+Managing Shariah Non-Compliance Risk via Islamic Dispute Resolution.
+"Journal of Risk and Financial Management, 13(2), 1–9."
+Central Bank of Malaysia.
+Compliance Concept Paper (2014).
+"Cernisevs, O., Popova, Y., & Cernisevs, D. (2023)."
+"Risk-based approach for selecting company
+key performance indicator in an example of financial services."
+"https://doi.org/10.3390/informatics10020054
+Chaudhury, M. (2010)."
+A review of the key issues in operational risk capital modeling.
+"Journal
+of Operational Risk, 5(3), 1–40."
+"Davies, J., Finlay, M., Mclenaghen, T., & Wilson, D. (2006)."
+"Key Risk Indicators - Their Role in
+Operational Risk Management and Measurement."
+"In AMA Approaches to Operation Risk
+(pp."
+"Davies, J., & Haubenstock, M. (2002)."
+"Building effective indicators to monitor operational
+risk."
+"The RMA Journal, 84(8), 40-43."
+"& McMillen, M. (2007)."
+Law and Islamic finance: An Interactive Analysis.
+"In
+Archer, S. and Abdel Karim, R. (Eds), Islamic Finance: The Regulatory Challenge (pp."
+"John Wiley & Sons, Singapore."
+"Dusuki, A. W., Ali, M. M., and Hussain, L. (2012)."
+"A framework for Islamic financial
+institutions to deal with Shariah non-compliant transactions."
+"ISRA Research Paper, 42, 1–
+37, available at http://ifikr.isra."
+"my/ documents/10180/16168/42.pdf (accessed 13 January
+2017)."
+"Dusuki, A. W., Ali, M. M., and Hussain, L. (2013)."
+"Hanafi’s approach to deal with Shari’ah non-
+compliance transactions in Islamic Finance."
+"Australian Journal of Basic and Applied
+Sciences, 7(6), 589–595."
+KRIs: An industry framework.
+"Ginena, K. & Hamid, A."
+Corporate and Shari’ah Governance of Islamic banks.
+"In
+Foundations of Shari’ah Governance of Islamic Banks (pp."
+"John Wiley & Sons
+Ltd, West Sussex, United Kingdom."
+Shari‘ah risk and corporate governance of Islamic banks.
+"Corporate
+Governance, 14(1), 86–103."
+"http://doi.org/10.1108/CG-03-2013-0038
+Hanefah, M. M., Kamaruddin, M. I. H., Salleh, S., Shafii, Z., & Zakaria, N. (2020)."
+"Internal
+control, risk and Sharīʿah non-compliant income in Islamic financial institutions."
+"ISRA
+International Journal of Islamic Finance, 12(3), 401–417."
+"https://doi.org/10.1108/IJIF-02-
+2019-0025
+1179
+Nurul Syazwani Mohd Noor, Hamizah Muhammad, Juliana Arifin, Puspa Liza Ghazali
+Hassan, R. (2016)."
+Shariah non-compliance risk and its effects on Islamic financial institutions.
+"Al-Shajarah: Journal of the International Institute of Islamic Thought and Civilization
+(ISTAC), 21(3), 21–25."
+"https://journals.iium.edu.my/shajarah/index.php/shaj/ article/view/
+411
+Hassan, R., Othman, A."
+"Napiah, M. D., Abdullah, M. A., Arifin, M., Yusoff, A., &
+Ab."
+"Karim, M. S. (2017)."
+"Shariah risk management process for Islamic financial
+institutions in the context of Shariah governance framework 2010."
+New York: J. Wiley & Sons.
+"Htay, S. N. N., & Salman, S. A."
+"Quantitative analysis on the correlation between risks:
+empirical evidence from banks in United Kingdom."
+"IOSR Journal of Business and
+Management (IOSR-JBM), 9(5), 51–58."
+Islamic Financial Service Board (IFSB).
+"Shariah Non-Compliance Risk in the Banking
+Sector: Impact on Capital Adequacy Framework of Islamic Banks."
+"Available from:
+https://www.ifsb.org/docs/2016-03-30%20SNCR%20Paper%20(WP-05)%20(Final).pdf
+Islamic Financial Services Act 2013
+Islamic Financial Services Board (IFSB)."
+"Guiding Principles of Risk Management for
+Institutions (Other Than Insurance Institutions) Offering Only Islamic Financial Services."
+Islamic Financial Services Board (IFSB).
+"Revised Guidance on Key Elements in The
+Supervisory Review Process of Institutions Offering Islamic Financial Services (Excluding
+Islamic Insurance (Takāful) Institutions and Islamic Collective Investment Schemes)."
+Islamic Financial Services Board (IFSB).
+"Tn-2 Technical Note on Stress Testing for
+Institutions Offering Islamic Financial Services Board."
+"Between legal risk and sharia risk in Islamic banking: How shariah
+governance."
+"Diponegoro Law Review, 07(01), 88–105."
+A preliminary study on the construction of enterprise key risk indicator system.
+"Frontiers in Business, Economics and Management, 7(1), 196–204."
+"https://doi.org/10.54097/fbem.v7i1.4168
+Mansuri, M. T. (2006)."
+Islamic Law of Contract and Business Transactions.
+"Adam Publishers
+and Distributors, New Delhi."
+"Mouatassim, H., & Ibenrissoul, A."
+"Proposal for an implementation methodology of key
+risk indicators system: Case of investment management process in Moroccan asset
+management company."
+"Journal of Financial Risk Management, 04(03), 187–205."
+"https://doi.org/10.4236/jfrm.2015.43015
+Najeeb, S. F. (2014)."
+"Trading in Islam: Shari’ah rules and contemporary applications in Islamic
+financial transactions."
+"Journal of Emerging Economies and Islamic Research, 2(2), 1–26."
+"Omar, H. N., & Hassan, R. (2019)."
+"Shariah non-compliance treatment in Malaysian Islamic
+Banks."
+"International Journal of Management and Applied Research, 6(4), 220–233."
+"https://doi.org/10.18646/2056.64.19-016
+Oz, E., Khokher, Z. ur R., Ali, M. M., & Rosman, R. (2016)."
+"Shari’ah non-compliance risk in the
+banking sector: impact on capital adequacy framework of Islamic banks (IFSB Working
+Paper Series)."
+Risk mapping and key risk indicators in operational risk management.
+"Review of Banking, Finance and Monetary Economics, 34(2), 231–256."
+"1180
+International Journal of Business and Society, Vol."
+"3, 2024, 1165-1181
+Schneider, T., Strahan, P. E., & Yang, J."
+"Bank Stress Testing: Public Interest or
+Regulatory Capture?"
+"Review of Finance, 27(2), 423–467."
+"https://doi.org/10.1093/rof/
+rfac027
+Swartz, N. P. (2013)."
+Risk Management in Islamic Banking.
+"African Journal of Business
+Management, 7(37), 3799–3809."
+"http://doi.org/10.5897/AJBM12.741
+The Islamic Financial Services Act (IFSA)."
+"Available at
+http://www.bnm.gov.my/documents/act/ en_ifsa.pdf [3 September 2015]."
+"Van Den Brink, G. J., & Leipoldt, M. (2022)."
+Key risk indicators reloaded.
+"Maandblad Voor
+Accountancy En Bedrijfseconomie, 96(5/6), 165–171."
+"https://doi.org/10.5117/mab.96.8073
+0
+Wicaksono, A. H., & Wijayati, N. (2023)."
+"Design of key risk indicators in risk management at
+PT Pembangkitan Jawa Bali Services (PT PJB Services)."
+"IOSR Journal of Business and
+Management, 25(1), 1–11."
+"The use of key risk indicators by banks as an operational risk management
+tool: A South African perspective."
+"Corporate Ownership and Control, 9(3 Continued 1),
+172–185."
+"https://doi.org/10.22495/cocv9i3c1art2
+Zuhayli, W. (1996)."
+"Al-Fiqh Al-Islami Wa Adallatuhu, Dar al-Fikr, Damascus, Syria."
+"Financial Transactions in Islamic Jurisprudence, Vol."
+"1, Dar Al Fikr,
+Damascus, Syria."
