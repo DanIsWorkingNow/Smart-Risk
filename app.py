@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from functools import wraps 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from credit_risk import calculate_credit_risk
+
 import torch
 
 app = Flask(__name__)
@@ -15,6 +17,7 @@ db = SQLAlchemy(app)
 # Load the custom FinBERT model and tokenizer globally
 tokenizer = AutoTokenizer.from_pretrained("KaidoKirito/shariahfin")
 model = AutoModelForSequenceClassification.from_pretrained("KaidoKirito/shariahfin")
+
 
 # 1) Create a User model for login credentials
 class User(db.Model):
@@ -38,6 +41,21 @@ class Loan(db.Model):
 
     def __repr__(self):
         return f'<Loan {self.id} - {self.customer_name}>'
+    
+#Database model for scoring credit
+class CreditApplication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.String(100), nullable=False)
+    loan_amount = db.Column(db.Float, nullable=False)
+    property_value = db.Column(db.Float, nullable=False)
+    monthly_debt = db.Column(db.Float, nullable=False)
+    monthly_income = db.Column(db.Float, nullable=False)
+    recovery_rate = db.Column(db.Float, nullable=False)
+    probability_of_default = db.Column(db.Float, nullable=False)
+    risk_score = db.Column(db.Float, nullable=False)
+    risk_level = db.Column(db.String(20), nullable=False)
+
+
     
     # 3) Optional: A decorator to require login on certain routes
 def login_required(f):
@@ -219,4 +237,79 @@ def delete_loan(loan_id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+#Credit risk logic
+@app.route('/credit-risk', methods=['GET', 'POST'])
+@login_required
+def credit_risk_page():
+    results = None
+    risk_level = None
+    risk_score = None
+
+    if request.method == 'POST':
+        action = request.form.get('action')  # 'analyze' or 'save'
+
+        # Get form values
+        application_id = request.form['application_id']
+        loan_amount = float(request.form['loan_amount'])
+        property_value = float(request.form['property_value'])
+        monthly_debt = float(request.form['monthly_debt'])
+        monthly_income = float(request.form['monthly_income'])
+        recovery_rate = float(request.form['recovery_rate']) / 100
+        probability_of_default = float(request.form['probability_of_default']) / 100
+
+        # Perform credit risk calculations
+        results = calculate_credit_risk(
+            loan_amount, property_value, monthly_debt,
+            monthly_income, recovery_rate, probability_of_default * 100
+        )
+
+        ltv = results['Loan-to-Value (LTV %)']
+        dti = results['Debt-to-Income (DTI %)']
+        pd = probability_of_default * 100
+
+        risk_score = (ltv * 0.4) + (dti * 0.3) + (pd * 0.3)
+
+        if risk_score < 30:
+            risk_level = 'Low'
+        elif 30 <= risk_score < 60:
+            risk_level = 'Medium'
+        else:
+            risk_level = 'High'
+
+        # If action is 'save', then save into database
+        if action == 'save':
+            new_application = CreditApplication(
+                application_id=application_id,
+                loan_amount=loan_amount,
+                property_value=property_value,
+                monthly_debt=monthly_debt,
+                monthly_income=monthly_income,
+                recovery_rate=recovery_rate * 100,
+                probability_of_default=probability_of_default * 100,
+                risk_score=risk_score,
+                risk_level=risk_level
+            )
+            db.session.add(new_application)
+            db.session.commit()
+            flash('Credit application saved successfully!', 'success')
+            return redirect(url_for('credit_applications'))  # redirect to saved page
+
+    return render_template('credit_risks.html', results=results, risk_level=risk_level, risk_score=risk_score)
+
+
+@app.route('/credit-applications')
+@login_required  # Ensure only logged-in users can access
+def credit_applications():
+    applications = CreditApplication.query.order_by(CreditApplication.id.desc()).all()
+    return render_template('credit_applications.html', applications=applications)
+
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # <-- Add this line
     app.run(debug=True)

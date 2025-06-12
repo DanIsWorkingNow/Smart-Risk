@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Credit Risk Assessment{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Credit Risk Assessment</h2>
+
+    <form method="POST">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Application ID</label>
+                <input type="text" class="form-control" name="application_id" value="{{ request.form.get('application_id', '') }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Loan Amount Requested (RM)</label>
+                <input type="number" step="0.01" class="form-control" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Property Value (RM)</label>
+                <input type="number" step="0.01" class="form-control" name="property_value" value="{{ request.form.get('property_value', '') }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Monthly Debt Obligations (RM)</label>
+                <input type="number" step="0.01" class="form-control" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Monthly Income (RM)</label>
+                <input type="number" step="0.01" class="form-control" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Recovery Rate (%)</label>
+                <input type="number" step="0.01" class="form-control" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Probability of Default (%)</label>
+                <input type="number" step="0.01" class="form-control" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}" required>
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" name="action" value="analyze" class="btn btn-primary mt-3">Analyze</button>
+            <button type="submit" name="action" value="save" class="btn btn-success mt-3">Save</button>
+        </div>
+    
+
+    {% if results %}
+    <hr>
+    <h3 class="text-center">Credit Risk Metrics</h3>
+    <ul class="list-group">
+        {% for key, value in results.items() %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ key }}
+            <span class="badge badge-primary badge-pill">{{ value }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="mt-4 text-center">
+        <h4>Overall Risk Level: <strong>{{ risk_level }}</strong></h4>
+        <div class="gauge">
+            <div class="gauge__body">
+                <div class="gauge__fill"></div>
+                <div class="gauge__cover"><div class="gauge__value">{{ risk_score | round(2) }}%</div>
+            </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    </form>
+</div>
+
+<!-- Gauge Styles -->
+<style>
+.gauge {
+    width: 200px;
+    height: 100px;
+    position: relative;
+    margin: 0 auto;
+}
+.gauge__body {
+    width: 100%;
+    height: 100%;
+    background: #e6e6e6;
+    border-radius: 100px 100px 0 0;
+    overflow: hidden;
+    position: relative;
+}
+.gauge__fill {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #00ff00;
+    transform-origin: center top;
+    transform: rotate(0.25turn);
+    transition: transform 0.5s ease-out;
+}
+.gauge__cover {
+    width: 75%;
+    height: 150%;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 25%;
+    left: 12.5%;
+}
+
+.gauge__value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  line-height: 100px; /* Adjust based on gauge size */
+}
+
+</style>
+
+<!-- Gauge Script -->
+<script>
+function setGaugeValue(gauge, value) {
+  if (value < 0 || value > 1) return;
+
+  const fill = gauge.querySelector('.gauge__fill');
+  const valueDisplay = gauge.querySelector('.gauge__value');
+
+  fill.style.transform = `rotate(${value / 2}turn)`;
+  valueDisplay.textContent = `${(value * 100).toFixed(2)}%`;
+
+  // Change color based on value
+  if (value < 0.33) {
+    fill.style.background = '#00ff00'; // Green
+  } else if (value < 0.66) {
+    fill.style.background = '#ffff00'; // Yellow
+  } else {
+    fill.style.background = '#ff0000'; // Red
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const gaugeElement = document.querySelector('.gauge');
+  const riskScore = {{ risk_score | default(0) | tojson }};
+  setGaugeValue(gaugeElement, riskScore / 100);
+});
+</script>
+
+
+{% endblock %}

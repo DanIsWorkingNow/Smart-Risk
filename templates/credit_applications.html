@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Credit Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Saved Credit Applications</h2>
+    {% if applications %}
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Application ID</th>
+                    <th>Loan Amount (RM)</th>
+                    <th>Property Value (RM)</th>
+                    <th>Monthly Debt (RM)</th>
+                    <th>Monthly Income (RM)</th>
+                    <th>Recovery Rate (%)</th>
+                    <th>Probability of Default (%)</th>
+                    <th>Risk Score (%)</th>
+                    <th>Risk Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.application_id }}</td>
+                    <td>{{ app.loan_amount }}</td>
+                    <td>{{ app.property_value }}</td>
+                    <td>{{ app.monthly_debt }}</td>
+                    <td>{{ app.monthly_income }}</td>
+                    <td>{{ app.recovery_rate }}</td>
+                    <td>{{ app.probability_of_default }}</td>
+                    <td>{{ app.risk_score | round(2) }}</td>
+                    <td>{{ app.risk_level }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">No credit applications found yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

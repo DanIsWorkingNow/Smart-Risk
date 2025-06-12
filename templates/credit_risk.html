@@ -39,7 +39,8 @@
 
     <!-- Buttons -->
     <button type="submit" class="btn btn-primary">CALCULATE</button>
-    <button type="button" class="btn btn-secondary" onclick="location.href='{{ url_for('index') }}'">CANCEL</button>
+    <a class="btn btn-secondary" href="{{ url_for('index') }}">CANCEL</a>
+
   </form>
 </div>
 {% endblock %}
