@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Shariah Risk Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Shariah Risk Management Dashboard</h2>
+
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-header">Total Applications</div>
+        <div class="card-body">
+          <h5 class="card-title text-center">{{ total_count }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <canvas id="riskPieChart"></canvas>
+    </div>
+  </div>
+
+  <div class="row mt-5">
+    <div class="col">
+      <h4 class="text-center">Top 5 Purposes of Financing</h4>
+      <table class="table table-bordered table-striped mt-3">
+        <thead class="thead-dark">
+          <tr>
+            <th>Purpose</th>
+            <th>Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in top_purposes %}
+          <tr>
+            <td>{{ row.purpose }}</td>
+            <td>{{ row.count }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('riskPieChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Halal', 'Haram', 'Doubtful'],
+      datasets: [{
+        label: 'Risk Breakdown',
+        data: [{{ halal_count }}, {{ haram_count }}, {{ doubtful_count }}],
+        backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Shariah Risk Classification'
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

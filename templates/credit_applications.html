@@ -5,10 +5,42 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center mb-4">Saved Credit Applications</h2>
-    {% if applications %}
+
+    <!-- Filter by Risk Level -->
+    <form method="GET" class="mb-4">
+        <div class="form-row justify-content-center">
+            <div class="col-md-4">
+                <select class="form-control" name="risk_level">
+                    <option value="">-- Filter by Risk Level --</option>
+                    <option value="Low" {% if request.args.get('risk_level') == 'Low' %}selected{% endif %}>Low</option>
+                    <option value="Medium" {% if request.args.get('risk_level') == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value="High" {% if request.args.get('risk_level') == 'High' %}selected{% endif %}>High</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-block">Apply</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Generate PDF Report Button -->
+    <div class="text-right mb-2">
+        <button id="generate-pdf" class="btn btn-primary">Generate PDF Report for Selected Loans</button>
+    </div>
+
+    <!-- Delete selected form -->
+    <form method="POST" action="{{ url_for('delete_selected_credit_applications') }}">
+        {% if applications %}
+        <div class="text-right mb-2">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete selected applications?');">
+                Delete Selected
+            </button>
+        </div>
+
         <table class="table table-bordered table-striped">
             <thead class="thead-dark">
                 <tr>
+                    <th><input type="checkbox" id="select-all"> <!-- master checkbox --></th>
                     <th>ID</th>
                     <th>Application ID</th>
                     <th>Loan Amount (RM)</th>
@@ -24,6 +56,7 @@
             <tbody>
                 {% for app in applications %}
                 <tr>
+                    <td><input type="checkbox" name="selected_ids" value="{{ app.id }}"></td>
                     <td>{{ app.id }}</td>
                     <td>{{ app.application_id }}</td>
                     <td>{{ app.loan_amount }}</td>
@@ -38,9 +71,66 @@
                 {% endfor %}
             </tbody>
         </table>
-    {% else %}
+        {% else %}
         <p class="text-center">No credit applications found yet.</p>
-    {% endif %}
+        {% endif %}
+    </form>
 </div>
-{% endblock %}
 
+<script>
+// Select/Deselect all checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('input[name="selected_ids"]');
+
+    selectAllCheckbox.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    });
+});
+
+// Generate PDF for selected loans
+document.getElementById('generate-pdf').addEventListener('click', function () {
+  const data = {
+    applications: []
+  };
+
+  // Loop through the selected checkboxes and collect data
+  const selectedRows = document.querySelectorAll('input[name="selected_ids"]:checked');
+  selectedRows.forEach(checkbox => {
+    const row = checkbox.closest('tr');  // Get the row of the selected checkbox
+    const rowData = {
+      application_id: row.cells[2].textContent.trim(),
+      loan_amount: row.cells[3].textContent.trim(),
+      property_value: row.cells[4].textContent.trim(),
+      monthly_debt: row.cells[5].textContent.trim(),
+      monthly_income: row.cells[6].textContent.trim(),
+      recovery_rate: row.cells[7].textContent.trim(),
+      probability_of_default: row.cells[8].textContent.trim(),
+      risk_score: row.cells[9].textContent.trim(),
+      risk_level: row.cells[10].textContent.trim()
+    };
+
+    console.log(rowData);  // Debugging: Check if data is being collected correctly
+
+    data.applications.push(rowData);
+  });
+
+  // Send the data to the server for PDF generation
+  fetch('/generate-pdf-report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(response => response.blob())
+  .then(blob => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'credit_application_report.pdf';
+    link.click();
+  })
+  .catch(error => console.error('Error generating PDF:', error));
+});
+</script>
+{% endblock %}

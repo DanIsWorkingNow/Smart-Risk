@@ -23,37 +23,53 @@
       </a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
-            <a class="nav-link" href="{{ url_for('index') }}">Home</a>
-          </li>
-          <li class="nav-item {% if request.endpoint == 'create_loan' %}active{% endif %}">
-            <a class="nav-link" href="{{ url_for('create_loan') }}">Add Loan</a>
-          </li>
-          <li class="nav-item {% if request.endpoint == 'shariah_risk_assessment' %}active{% endif %}">
-            <a class="nav-link" href="{{ url_for('shariah_risk_assessment') }}">Shariah Risk Assessment</a>
-        </li>
-        <li class="nav-item {% if request.endpoint == 'test_shariah_model' %}active{% endif %}">
-          <a class="nav-link" href="{{ url_for('test_shariah_model') }}">Test Shariah Model</a>
-        </li>
 
-        <li class="nav-item {% if request.endpoint == 'credit_risk_page' %}active{% endif %}">
-          <a class="nav-link" href="{{ url_for('credit_risk_page') }}">Credit Risk Assessment</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('credit_applications') }}">Saved Applications</a>
-        </li>
+          <!-- 🏦 Loan Management Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="loanDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              🏦 LOAN MANAGEMENT
+            </a>
+            <div class="dropdown-menu" aria-labelledby="loanDropdown">
+              <a class="dropdown-item" href="{{ url_for('index') }}">Home</a>
+              <a class="dropdown-item" href="{{ url_for('create_loan') }}">Add Loan</a>
+            </div>
+          </li>
         
-      
-     
+          <!-- 🕌 Shariah Risk Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="shariahDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              🕌 SHARIAH RISK
+            </a>
+            <div class="dropdown-menu" aria-labelledby="shariahDropdown">
+              <a class="dropdown-item" href="{{ url_for('shariah_risk_assessment') }}">Assessment</a>
+              <a class="dropdown-item" href="{{ url_for('test_shariah_model') }}">Test Model</a>
+              <a class="dropdown-item" href="{{ url_for('shariah_risk_applications') }}">Saved Applications</a>
+              <a class="dropdown-item" href="{{ url_for('shariah_dashboard') }}">📊 Dashboard</a>
+            </div>
+          </li>
         
-           <!-- Add these new items for login/logout -->
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-      </li>
+          <!-- 💳 Credit Risk Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="creditDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              💳 CREDIT RISK
+            </a>
+            <div class="dropdown-menu" aria-labelledby="creditDropdown">
+              <a class="dropdown-item" href="{{ url_for('credit_risk_page') }}">Assessment</a>
+              <a class="dropdown-item" href="{{ url_for('credit_applications') }}">Saved Applications</a>
+              <a class="dropdown-item" href="{{ url_for('credit_dashboard') }}">📊 Dashboard</a>
+            </div>
+          </li>
+        
+          <!-- 🔐 Account Dropdown -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              🔐 ACCOUNT
+            </a>
+            <div class="dropdown-menu" aria-labelledby="accountDropdown">
+              <a class="dropdown-item" href="{{ url_for('login') }}">Login</a>
+              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+            </div>
+          </li>
         </ul>
       </div>
     </nav>

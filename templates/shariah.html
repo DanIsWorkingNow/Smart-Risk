@@ -80,7 +80,17 @@
     </div>
   </div>
 
-  <!-- Submit Button -->
-  <button type="submit" class="btn btn-primary">Analyse</button>
+    <!-- Submit Buttons -->
+    <div class="text-center mt-4">
+      <button type="submit" name="action" value="analyze" class="btn btn-primary mr-2">Analyze</button>
+      <button type="submit" name="action" value="save" class="btn btn-success">Save</button>
+    </div>
 </form>
+
+{% if risk_score %}
+<div class="mt-5 text-center">
+    <h3>Analysis Result:</h3>
+    <h4 class="text-info">{{ risk_score }}</h4>
+</div>
+{% endif %}
 {% endblock %}

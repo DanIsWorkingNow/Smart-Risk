@@ -4,7 +4,17 @@ from datetime import datetime
 from functools import wraps 
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from credit_risk import calculate_credit_risk
+from sqlalchemy import func
+from collections import Counter
+from flask import request, jsonify
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from flask import Response
+from io import BytesIO
 
+
+
+import pandas as pd
 import torch
 
 app = Flask(__name__)
@@ -54,6 +64,23 @@ class CreditApplication(db.Model):
     probability_of_default = db.Column(db.Float, nullable=False)
     risk_score = db.Column(db.Float, nullable=False)
     risk_level = db.Column(db.String(20), nullable=False)
+
+class ShariahRiskApplication(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    application_id = db.Column(db.String(100), nullable=False)
+    application_date = db.Column(db.Date, nullable=False)
+    customer_name = db.Column(db.String(100), nullable=False)
+    customer_category = db.Column(db.String(50), nullable=False)  # Corporate / Personal
+    loan_amount = db.Column(db.Float, nullable=False)
+    purpose_of_financing = db.Column(db.String(200), nullable=False)
+    riba = db.Column(db.String(10), nullable=False)   # Yes / No
+    gharar = db.Column(db.String(10), nullable=False) # Yes / No
+    maysir = db.Column(db.String(10), nullable=False) # Present / Absent
+    business_description = db.Column(db.Text, nullable=False)
+    shariah_risk_score = db.Column(db.String(50), nullable=False)  # Halal, Haram, Doubtful, etc.
+
+    def __repr__(self):
+        return f'<ShariahRiskApplication {self.application_id} - {self.customer_name}>'
 
 
     
@@ -152,16 +179,18 @@ def edit_loan(loan_id):
         flash("Loan record updated successfully!", "success")
         return redirect(url_for('index'))
     return render_template('edit.html', loan=loan)
+
 # Route for Shariah Risk Assessment
 @app.route('/shariah-risk-assessment', methods=['GET', 'POST'])
 @login_required
 def shariah_risk_assessment():
+    risk_score = None
     if request.method == 'POST':
-        # Capture form inputs here as before
+        action = request.form.get('action')
+
         application_id = request.form['application_id']
         application_date = request.form['application_date']
         customer_name = request.form['customer_name']
-        category = request.form['category']
         amount_requested = float(request.form['amount_requested'])
         purpose_of_financing = request.form['purpose_of_financing']
         customer_category = request.form['customer_category']
@@ -170,34 +199,36 @@ def shariah_risk_assessment():
         maysir = request.form['maysir']
         business_description = request.form['business_description']
 
-        # Ensure model input is correctly tokenized
+        # Predict Shariah Risk using model
         inputs = tokenizer(business_description, return_tensors="pt", truncation=True, padding=True)
-        
-        # Run inference to get the model prediction
         with torch.no_grad():
             outputs = model(**inputs)
-
-        # Get the predicted class id (highest logit)
         predicted_class_id = torch.argmax(outputs.logits, dim=-1).item()
-        
-        # Get the human-readable label for the prediction using the model's label mapping
         risk_score = model.config.id2label[predicted_class_id]
 
-        # Store the loan with the prediction in the database
-        new_loan = Loan(
-            application_date=datetime.strptime(application_date, '%Y-%m-%d'),
-            customer_name=customer_name,
-            amount_requested=amount_requested,
-            risk_score=risk_score,  # Save the risk score as a label (e.g., 'Halal', 'Haram')
-            remarks=f'Riba: {riba}, Gharar: {gharar}, Maysir: {maysir}, Purpose: {purpose_of_financing}'
-        )
-        db.session.add(new_loan)
-        db.session.commit()
+        if action == 'save':
+            # Save to DB
+            new_shariah_risk = ShariahRiskApplication(
+                application_id=application_id,
+                application_date=datetime.strptime(application_date, '%Y-%m-%d'),
+                customer_name=customer_name,
+                customer_category=customer_category,
+                loan_amount=amount_requested,
+                purpose_of_financing=purpose_of_financing,
+                riba=riba,
+                gharar=gharar,
+                maysir=maysir,
+                business_description=business_description,
+                shariah_risk_score=risk_score
+            )
+            db.session.add(new_shariah_risk)
+            db.session.commit()
+            flash(f'Shariah Risk Application saved: {risk_score}', 'success')
+            return redirect(url_for('shariah_risk_applications'))
 
-        flash(f'Loan risk assessment completed: {risk_score}', 'success')
-        return redirect(url_for('index'))
+    return render_template('shariah.html', risk_score=risk_score)
 
-    return render_template('shariah.html')
+
 
 # -------------------------
 # NEW: Route for testing the model functionality
@@ -302,14 +333,349 @@ def credit_risk_page():
     return render_template('credit_risks.html', results=results, risk_level=risk_level, risk_score=risk_score)
 
 
-@app.route('/credit-applications')
-@login_required  # Ensure only logged-in users can access
+
+
+@app.route('/credit-applications', methods=['GET'])
+@login_required
 def credit_applications():
-    applications = CreditApplication.query.order_by(CreditApplication.id.desc()).all()
+    risk_filter = request.args.get('risk_level')
+    if risk_filter:
+        applications = CreditApplication.query.filter_by(risk_level=risk_filter).order_by(CreditApplication.id.desc()).all()
+    else:
+        applications = CreditApplication.query.order_by(CreditApplication.id.desc()).all()
     return render_template('credit_applications.html', applications=applications)
+
+
+@app.route('/credit-application/delete-selected', methods=['POST'])
+@login_required
+def delete_selected_credit_applications():
+    selected_ids = request.form.getlist('selected_ids')
+    if selected_ids:
+        for app_id in selected_ids:
+            application = CreditApplication.query.get(app_id)
+            if application:
+                db.session.delete(application)
+        db.session.commit()
+        flash(f'Successfully deleted {len(selected_ids)} application(s).', 'success')
+    else:
+        flash('No applications selected.', 'warning')
+    return redirect(url_for('credit_applications'))
+
+
+@app.route('/shariah-applications', methods=['GET'])
+@login_required
+def shariah_risk_applications():
+    risk_filter = request.args.get('risk_score')
+    # Define the mapping of numeric scores to human-readable labels
+    risk_score_mapping = {
+        0: "Halal",
+        1: "Haram",
+        2: "Doubtful"
+    }
+
+    if risk_filter:
+        # Reverse map the human-readable filter to numeric values
+        numeric_filter = {v: k for k, v in risk_score_mapping.items()}.get(risk_filter)
+        applications = ShariahRiskApplication.query.filter_by(shariah_risk_score=numeric_filter).order_by(ShariahRiskApplication.id.desc()).all()
+    else:
+        applications = ShariahRiskApplication.query.order_by(ShariahRiskApplication.id.desc()).all()
+
+    # Map numeric scores to human-readable labels for rendering
+    for app in applications:
+        app.shariah_risk_score = risk_score_mapping.get(int(app.shariah_risk_score), "Unknown")
+
+    return render_template('shariah_applications.html', applications=applications)
+
+@app.route('/shariah-application/delete-selected', methods=['POST'])
+@login_required
+def delete_selected_shariah_applications():
+    selected_ids = request.form.getlist('selected_ids')
+    if selected_ids:
+        for app_id in selected_ids:
+            application = ShariahRiskApplication.query.get(app_id)
+            if application:
+                db.session.delete(application)
+        db.session.commit()
+        flash(f'Successfully deleted {len(selected_ids)} Shariah application(s).', 'success')
+    else:
+        flash('No applications selected.', 'warning')
+    return redirect(url_for('shariah_risk_applications'))
 
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # <-- Add this line
     app.run(debug=True)
+
+@app.route('/shariah-dashboard')
+@login_required
+def shariah_dashboard():
+    # Total count
+    total_count = ShariahRiskApplication.query.count()
+
+    # Count by risk_score
+    halal_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Halal').count()
+    haram_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Haram').count()
+    doubtful_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Doubtful').count()
+
+    # Top 5 purposes of financing
+    purpose_data = db.session.query(
+        ShariahRiskApplication.purpose_of_financing,
+        func.count(ShariahRiskApplication.purpose_of_financing).label('count')
+    ).group_by(
+        ShariahRiskApplication.purpose_of_financing
+    ).order_by(
+        func.count(ShariahRiskApplication.purpose_of_financing).desc()
+    ).limit(5).all()
+
+    top_purposes = [{"purpose": row[0], "count": row[1]} for row in purpose_data]
+
+    return render_template(
+        'dboard.html',
+        total_count=total_count,
+        halal_count=halal_count,
+        haram_count=haram_count,
+        doubtful_count=doubtful_count,
+        top_purposes=top_purposes
+    )
+
+
+@app.route('/credit-dashboard')
+@login_required
+def credit_dashboard():
+    total_count = CreditApplication.query.count()
+
+    # Risk level counts
+    low_count = CreditApplication.query.filter_by(risk_level='Low').count()
+    medium_count = CreditApplication.query.filter_by(risk_level='Medium').count()
+    high_count = CreditApplication.query.filter_by(risk_level='High').count()
+
+    # Group by loan amount ranges
+    applications = CreditApplication.query.with_entities(CreditApplication.loan_amount).all()
+    ranges = {'<100k': 0, '100k-500k': 0, '500k-1M': 0, '>1M': 0}
+    for (amount,) in applications:
+        if amount < 100000:
+            ranges['<100k'] += 1
+        elif amount < 500000:
+            ranges['100k-500k'] += 1
+        elif amount < 1000000:
+            ranges['500k-1M'] += 1
+        else:
+            ranges['>1M'] += 1
+
+    top_ranges = [{'range': k, 'count': v} for k, v in ranges.items() if v > 0]
+
+    return render_template(
+        'dboardcr.html',
+        total_count=total_count,
+        low_count=low_count,
+        medium_count=medium_count,
+        high_count=high_count,
+        top_ranges=top_ranges
+    )
+
+@app.route('/upload-credit-file', methods=['POST'])
+def upload_credit_file():
+    file = request.files['file']
+    if file:
+        try:
+            if file.filename.endswith('.csv'):
+                df = pd.read_csv(file)
+            elif file.filename.endswith(('.xls', '.xlsx')):
+                df = pd.read_excel(file)
+            else:
+                return jsonify({'error': 'Unsupported file format'}), 400
+
+            if df.empty:
+                return jsonify({'error': 'File is empty'}), 400
+
+            # Assume columns match the input field names
+            first_row = df.iloc[0].to_dict()
+            return jsonify(first_row)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    return jsonify({'error': 'No file uploaded'}), 400
+
+
+@app.route('/upload-batch-credit', methods=['POST'])
+@login_required
+def upload_batch_credit():
+    file = request.files.get('file')
+    if not file:
+        flash('No file uploaded.', 'danger')
+        return redirect(url_for('credit_risk_page'))
+
+    try:
+        import pandas as pd
+
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file)
+        elif file.filename.endswith(('.xls', '.xlsx')):
+            df = pd.read_excel(file)
+        else:
+            flash('Unsupported file format.', 'danger')
+            return redirect(url_for('credit_risk_page'))
+
+        applications = []
+        errors = 0
+
+        for _, row in df.iterrows():
+            try:
+                # Extract necessary fields
+                monthly_debt = row['monthly_debt']
+                monthly_income = row['monthly_income']
+                loan_amount = row['loan_amount']
+                property_value = row['property_value']
+                probability_of_default = row['probability_of_default']
+
+                # Calculate risk score
+                dti = monthly_debt / monthly_income
+                ltv = loan_amount / property_value
+                pd_normalized = probability_of_default / 100
+
+                risk_score = (0.4 * dti + 0.3 * ltv + 0.3 * pd_normalized) * 100
+
+                # Determine risk level
+                if risk_score < 40:
+                    risk_level = 'Low'
+                elif risk_score < 70:
+                    risk_level = 'Medium'
+                else:
+                    risk_level = 'High'
+
+                app = CreditApplication(
+                    application_id=row['application_id'],
+                    loan_amount=loan_amount,
+                    property_value=property_value,
+                    monthly_debt=monthly_debt,
+                    monthly_income=monthly_income,
+                    recovery_rate=row['recovery_rate'],
+                    probability_of_default=probability_of_default,
+                    risk_score=risk_score,
+                    risk_level=risk_level
+                )
+                applications.append(app)
+            except Exception as e:
+                errors += 1
+                continue
+
+        db.session.bulk_save_objects(applications)
+        db.session.commit()
+
+        flash(f'{len(applications)} applications saved successfully. {errors} failed.', 'success')
+    except Exception as e:
+        flash(f'Error processing file: {str(e)}', 'danger')
+
+    return redirect(url_for('credit_risk_page'))
+
+
+@app.route('/preview-credit-file', methods=['POST'])
+@login_required
+def preview_credit_file():
+    file = request.files['file']
+    if not file:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    try:
+        import pandas as pd
+
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file)
+        elif file.filename.endswith(('.xls', '.xlsx')):
+            df = pd.read_excel(file)
+        else:
+            return jsonify({'error': 'Unsupported file format'}), 400
+
+        preview_data = []
+        for _, row in df.iterrows():
+            # Define the calculate_risk function logic
+            def calculate_risk(row):
+                monthly_debt = row['monthly_debt']
+                monthly_income = row['monthly_income']
+                loan_amount = row['loan_amount']
+                property_value = row['property_value']
+                probability_of_default = row['probability_of_default']
+
+                # Calculate risk score
+                dti = monthly_debt / monthly_income
+                ltv = loan_amount / property_value
+                pd_normalized = probability_of_default / 100
+
+                risk_score = (0.4 * dti + 0.3 * ltv + 0.3 * pd_normalized) * 100
+
+                # Determine risk level
+                if risk_score < 40:
+                    risk_level = 'Low'
+                elif risk_score < 70:
+                    risk_level = 'Medium'
+                else:
+                    risk_level = 'High'
+
+                return risk_score, risk_level
+
+            risk_score, risk_level = calculate_risk(row)
+            preview_data.append({
+                'application_id': row['application_id'],
+                'loan_amount': row['loan_amount'],
+                'property_value': row['property_value'],
+                'monthly_debt': row['monthly_debt'],
+                'monthly_income': row['monthly_income'],
+                'recovery_rate': row['recovery_rate'],
+                'probability_of_default': row['probability_of_default'],
+                'risk_score': risk_score,
+                'risk_level': risk_level
+            })
+
+        return jsonify(preview_data)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-pdf-report', methods=['POST'])
+@login_required
+def generate_pdf_report():
+    data = request.get_json()
+
+    # Ensure there is data
+    if not data.get('applications'):
+        return "No applications data found", 400
+
+    # Create a BytesIO buffer to hold the PDF content in memory
+    buffer = BytesIO()
+
+    # Create the PDF using the buffer
+    c = canvas.Canvas(buffer, pagesize=letter)
+
+    # Add content to the PDF
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 750, "Credit Application Report")
+
+    y_position = 730
+    for application in data['applications']:
+        c.drawString(100, y_position, f"Application ID: {application['application_id']}")
+        c.drawString(100, y_position - 15, f"Loan Amount: {application['loan_amount']}")
+        c.drawString(100, y_position - 30, f"Risk Level: {application['risk_level']}")
+        y_position -= 60
+
+        # Check for page overflow, create a new page if necessary
+        if y_position < 100:
+            c.showPage()
+            c.setFont("Helvetica", 12)
+            y_position = 750
+
+    # Save the PDF to the buffer
+    c.save()
+
+    # Get the PDF data from the buffer
+    pdf_data = buffer.getvalue()
+
+    # Close the buffer
+    buffer.close()
+
+    # Create the response with the correct headers
+    response = Response(pdf_data, content_type='application/pdf')
+    response.headers['Content-Disposition'] = 'attachment; filename=credit_application_report.pdf'
+
+    # Return the response containing the PDF
+    return response

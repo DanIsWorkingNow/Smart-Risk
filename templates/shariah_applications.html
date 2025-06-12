@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Saved Shariah Risk Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Saved Shariah Risk Applications</h2>
+
+    <!-- Filter by Shariah Risk Score -->
+    <form method="GET" class="mb-4">
+        <div class="form-row justify-content-center">
+            <div class="col-md-4">
+                <select class="form-control" name="risk_score">
+                    <option value="">-- Filter by Risk Score --</option>
+                    <option value="Halal" {% if request.args.get('risk_score') == 'Halal' %}selected{% endif %}>Halal</option>
+                    <option value="Haram" {% if request.args.get('risk_score') == 'Haram' %}selected{% endif %}>Haram</option>
+                    <option value="Doubtful" {% if request.args.get('risk_score') == 'Doubtful' %}selected{% endif %}>Doubtful</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-block">Apply</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Bulk delete selected -->
+    <form method="POST" action="{{ url_for('delete_selected_shariah_applications') }}">
+    {% if applications %}
+        <div class="text-right mb-2">
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete selected applications?');">
+                Delete Selected
+            </button>
+        </div>
+
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>ID</th>
+                    <th>Application ID</th>
+                    <th>Customer Name</th>
+                    <th>Category</th>
+                    <th>Loan Amount (RM)</th>
+                    <th>Purpose</th>
+                    <th>Risk Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                <tr>
+                    <td><input type="checkbox" name="selected_ids" value="{{ app.id }}"></td>
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.application_id }}</td>
+                    <td>{{ app.customer_name }}</td>
+                    <td>{{ app.customer_category }}</td>
+                    <td>{{ app.loan_amount }}</td>
+                    <td>{{ app.purpose_of_financing }}</td>
+                    <td>{{ app.shariah_risk_score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-center">No Shariah applications found yet.</p>
+    {% endif %}
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('input[name="selected_ids"]');
+    selectAllCheckbox.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    });
+});
+</script>
+{% endblock %}
