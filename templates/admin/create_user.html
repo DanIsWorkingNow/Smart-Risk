@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New User{% endblock %}
+
+{% block content %}
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>➕ Create New User Account</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="staff_id">Staff ID <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="staff_id" name="staff_id" 
+                                           placeholder="e.g., credit002" required>
+                                    <small class="form-text text-muted">Unique identifier for the user</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">Email Address <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           placeholder="user@company.com" required>
+                                    <small class="form-text text-muted">Corporate email address</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="full_name">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" 
+                                           placeholder="John Doe" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="role">User Role <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="role" name="role" required>
+                                        <option value="">Select Role...</option>
+                                        <option value="admin">System Administrator</option>
+                                        <option value="shariah_officer">Shariah Risk Officer</option>
+                                        <option value="credit_officer">Credit Risk Officer</option>
+                                    </select>
+                                    <small class="form-text text-muted">Determines user permissions</small>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="department">Department</label>
+                                    <input type="text" class="form-control" id="department" name="department" 
+                                           placeholder="e.g., Risk Management">
+                                    <small class="form-text text-muted">Optional</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" class="form-control" id="phone" name="phone" 
+                                           placeholder="+60123456789">
+                                    <small class="form-text text-muted">Optional</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="password">Password <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password" name="password" 
+                                               placeholder="Enter secure password" required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="togglePassword" title="Show/Hide Password">
+                                                <i class="fas fa-eye" id="passwordIcon"></i>
+                                            </button>
+                                            <button class="btn btn-outline-info" type="button" id="generatePassword" title="Generate Secure Password">
+                                                🔑 Generate
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Must be at least 8 characters with uppercase, lowercase, number, and special character
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirm_password">Confirm Password <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                               placeholder="Confirm password" required>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                                <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Role Descriptions -->
+                        <div class="alert alert-info mt-3">
+                            <h6>📋 Role Descriptions:</h6>
+                            <ul class="mb-0">
+                                <li><strong>System Administrator:</strong> Full system access, user management, system configuration</li>
+                                <li><strong>Shariah Risk Officer:</strong> Shariah compliance analysis, Islamic finance assessments</li>
+                                <li><strong>Credit Risk Officer:</strong> Credit risk analysis, financial assessments, batch processing</li>
+                            </ul>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-group mt-4">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('manage_users') }}" class="btn btn-secondary">
+                                    ← Back to User Management
+                                </a>
+                                <div>
+                                    <button type="reset" class="btn btn-warning mr-2">🔄 Reset Form</button>
+                                    <button type="submit" class="btn btn-success">✅ Create User</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Password Requirements Card -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6>🔒 Password Requirements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li>✅ At least 8 characters long</li>
+                                <li>✅ At least one uppercase letter (A-Z)</li>
+                                <li>✅ At least one lowercase letter (a-z)</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li>✅ At least one number (0-9)</li>
+                                <li>✅ At least one special character (!@#$%^&*)</li>
+                                <li>✅ No common passwords or personal information</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Generate Password button functionality
+document.getElementById('generatePassword').addEventListener('click', function() {
+    const newPassword = generateSecurePassword(12);
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirm_password');
+    
+    // Set the generated password
+    passwordField.value = newPassword;
+    confirmPasswordField.value = newPassword;
+    
+    // Show the password temporarily
+    passwordField.type = 'text';
+    confirmPasswordField.type = 'text';
+    
+    // Update the eye icons
+    document.getElementById('passwordIcon').classList.remove('fa-eye');
+    document.getElementById('passwordIcon').classList.add('fa-eye-slash');
+    document.getElementById('confirmPasswordIcon').classList.remove('fa-eye');
+    document.getElementById('confirmPasswordIcon').classList.add('fa-eye-slash');
+    
+    // Trigger validation
+    passwordField.classList.add('is-valid');
+    confirmPasswordField.classList.add('is-valid');
+    
+    // Show success message
+    this.innerHTML = '✅ Generated!';
+    this.classList.remove('btn-outline-info');
+    this.classList.add('btn-success');
+    
+    // Reset button after 2 seconds
+    setTimeout(() => {
+        this.innerHTML = '🔑 Generate';
+        this.classList.remove('btn-success');
+        this.classList.add('btn-outline-info');
+    }, 2000);
+    
+    // Focus on next field
+    document.getElementById('confirm_password').focus();
+});
+
+// Password visibility toggle functions
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordField = document.getElementById('password');
+    const passwordIcon = document.getElementById('passwordIcon');
+    
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        passwordIcon.classList.remove('fa-eye');
+        passwordIcon.classList.add('fa-eye-slash');
+        this.setAttribute('aria-label', 'Hide password');
+    } else {
+        passwordField.type = 'password';
+        passwordIcon.classList.remove('fa-eye-slash');
+        passwordIcon.classList.add('fa-eye');
+        this.setAttribute('aria-label', 'Show password');
+    }
+});
+
+document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+    const confirmPasswordField = document.getElementById('confirm_password');
+    const confirmPasswordIcon = document.getElementById('confirmPasswordIcon');
+    
+    if (confirmPasswordField.type === 'password') {
+        confirmPasswordField.type = 'text';
+        confirmPasswordIcon.classList.remove('fa-eye');
+        confirmPasswordIcon.classList.add('fa-eye-slash');
+        this.setAttribute('aria-label', 'Hide password');
+    } else {
+        confirmPasswordField.type = 'password';
+        confirmPasswordIcon.classList.remove('fa-eye-slash');
+        confirmPasswordIcon.classList.add('fa-eye');
+        this.setAttribute('aria-label', 'Show password');
+    }
+});
+
+// Generate random secure password function
+function generateSecurePassword(length = 12) {
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    
+    let password = '';
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+    
+    const allChars = uppercase + lowercase + numbers + symbols;
+    for (let i = 4; i < length; i++) {
+        password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    
+    return password.split('').sort(() => 0.5 - Math.random()).join('');
+}
+
+// Client-side password validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+        this.classList.add('is-invalid');
+    } else {
+        this.setCustomValidity('');
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    }
+});
+
+// Real-time password strength validation
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    const allMet = Object.values(requirements).every(req => req);
+    
+    if (allMet) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    } else if (password.length > 0) {
+        this.classList.remove('is-valid');
+        this.classList.add('is-invalid');
+    }
+});
+
+// Role selection helper
+document.getElementById('role').addEventListener('change', function() {
+    const role = this.value;
+    const departmentField = document.getElementById('department');
+    
+    switch(role) {
+        case 'admin':
+            departmentField.value = 'Information Technology';
+            break;
+        case 'shariah_officer':
+            departmentField.value = 'Shariah Compliance';
+            break;
+        case 'credit_officer':
+            departmentField.value = 'Risk Management';
+            break;
+    }
+});
+</script>
+{% endblock %}

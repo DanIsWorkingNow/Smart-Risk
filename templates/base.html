@@ -5,37 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Loan Risk Assessment{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-    <!-- Optionally include Bootstrap CDN -->
+    <!-- Bootstrap CDN -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
   </head>
   <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="{{ url_for('index') }}">
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+        {% if url_for('static', filename='logo.png') %}
         <img 
-        src ="{{ url_for('static', filename='logo.png') }}"
+        src="{{ url_for('static', filename='logo.png') }}"
         alt="Logo"
         style="height:30px; width:auto; vertical-align:middle;"
         />
+        {% endif %}
         SMART-Risk
       </a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
-
+          {% if session.user_id %}
           <!-- 🏦 Loan Management Dropdown -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="loanDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               🏦 LOAN MANAGEMENT
             </a>
             <div class="dropdown-menu" aria-labelledby="loanDropdown">
-              <a class="dropdown-item" href="{{ url_for('index') }}">Home</a>
+              <a class="dropdown-item" href="{{ url_for('dashboard') }}">Home</a>
               <a class="dropdown-item" href="{{ url_for('create_loan') }}">Add Loan</a>
             </div>
           </li>
         
           <!-- 🕌 Shariah Risk Dropdown -->
+          {% if current_user and (current_user.role.value == 'shariah_officer' or current_user.role.value == 'admin') %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="shariahDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               🕌 SHARIAH RISK
@@ -47,8 +49,10 @@
               <a class="dropdown-item" href="{{ url_for('shariah_dashboard') }}">📊 Dashboard</a>
             </div>
           </li>
+          {% endif %}
         
           <!-- 💳 Credit Risk Dropdown -->
+          {% if current_user and (current_user.role.value == 'credit_officer' or current_user.role.value == 'admin') %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="creditDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               💳 CREDIT RISK
@@ -59,6 +63,21 @@
               <a class="dropdown-item" href="{{ url_for('credit_dashboard') }}">📊 Dashboard</a>
             </div>
           </li>
+          {% endif %}
+
+          <!-- 🔧 Admin Tools -->
+          {% if current_user and current_user.role.value == 'admin' %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              🔧 ADMIN
+            </a>
+            <div class="dropdown-menu" aria-labelledby="adminDropdown">
+              <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+              <a class="dropdown-item" href="{{ url_for('manage_users') }}">Manage Users</a>
+              <a class="dropdown-item" href="{{ url_for('create_user') }}">Create User</a>
+            </div>
+          </li>
+          {% endif %}
         
           <!-- 🔐 Account Dropdown -->
           <li class="nav-item dropdown">
@@ -66,10 +85,21 @@
               🔐 ACCOUNT
             </a>
             <div class="dropdown-menu" aria-labelledby="accountDropdown">
-              <a class="dropdown-item" href="{{ url_for('login') }}">Login</a>
-              <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+              {% if session.user_id %}
+                <span class="dropdown-item-text">Welcome, {{ session.full_name or session.staff_id }}!</span>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+              {% else %}
+                <a class="dropdown-item" href="{{ url_for('login') }}">Login</a>
+              {% endif %}
             </div>
           </li>
+          {% else %}
+          <!-- Show login option if not logged in -->
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+          {% endif %}
         </ul>
       </div>
     </nav>
@@ -78,7 +108,7 @@
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
               {{ message }}
               <button type="button" class="close" data-dismiss="alert">&times;</button>
             </div>
@@ -88,7 +118,7 @@
       {% block content %}{% endblock %}
     </div>
 
-    <!-- Optional JavaScript -->
+    <!-- JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
