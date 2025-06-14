@@ -1212,6 +1212,149 @@ def preview_credit_file():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+    # Add these routes to your app.py file
+
+@app.route('/admin/change-password/<int:user_id>', methods=['GET', 'POST'])
+@admin_required
+def change_user_password(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        # Validation
+        errors = []
+        
+        if not new_password or not confirm_password:
+            errors.append('Please enter both password fields.')
+        
+        if new_password != confirm_password:
+            errors.append('Passwords do not match.')
+        
+        if not validate_password_strength(new_password):
+            errors.append('Password does not meet security requirements.')
+        
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('admin/change_password.html', user=user)
+        
+        # Change the password
+        try:
+            user.set_password(new_password)
+            user.updated_at = datetime.utcnow()
+            user.updated_by = session['user_id']
+            
+            # Reset failed login attempts when admin changes password
+            user.failed_login_attempts = 0
+            
+            db.session.commit()
+            
+            # Log the password change
+            AuditLog.log_action(
+                user_id=session['user_id'],
+                action='PASSWORD_CHANGED_BY_ADMIN',
+                resource='user',
+                resource_id=user.staff_id,
+                details={
+                    'target_user': user.staff_id,
+                    'changed_by_admin': session['staff_id']
+                },
+                request_obj=request
+            )
+            
+            flash(f'Password successfully changed for user {user.staff_id} ({user.full_name}).', 'success')
+            return redirect(url_for('manage_users'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while changing the password. Please try again.', 'danger')
+            return render_template('admin/change_password.html', user=user)
+    
+    return render_template('admin/change_password.html', user=user)
+
+@app.route('/admin/reset-failed-logins/<int:user_id>')
+@admin_required
+def reset_failed_logins(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if user.failed_login_attempts > 0:
+        old_attempts = user.failed_login_attempts
+        user.failed_login_attempts = 0
+        user.is_active = True  # Reactivate if locked due to failed attempts
+        user.updated_at = datetime.utcnow()
+        user.updated_by = session['user_id']
+        
+        db.session.commit()
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='FAILED_LOGINS_RESET',
+            resource='user',
+            resource_id=user.staff_id,
+            details={
+                'target_user': user.staff_id,
+                'previous_failed_attempts': old_attempts,
+                'reset_by_admin': session['staff_id']
+            },
+            request_obj=request
+        )
+        
+        flash(f'Failed login attempts reset for user {user.staff_id}. Account has been reactivated.', 'success')
+    else:
+        flash(f'User {user.staff_id} has no failed login attempts to reset.', 'info')
+    
+    return redirect(url_for('manage_users'))
+
+@app.route('/admin/user-details/<int:user_id>')
+@admin_required
+def user_details(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    # Get user's recent activities from audit logs
+    recent_activities = AuditLog.query.filter_by(user_id=user.id)\
+                                     .order_by(AuditLog.timestamp.desc())\
+                                     .limit(10).all()
+    
+    # Get user's sessions
+    recent_sessions = UserSession.query.filter_by(user_id=user.id)\
+                                      .order_by(UserSession.created_at.desc())\
+                                      .limit(5).all()
+    
+    # Calculate some statistics
+    total_logins = AuditLog.query.filter_by(user_id=user.id, action='LOGIN_SUCCESS').count()
+    failed_logins = AuditLog.query.filter_by(user_id=user.id, action='LOGIN_FAILED').count()
+    
+    stats = {
+        'total_logins': total_logins,
+        'failed_logins': failed_logins,
+        'last_login': user.last_login,
+        'account_created': user.created_at,
+        'recent_activities': recent_activities,
+        'recent_sessions': recent_sessions
+    }
+    
+    return render_template('admin/user_details.html', user=user, stats=stats)
+
+# Helper function to validate password strength (if not already exists)
+def validate_password_strength(password):
+    """Validate password meets security requirements"""
+    if not password:
+        return False
+    if len(password) < 8:
+        return False
+    if not re.search(r'[A-Z]', password):
+        return False
+    if not re.search(r'[a-z]', password):
+        return False
+    if not re.search(r'\d', password):
+        return False
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return False
+    return True
+    
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

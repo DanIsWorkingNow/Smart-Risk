@@ -85,6 +85,22 @@
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
+                                    <!-- Change Password Button -->
+                                    <a href="{{ url_for('change_user_password', user_id=user.id) }}" 
+                                       class="btn btn-info btn-sm" title="Change Password">
+                                        🔑 Password
+                                    </a>
+                                    
+                                    <!-- Reset Failed Logins (if user has failed attempts) -->
+                                    {% if user.failed_login_attempts > 0 %}
+                                    <a href="{{ url_for('reset_failed_logins', user_id=user.id) }}" 
+                                       class="btn btn-warning btn-sm" title="Reset Failed Logins"
+                                       onclick="return confirm('Reset {{ user.failed_login_attempts }} failed login attempts for {{ user.staff_id }}?');">
+                                        🔓 Reset ({{ user.failed_login_attempts }})
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <!-- Activate/Deactivate Button -->
                                     {% if user.id != session.user_id %}
                                     <a href="{{ url_for('toggle_user_status', user_id=user.id) }}" 
                                        class="btn btn-{% if user.is_active %}warning{% else %}success{% endif %} btn-sm"
@@ -92,7 +108,7 @@
                                         {% if user.is_active %}🔒 Deactivate{% else %}🔓 Activate{% endif %}
                                     </a>
                                     {% else %}
-                                    <span class="badge badge-info">Current User</span>
+                                    <span class="badge badge-secondary">Current User</span>
                                     {% endif %}
                                 </div>
                             </td>
