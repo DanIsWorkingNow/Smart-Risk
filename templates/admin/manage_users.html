@@ -3,6 +3,9 @@
 {% block title %}Manage Users{% endblock %}
 
 {% block content %}
+<!-- Add Font Awesome for eye icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>👥 User Management</h2>
@@ -41,22 +44,22 @@
     <!-- Users Table -->
     <div class="card">
         <div class="card-header">
-            <h5>User Accounts ({{ users.total }} total)</h5>
+            <h5>User Accounts ({{ users.total if users else 0 }} total)</h5>
         </div>
         <div class="card-body">
-            {% if users.items %}
+            {% if users and users.items %}
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Staff ID</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Department</th>
-                            <th>Status</th>
-                            <th>Last Login</th>
-                            <th>Actions</th>
+                            <th width="10%">Staff ID</th>
+                            <th width="15%">Full Name</th>
+                            <th width="20%">Email</th>
+                            <th width="10%">Role</th>
+                            <th width="12%">Department</th>
+                            <th width="8%">Status</th>
+                            <th width="15%">Last Login</th>
+                            <th width="10%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,9 +81,12 @@
                             </td>
                             <td>
                                 {% if user.last_login %}
-                                    {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                                    <div class="text-nowrap">
+                                        <small class="text-muted d-block">{{ user.last_login.strftime('%Y-%m-%d') }}</small>
+                                        <small class="text-muted">{{ user.last_login.strftime('%H:%M:%S') }}</small>
+                                    </div>
                                 {% else %}
-                                    <small class="text-muted">Never</small>
+                                    <small class="text-muted">Never logged in</small>
                                 {% endif %}
                             </td>
                             <td>
@@ -88,15 +94,15 @@
                                     <!-- Change Password Button -->
                                     <a href="{{ url_for('change_user_password', user_id=user.id) }}" 
                                        class="btn btn-info btn-sm" title="Change Password">
-                                        🔑 Password
+                                        🔑
                                     </a>
                                     
-                                    <!-- Reset Failed Logins (if user has failed attempts) -->
+                                    <!-- Reset Failed Logins -->
                                     {% if user.failed_login_attempts > 0 %}
                                     <a href="{{ url_for('reset_failed_logins', user_id=user.id) }}" 
                                        class="btn btn-warning btn-sm" title="Reset Failed Logins"
                                        onclick="return confirm('Reset {{ user.failed_login_attempts }} failed login attempts for {{ user.staff_id }}?');">
-                                        🔓 Reset ({{ user.failed_login_attempts }})
+                                        🔓
                                     </a>
                                     {% endif %}
                                     
@@ -105,10 +111,10 @@
                                     <a href="{{ url_for('toggle_user_status', user_id=user.id) }}" 
                                        class="btn btn-{% if user.is_active %}warning{% else %}success{% endif %} btn-sm"
                                        onclick="return confirm('Are you sure you want to {% if user.is_active %}deactivate{% else %}activate{% endif %} this user?');">
-                                        {% if user.is_active %}🔒 Deactivate{% else %}🔓 Activate{% endif %}
+                                        {% if user.is_active %}🔒{% else %}🔓{% endif %}
                                     </a>
                                     {% else %}
-                                    <span class="badge badge-secondary">Current User</span>
+                                    <span class="badge badge-secondary">You</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -170,7 +176,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <h5>Total Users</h5>
-                    <h3>{{ users.total }}</h3>
+                    <h3>{{ users.total if users else 0 }}</h3>
                 </div>
             </div>
         </div>
@@ -178,7 +184,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body text-center">
                     <h5>Active Users</h5>
-                    <h3>{{ users.items | selectattr('is_active') | list | length }}</h3>
+                    <h3>{{ (users.items | selectattr('is_active') | list | length) if users else 0 }}</h3>
                 </div>
             </div>
         </div>
@@ -186,10 +192,74 @@
             <div class="card bg-warning text-white">
                 <div class="card-body text-center">
                     <h5>Inactive Users</h5>
-                    <h3>{{ users.items | rejectattr('is_active') | list | length }}</h3>
+                    <h3>{{ (users.items | rejectattr('is_active') | list | length) if users else 0 }}</h3>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// No additional JavaScript needed for basic user management
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('User Management page loaded successfully');
+});
+</script>
+
+<style>
+/* Ensure proper column spacing */
+.table th, .table td {
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+/* Last Login column specific styling */
+.table th:nth-child(7), .table td:nth-child(7) {
+    min-width: 140px;
+    white-space: nowrap;
+}
+
+/* Make sure the table doesn't get too cramped on smaller screens */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 8px 4px;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Badge styling improvements */
+.badge {
+    font-size: 0.75em;
+    padding: 0.375em 0.75em;
+}
+
+/* Action buttons styling */
+.btn-group-sm {
+    gap: 2px;
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+}
+
+/* Status column */
+.table th:nth-child(6), .table td:nth-child(6) {
+    text-align: center;
+    min-width: 80px;
+}
+
+/* Actions column */
+.table th:nth-child(8), .table td:nth-child(8) {
+    min-width: 120px;
+}
+</style>
 {% endblock %}
