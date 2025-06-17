@@ -1241,13 +1241,54 @@ def process_credit_batch_file(filepath):
 @app.route('/credit-applications')
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def credit_applications():
+    """View all credit applications"""
+    risk_filter = request.args.get('risk_level')
+    status_filter = request.args.get('status')
+    
+    query = CreditApplication.query
+    
+    if risk_filter:
+        query = query.filter_by(risk_level=risk_filter)
+    
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+    
+    # Use .all() instead of .paginate() to fix the length error
+    applications = query.order_by(CreditApplication.id.desc()).all()
+    
+    return render_template('credit_applications.html', applications=applications)
+
+    # ===== ALTERNATIVE: If you want to keep pagination, here's how to fix the template =====
+
+@app.route('/credit-applications-paginated')
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def credit_applications_paginated():
+    """View credit applications with pagination (alternative approach)"""
     page = request.args.get('page', 1, type=int)
     per_page = 20
     
-    applications = CreditApplication.query.order_by(CreditApplication.id.desc()).paginate(
+    # Get filter parameters
+    risk_filter = request.args.get('risk_level')
+    status_filter = request.args.get('status')
+    
+    # Build query
+    query = CreditApplication.query
+    
+    if risk_filter:
+        query = query.filter_by(risk_level=risk_filter)
+    
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+    
+    # Paginate
+    pagination = query.order_by(CreditApplication.id.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
-    return render_template('credit_applications.html', applications=applications)
+    
+    # Pass both the pagination object and the items
+    return render_template('credit_applications_paginated.html', 
+                         pagination=pagination,
+                         applications=pagination.items)
 
     # ===== UPLOAD CREDIT FILE FOR PREVIEW =====
 @app.route('/upload-credit-file', methods=['POST'])
