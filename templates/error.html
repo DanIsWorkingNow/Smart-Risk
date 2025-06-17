@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Error {{ error_code }}{% endblock %}
+{% block content %}
+<div class="container text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="display-1 text-danger">{{ error_code }}</h1>
+                    <h4 class="card-title">{{ error_message }}</h4>
+                    <p class="card-text">
+                        {% if error_code == 404 %}
+                            The page you're looking for doesn't exist.
+                        {% elif error_code == 500 %}
+                            Something went wrong on our end. Please try again later.
+                        {% else %}
+                            An unexpected error occurred.
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

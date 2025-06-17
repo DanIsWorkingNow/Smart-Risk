@@ -204,6 +204,15 @@ def login():
         flash('Invalid staff ID or password.', 'danger')
         return render_template('login.html')
     
+    if not user.is_active:
+        flash('Your account has been deactivated. Please contact administrator.', 'danger')
+        return render_template('login.html')
+    
+    # Update last login
+    user.last_login = datetime.utcnow()
+    user.failed_login_attempts = 0
+    db.session.commit()
+    
     session['user_id'] = user.id
     session['staff_id'] = user.staff_id
     session['role'] = user.role.value
@@ -226,6 +235,52 @@ def dashboard():
     loans = Loan.query.order_by(Loan.application_date.desc()).limit(10).all()
     return render_template('index.html', loans=loans)
 
+# ===== LOAN MANAGEMENT ROUTES =====
+@app.route('/loan/create', methods=['GET', 'POST'])
+@login_required
+def create_loan():
+    """CREATE_LOAN ROUTE - This was missing and causing the BuildError"""
+    if request.method == 'POST':
+        customer_name = request.form.get('customer_name', '').strip()
+        amount_requested = request.form.get('amount_requested', '0')
+        remarks = request.form.get('remarks', '').strip()
+
+        if not customer_name:
+            flash("Customer name is required!", "danger")
+            return redirect(url_for('create_loan'))
+
+        try:
+            amount = float(amount_requested)
+            if amount <= 0:
+                flash("Loan amount must be greater than 0!", "danger")
+                return redirect(url_for('create_loan'))
+                
+            # Simple risk logic: if amount > 50000, mark as "High Risk", else "Low Risk"
+            risk_score = "High Risk" if amount > 50000 else "Low Risk"
+        except ValueError:
+            flash("Invalid loan amount entered!", "danger")
+            return redirect(url_for('create_loan'))
+
+        new_loan = Loan(
+            customer_name=customer_name,
+            amount_requested=amount,
+            risk_score=risk_score,
+            remarks=remarks
+        )
+        
+        try:
+            db.session.add(new_loan)
+            db.session.commit()
+            flash(f"Loan record created successfully for {customer_name}!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating loan: {str(e)}", "danger")
+        
+        return redirect(url_for('dashboard'))
+    
+    return render_template('create.html')
+
+# ===== SHARIAH RISK ROUTES =====
 @app.route('/shariah-risk-assessment', methods=['GET', 'POST'])
 @role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
 def shariah_risk_assessment():
@@ -280,6 +335,29 @@ def shariah_risk_assessment():
 
     return render_template('shariah.html', risk_score=risk_score)
 
+@app.route('/shariah-applications')
+@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def shariah_risk_applications():
+    applications = ShariahRiskApplication.query.order_by(ShariahRiskApplication.id.desc()).all()
+    return render_template('shariah_applications.html', applications=applications)
+
+@app.route('/shariah-dashboard')
+@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def shariah_dashboard():
+    total_count = ShariahRiskApplication.query.count()
+    halal_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Halal').count()
+    haram_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Haram').count()
+    doubtful_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Doubtful').count()
+
+    return render_template(
+        'dboard.html',
+        total_count=total_count,
+        halal_count=halal_count,
+        haram_count=haram_count,
+        doubtful_count=doubtful_count
+    )
+
+# ===== CREDIT RISK ROUTES =====
 @app.route('/credit-risk', methods=['GET', 'POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def credit_risk_page():
@@ -340,21 +418,11 @@ def credit_risk_page():
 
     return render_template('credit_risks.html', results=results, risk_level=risk_level, risk_score=risk_score)
 
-@app.route('/shariah-dashboard')
-@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
-def shariah_dashboard():
-    total_count = ShariahRiskApplication.query.count()
-    halal_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Halal').count()
-    haram_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Haram').count()
-    doubtful_count = ShariahRiskApplication.query.filter_by(shariah_risk_score='Doubtful').count()
-
-    return render_template(
-        'dboard.html',
-        total_count=total_count,
-        halal_count=halal_count,
-        haram_count=haram_count,
-        doubtful_count=doubtful_count
-    )
+@app.route('/credit-applications')
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def credit_applications():
+    applications = CreditApplication.query.order_by(CreditApplication.id.desc()).all()
+    return render_template('credit_applications.html', applications=applications)
 
 @app.route('/credit-dashboard')
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
@@ -372,18 +440,6 @@ def credit_dashboard():
         high_count=high_count
     )
 
-@app.route('/credit-applications')
-@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
-def credit_applications():
-    applications = CreditApplication.query.order_by(CreditApplication.id.desc()).all()
-    return render_template('credit_applications.html', applications=applications)
-
-@app.route('/shariah-applications')
-@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
-def shariah_risk_applications():
-    applications = ShariahRiskApplication.query.order_by(ShariahRiskApplication.id.desc()).all()
-    return render_template('shariah_applications.html', applications=applications)
-
 # ===== CONTEXT PROCESSORS =====
 @app.context_processor
 def inject_user():
@@ -394,6 +450,16 @@ def inject_user():
         'current_user': current_user,
         'UserRole': UserRole
     }
+
+# ===== ERROR HANDLERS =====
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('error.html', error_code=404, error_message="Page not found"), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('error.html', error_code=500, error_message="Internal server error"), 500
 
 # ===== INITIALIZATION =====
 def create_default_users():
@@ -437,18 +503,27 @@ def create_default_users():
         
         db.session.add_all([admin, shariah, credit])
         db.session.commit()
-        print("Default users created successfully!")
+        print("✅ Default users created successfully!")
+        print("👤 Login credentials:")
+        print("   Admin: admin / admin123")
+        print("   Shariah Officer: shariah001 / shariah123") 
+        print("   Credit Officer: credit001 / credit123")
 
 # ===== APPLICATION STARTUP =====
 if __name__ == '__main__':
     with app.app_context():
-        # Create all tables
-        db.create_all()
-        
-        # Initialize default users
-        create_default_users()
-        
-        print("✅ Database initialized successfully!")
+        try:
+            # Create all tables
+            db.create_all()
+            
+            # Initialize default users
+            create_default_users()
+            
+            print("✅ Database initialized successfully!")
+            
+        except Exception as e:
+            print(f"❌ Error initializing database: {e}")
     
-    print("🚀 Starting Shariah Risk Assessment Application...")
+    print("🚀 Starting SMART-Risk Assessment Application...")
+    print("📍 Application running on: http://127.0.0.1:5001")
     app.run(host='0.0.0.0', port=5001, debug=True)
