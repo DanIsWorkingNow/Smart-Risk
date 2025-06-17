@@ -4,7 +4,7 @@
 # PO-2: File batch upload for credit risk assessment
 # PO-3: Complete system testing with all use cases
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps 
@@ -930,6 +930,43 @@ def credit_applications():
     )
     return render_template('credit_applications.html', applications=applications)
 
+    # ===== UPLOAD CREDIT FILE FOR PREVIEW =====
+@app.route('/upload-credit-file', methods=['POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def upload_credit_file():
+    """Upload and preview first row of credit file"""
+    file = request.files.get('file')
+    if not file:
+        return jsonify({'error': 'No file uploaded'}), 400
+    
+    try:
+        import pandas as pd
+        
+        if file.filename.endswith('.csv'):
+            df = pd.read_csv(file)
+        elif file.filename.endswith(('.xls', '.xlsx')):
+            df = pd.read_excel(file)
+        else:
+            return jsonify({'error': 'Unsupported file format'}), 400
+
+        if df.empty:
+            return jsonify({'error': 'File is empty'}), 400
+
+        # Return first row for form autofill
+        first_row = df.iloc[0].to_dict()
+        
+        # Convert numpy types to Python types for JSON serialization
+        for key, value in first_row.items():
+            if pd.isna(value):
+                first_row[key] = ''
+            else:
+                first_row[key] = str(value)
+        
+        return jsonify(first_row)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/credit-dashboard')
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def credit_dashboard():
@@ -1254,3 +1291,167 @@ def upload_batch_credit():
     """
     # Redirect to the new credit_batch_upload route
     return credit_batch_upload()
+
+    # Add these routes to your app.py file
+# They are missing and causing the BuildError
+
+# ===== CREDIT APPLICATIONS DELETE ROUTE =====
+@app.route('/credit-applications/delete-selected', methods=['POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def delete_selected_credit_applications():
+    """Delete selected credit applications"""
+    selected_ids = request.form.getlist('selected_ids')
+    if selected_ids:
+        deleted_count = 0
+        for app_id in selected_ids:
+            application = CreditApplication.query.get(app_id)
+            if application:
+                # Log the deletion
+                AuditLog.log_action(
+                    user_id=session['user_id'],
+                    action='CREDIT_APPLICATION_DELETED',
+                    resource='credit_application',
+                    resource_id=str(application.id),
+                    details={'application_id': application.application_id},
+                    request_obj=request
+                )
+                
+                db.session.delete(application)
+                deleted_count += 1
+        
+        db.session.commit()
+        flash(f'Successfully deleted {deleted_count} application(s).', 'success')
+    else:
+        flash('No applications selected.', 'warning')
+    
+    return redirect(url_for('credit_applications'))
+
+# ===== SHARIAH APPLICATIONS DELETE ROUTE =====
+@app.route('/shariah-applications/delete-selected', methods=['POST'])
+@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def delete_selected_shariah_applications():
+    """Delete selected shariah applications"""
+    selected_ids = request.form.getlist('selected_ids')
+    if selected_ids:
+        deleted_count = 0
+        for app_id in selected_ids:
+            application = ShariahRiskApplication.query.get(app_id)
+            if application:
+                # Log the deletion
+                AuditLog.log_action(
+                    user_id=session['user_id'],
+                    action='SHARIAH_APPLICATION_DELETED',
+                    resource='shariah_application',
+                    resource_id=str(application.id),
+                    details={'application_id': application.application_id},
+                    request_obj=request
+                )
+                
+                db.session.delete(application)
+                deleted_count += 1
+        
+        db.session.commit()
+        flash(f'Successfully deleted {deleted_count} Shariah application(s).', 'success')
+    else:
+        flash('No applications selected.', 'warning')
+    
+    return redirect(url_for('shariah_risk_applications'))
+
+# ===== GENERATE PDF REPORT ROUTE =====
+@app.route('/generate-pdf-report', methods=['POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def generate_pdf_report():
+    """Generate PDF report for selected applications"""
+    try:
+        # Import reportlab for PDF generation
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.lib import colors
+        from io import BytesIO
+        import json
+        
+        # Get the JSON data from request
+        data = request.get_json()
+        applications = data.get('applications', [])
+        
+        if not applications:
+            return jsonify({'error': 'No applications provided'}), 400
+        
+        # Create PDF buffer
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            spaceAfter=30,
+            alignment=1  # Center alignment
+        )
+        title = Paragraph("Credit Risk Assessment Report", title_style)
+        elements.append(title)
+        elements.append(Spacer(1, 12))
+        
+        # Table data
+        table_data = [
+            ['Application ID', 'Loan Amount', 'Property Value', 'Monthly Income', 'Risk Score', 'Risk Level']
+        ]
+        
+        for app in applications:
+            table_data.append([
+                app.get('application_id', ''),
+                f"RM {app.get('loan_amount', '')}",
+                f"RM {app.get('property_value', '')}",
+                f"RM {app.get('monthly_income', '')}",
+                f"{app.get('risk_score', '')}%",
+                app.get('risk_level', '')
+            ])
+        
+        # Create table
+        table = Table(table_data)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        elements.append(table)
+        
+        # Build PDF
+        doc.build(elements)
+        buffer.seek(0)
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='PDF_REPORT_GENERATED',
+            resource='credit_report',
+            details={'applications_count': len(applications)},
+            request_obj=request
+        )
+        
+        return Response(
+            buffer.getvalue(),
+            mimetype='application/pdf',
+            headers={
+                'Content-Disposition': 'attachment; filename=credit_risk_report.pdf',
+                'Content-Type': 'application/pdf'
+            }
+        )
+        
+    except ImportError:
+        return jsonify({'error': 'PDF generation library not installed. Install with: pip install reportlab'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Error generating PDF: {str(e)}'}), 500
