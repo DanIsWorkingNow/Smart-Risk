@@ -3,306 +3,1093 @@
 {% block title %}Credit Risk Assessment{% endblock %}
 
 {% block content %}
+<!-- Additional CSS for enhanced features -->
+<style>
+    :root {
+        --primary-blue: #1e3a8a;
+        --secondary-blue: #3b82f6;
+        --light-blue: #e0f2fe;
+        --success-green: #059669;
+        --warning-orange: #d97706;
+        --danger-red: #dc2626;
+    }
+
+    .upload-section {
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        margin: 20px 0;
+        transition: all 0.3s ease;
+    }
+
+    .upload-section:hover {
+        border-color: var(--secondary-blue);
+        background: #eff6ff;
+    }
+
+    .upload-section.dragover {
+        border-color: var(--success-green);
+        background: #f0fdf4;
+    }
+
+    .file-preview {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 20px 0;
+        padding: 20px;
+    }
+
+    .preview-table {
+        font-size: 14px;
+    }
+
+    .preview-table th {
+        background: var(--primary-blue);
+        color: white;
+        border: none;
+        font-weight: 500;
+        padding: 12px 8px;
+    }
+
+    .preview-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .risk-indicator {
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .risk-low {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .risk-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .risk-high {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .stats-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-blue);
+    }
+
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .edit-row {
+        background-color: #fff3cd !important;
+    }
+
+    .preview-table tbody tr:hover {
+        background-color: #f8f9fa !important;
+        cursor: pointer;
+    }
+
+    .preview-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .clickable-row {
+        position: relative;
+    }
+
+    .clickable-row::after {
+        content: "👆 Click row to preview";
+        position: absolute;
+        top: -25px;
+        right: 10px;
+        font-size: 12px;
+        color: #6c757d;
+        background: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        animation: fadeInOut 3s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        10%, 90% { opacity: 1; }
+    }
+
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+    }
+
+    .action-buttons {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 20px;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+</style>
+
+<!-- Toast Container -->
+<div class="toast-container"></div>
+
 <div class="container mt-5">
-  <h2 class="text-center">Credit Risk Assessment</h2>
-
-  <!-- Batch Upload Form -->
-  <div class="my-4">
-    <form action="{{ url_for('credit_batch_upload') }}" method="POST" enctype="multipart/form-data">
-      <div class="input-group mb-3">
-        <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
-        <button class="btn btn-success" type="submit">Batch Upload</button>
-      </div>
-      <small class="text-muted">Upload a CSV or Excel file to batch add Credit Risk Applications.</small>
-    </form>
-  </div>
-
-  <div class="container my-4">
-    <label for="fileUpload" class="form-label">📁 Upload Credit Risk File (CSV or Excel)</label>
-    <input type="file" id="fileUpload" class="form-control" accept=".csv, .xlsx">
-    <small class="text-muted">Only the first row will be used to autofill the form.</small>
-  </div>
-
-  <div id="preview-container" class="mt-4" style="display: none;">
-    <h4>Preview of Credit Risk Applications</h4>
-    <table id="preview-table" class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Application ID</th>
-          <th>Loan Amount</th>
-          <th>Property Value</th>
-          <th>Monthly Debt</th>
-          <th>Monthly Income</th>
-          <th>Recovery Rate</th>
-          <th>Probability of Default</th>
-          <th>Risk Score</th>
-          <th>Risk Level</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button id="confirm-upload" class="btn btn-success">Confirm Upload</button>
-  </div>
-  
-  <form method="POST" id="credit-risk-form" novalidate>
     <div class="row">
-      <div class="col-md-6 mb-3">
-        <label>Application ID</label>
-        <input type="text" class="form-control" name="application_id" pattern="[A-Za-z0-9\-_.]+" required>
-      </div>
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2><i class="fas fa-calculator mr-3"></i>Credit Risk Assessment</h2>
+                    <p class="mb-0">Upload files for batch processing or calculate individual assessments</p>
+                </div>
+                <div class="card-body">
 
-      <div class="col-md-6 mb-3">
-        <label>Loan Amount (RM)</label>
-        <input type="number" class="form-control" name="loan_amount" step="0.01" min="0" required>
-      </div>
+                    <!-- File Upload Section -->
+                    <div class="upload-section" id="uploadSection">
+                        <div class="row">
+                            <div class="col-lg-8 mx-auto">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h4>Upload Credit Risk File</h4>
+                                <p class="text-muted">Drag and drop your CSV or Excel file here, or click to browse</p>
+                                
+                                <input type="file" id="fileInput" class="d-none" accept=".csv,.xlsx,.xls">
+                                <button class="btn btn-primary btn-lg" onclick="document.getElementById('fileInput').click()">
+                                    <i class="fas fa-folder-open mr-2"></i>Choose File
+                                </button>
+                                
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        Supported formats: CSV, Excel (.xlsx, .xls) | Max size: 10MB
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="col-md-6 mb-3">
-        <label>Property Value (RM)</label>
-        <input type="number" class="form-control" name="property_value" step="0.01" min="0" required>
-      </div>
+                    <!-- Loading Spinner -->
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p class="mt-2">Processing file...</p>
+                    </div>
 
-      <div class="col-md-6 mb-3">
-        <label>Monthly Debt (RM)</label>
-        <input type="number" class="form-control" name="monthly_debt" step="0.01" min="0" required>
-      </div>
+                    <!-- File Information -->
+                    <div class="file-preview d-none" id="fileInfo">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5><i class="fas fa-file-alt mr-2 text-primary"></i>File Information</h5>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="removeUploadedFile()">
+                                        <i class="fas fa-times mr-1"></i>Remove File
+                                    </button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4"><strong>Filename:</strong></div>
+                                    <div class="col-sm-8" id="fileName">-</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4"><strong>File Size:</strong></div>
+                                    <div class="col-sm-8" id="fileSize">-</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-4"><strong>Records Found:</strong></div>
+                                    <div class="col-sm-8" id="recordCount">-</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-chart-pie mr-2 text-primary"></i>Risk Distribution</h5>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="stats-card risk-low">
+                                            <div class="stats-number" id="lowRiskCount">0</div>
+                                            <div>Low Risk</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="stats-card risk-medium">
+                                            <div class="stats-number" id="mediumRiskCount">0</div>
+                                            <div>Medium Risk</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="stats-card risk-high">
+                                            <div class="stats-number" id="highRiskCount">0</div>
+                                            <div>High Risk</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="col-md-6 mb-3">
-        <label>Monthly Income (RM)</label>
-        <input type="number" class="form-control" name="monthly_income" step="0.01" min="0" required>
-      </div>
+                    <!-- Preview Table -->
+                    <div class="file-preview d-none" id="previewSection">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5><i class="fas fa-table mr-2 text-primary"></i>Assessment Preview</h5>
+                                <small class="text-muted">💡 Click on any row to preview the data in the form below</small>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-outline-primary" onclick="selectAll()">
+                                    <i class="fas fa-check-square mr-1"></i>Select All
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="clearSelection()">
+                                    <i class="fas fa-square mr-1"></i>Clear All
+                                </button>
+                                <button class="btn btn-outline-info" onclick="recalculateAll()">
+                                    <i class="fas fa-calculator mr-1"></i>Recalculate All
+                                </button>
+                            </div>
+                        </div>
 
-      <div class="col-md-6 mb-3">
-        <label>Recovery Rate (%)</label>
-        <input type="number" class="form-control" name="recovery_rate" step="0.1" min="0" max="100" required>
-      </div>
+                        <div class="table-responsive">
+                            <table id="previewTable" class="table table-striped table-hover preview-table">
+                                <thead>
+                                    <tr>
+                                        <th width="50">
+                                            <input type="checkbox" id="selectAllCheck" onchange="toggleAllRows()">
+                                        </th>
+                                        <th>Application ID</th>
+                                        <th>Loan Amount (RM)</th>
+                                        <th>Property Value (RM)</th>
+                                        <th>Monthly Debt (RM)</th>
+                                        <th>Monthly Income (RM)</th>
+                                        <th>Recovery Rate (%)</th>
+                                        <th>Default Probability (%)</th>
+                                        <th>LTV Ratio (%)</th>
+                                        <th>DTI Ratio (%)</th>
+                                        <th>Risk Score</th>
+                                        <th>Risk Level</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-      <div class="col-md-6 mb-3">
-        <label>Probability of Default (%)</label>
-        <input type="number" class="form-control" name="probability_of_default" step="0.1" min="0" max="100" required>
-      </div>
+                    <!-- Individual Assessment Form -->
+                    <div class="mt-4" id="individualForm">
+                        <h5><i class="fas fa-edit me-2 text-primary"></i>Individual Assessment</h5>
+                        
+                        <!-- Original Flask Form Integration -->
+                        <form method="POST" id="creditRiskForm" action="{{ url_for('credit_risk_page') }}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Application ID *</label>
+                                    <input type="text" class="form-control" name="application_id" 
+                                           value="{{ request.form.get('application_id', '') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Loan Amount (RM) *</label>
+                                    <input type="number" class="form-control" name="loan_amount" step="0.01"
+                                           value="{{ request.form.get('loan_amount', '') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Property Value (RM) *</label>
+                                    <input type="number" class="form-control" name="property_value" step="0.01"
+                                           value="{{ request.form.get('property_value', '') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Monthly Debt (RM) *</label>
+                                    <input type="number" class="form-control" name="monthly_debt" step="0.01"
+                                           value="{{ request.form.get('monthly_debt', '') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Monthly Income (RM) *</label>
+                                    <input type="number" class="form-control" name="monthly_income" step="0.01"
+                                           value="{{ request.form.get('monthly_income', '') }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Recovery Rate (%) *</label>
+                                    <input type="number" class="form-control" name="recovery_rate" step="0.01" min="0" max="100"
+                                           value="{{ request.form.get('recovery_rate', '') }}" required>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Probability of Default (%) *</label>
+                                    <input type="number" class="form-control" name="probability_of_default" step="0.01" min="0" max="100"
+                                           value="{{ request.form.get('probability_of_default', '') }}" required>
+                                </div>
+                            </div>
 
-      <div class="col-12">
-        <button type="submit" name="action" value="calculate" class="btn btn-primary btn-lg">
-          <i class="fas fa-calculator"></i> Calculate Risk
-        </button>
-        
-        <!-- ADDED SAVE BUTTON - THIS WAS MISSING -->
-        {% if results %}
-        <button type="submit" name="action" value="save" class="btn btn-success btn-lg ml-2">
-          <i class="fas fa-save"></i> Save Assessment
-        </button>
-        {% endif %}
-        
-        <a href="{{ url_for('credit_applications') }}" class="btn btn-secondary btn-lg ml-2">
-          <i class="fas fa-list"></i> View Applications
-        </a>
-      </div>
-    </div>
-  </form>
+                            <div class="text-center">
+                                <button type="submit" name="action" value="calculate" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-calculator mr-2"></i>Calculate Risk
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-lg ml-2" onclick="clearForm()">
+                                    <i class="fas fa-eraser mr-2"></i>Clear Form
+                                </button>
+                                <button type="button" class="btn btn-success btn-lg ml-2" onclick="addToPreview()">
+                                    <i class="fas fa-plus mr-2"></i>Add to Preview
+                                </button>
+                            </div>
+                        </form>
 
-  <!-- Results Section -->
-  {% if results %}
-  <div class="mt-5">
-    <div class="card">
-      <div class="card-header bg-primary text-white">
-        <h4>Risk Assessment Results</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>Risk Score:</strong> {{ risk_score | round(2) }}</p>
-            <p><strong>Risk Level:</strong> 
-              <span class="badge {% if risk_level == 'Low' %}badge-success{% elif risk_level == 'Medium' %}badge-warning{% else %}badge-danger{% endif %}">
-                {{ risk_level }}
-              </span>
-            </p>
-          </div>
-          <div class="col-md-6">
-            {% for key, value in results.items() %}
-            <p><strong>{{ key.replace('_', ' ').title() }}:</strong> {{ value }}</p>
-            {% endfor %}
-          </div>
+                        <!-- Results Section (Flask Integration) -->
+                        {% if results %}
+                        <div id="resultsSection" class="mt-4">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-chart-line mr-2"></i>Risk Assessment Results</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-md-3">
+                                            <h6>LTV Ratio</h6>
+                                            <div class="display-6 text-primary">{{ results['Loan-to-Value (LTV %)'] }}%</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h6>DTI Ratio</h6>
+                                            <div class="display-6 text-primary">{{ results['Debt-to-Income (DTI %)'] }}%</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h6>Risk Score</h6>
+                                            <div class="display-6 text-primary">{{ results['Risk Score'] }}</div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <h6>Risk Level</h6>
+                                            <div class="display-6 text-{% if risk_level == 'Low' %}success{% elif risk_level == 'Medium' %}warning{% else %}danger{% endif %}">{{ risk_level }}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Save Button (Flask Integration) -->
+                                    <div class="text-center mt-3">
+                                        <form method="POST" style="display: inline;">
+                                            <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                            <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                            <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
+                                            <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
+                                            <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
+                                            <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
+                                            <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
+                                            
+                                            <button type="submit" name="action" value="save" class="btn btn-success btn-lg">
+                                                <i class="fas fa-save"></i> Save This Assessment
+                                            </button>
+                                        </form>
+                                        
+                                        <a href="{{ url_for('credit_applications') }}" class="btn btn-info btn-lg ml-2">
+                                            <i class="fas fa-list"></i> View Applications
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Buttons for Batch Processing -->
+                    <div class="action-buttons d-none" id="actionButtons">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn btn-success btn-lg w-100" onclick="processSelectedRecords()">
+                                    <i class="fas fa-check mr-2"></i>Process Selected (<span id="selectedCount">0</span>)
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-info btn-lg w-100" onclick="downloadResults()">
+                                    <i class="fas fa-download mr-2"></i>Download Results
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-warning btn-lg w-100" onclick="clearPreview()">
+                                    <i class="fas fa-trash mr-2"></i>Clear All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        
-        <!-- SAVE BUTTON ALSO HERE FOR CONVENIENCE -->
-        <div class="mt-3">
-          <form method="POST" style="display: inline;">
-            <!-- Hidden fields to preserve the calculated values -->
-            <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
-            <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
-            <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
-            <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
-            <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
-            <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
-            <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
-            
-            <button type="submit" name="action" value="save" class="btn btn-success btn-lg">
-              <i class="fas fa-save"></i> Save This Assessment
-            </button>
-          </form>
-          
-          <button onclick="calculateAnother()" class="btn btn-info btn-lg ml-2">
-            <i class="fas fa-redo"></i> Calculate Another
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
-  {% endif %}
 </div>
 
-<script>
-// File upload functionality
-document.getElementById('fileUpload').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
+<!-- Libraries are now loaded in base.html -->
 
-        fetch('/upload-credit-file', {
+<script>
+    let processedData = [];
+    let dataTable = null;
+    let editingId = null;
+
+    // File upload handling
+    document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+    // Drag and drop functionality
+    const uploadSection = document.getElementById('uploadSection');
+    
+    uploadSection.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadSection.classList.add('dragover');
+    });
+
+    uploadSection.addEventListener('dragleave', () => {
+        uploadSection.classList.remove('dragover');
+    });
+
+    uploadSection.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadSection.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    }
+
+    function handleFile(file) {
+        // Validate file type
+        const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+        if (!validTypes.includes(file.type) && !file.name.match(/\.(csv|xlsx|xls)$/)) {
+            showToast('Please upload a valid CSV or Excel file.', 'error');
+            return;
+        }
+
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('File size must be less than 10MB.', 'error');
+            return;
+        }
+
+        showLoading(true);
+        processFile(file);
+    }
+
+    function processFile(file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                let data;
+                
+                if (file.name.endsWith('.csv')) {
+                    // Parse CSV
+                    const results = Papa.parse(e.target.result, {
+                        header: true,
+                        skipEmptyLines: true,
+                        transformHeader: header => header.toLowerCase().replace(/\s+/g, '_')
+                    });
+                    data = results.data;
+                } else {
+                    // Parse Excel
+                    const workbook = XLSX.read(e.target.result, { type: 'binary' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    // Convert to object format
+                    const headers = data[0].map(h => h.toLowerCase().replace(/\s+/g, '_'));
+                    data = data.slice(1).map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header] = row[index];
+                        });
+                        return obj;
+                    });
+                }
+
+                if (data.length === 0) {
+                    showToast('No data found in the file.', 'error');
+                    showLoading(false);
+                    return;
+                }
+
+                // Validate required columns
+                const requiredColumns = ['application_id', 'loan_amount', 'property_value', 'monthly_debt', 'monthly_income', 'recovery_rate', 'probability_of_default'];
+                const fileColumns = Object.keys(data[0]);
+                const missingColumns = requiredColumns.filter(col => !fileColumns.includes(col));
+
+                if (missingColumns.length > 0) {
+                    showToast(`Missing required columns: ${missingColumns.join(', ')}`, 'error');
+                    showLoading(false);
+                    return;
+                }
+
+                // Process data and calculate risk
+                processedData = data.map((row, index) => {
+                    const result = calculateRiskForRow(row);
+                    return {
+                        id: index + 1,
+                        ...result,
+                        selected: true
+                    };
+                }).filter(row => row.application_id && row.application_id.toString().trim() !== ''); // Filter out empty rows
+
+                console.log('Processed Data:', processedData); // Debug log
+
+                if (processedData.length === 0) {
+                    showToast('No valid records found in the file.', 'error');
+                    showLoading(false);
+                    return;
+                }
+
+                displayFileInfo(file, processedData);
+                
+                // Ensure preview table is displayed
+                setTimeout(() => {
+                    displayPreview(processedData);
+                }, 100);
+                
+                showLoading(false);
+                showToast(`Successfully processed ${processedData.length} records. Review the table below.`, 'success');
+
+            } catch (error) {
+                console.error('Error processing file:', error);
+                showToast('Error processing file. Please check the format and try again.', 'error');
+                showLoading(false);
+            }
+        };
+
+        if (file.name.endsWith('.csv')) {
+            reader.readAsText(file);
+        } else {
+            reader.readAsBinaryString(file);
+        }
+    }
+
+    function calculateRiskForRow(row) {
+        const loanAmount = parseFloat(row.loan_amount) || 0;
+        const propertyValue = parseFloat(row.property_value) || 0;
+        const monthlyDebt = parseFloat(row.monthly_debt) || 0;
+        const monthlyIncome = parseFloat(row.monthly_income) || 0;
+        const recoveryRate = parseFloat(row.recovery_rate) || 0;
+        const probabilityOfDefault = parseFloat(row.probability_of_default) || 0;
+
+        const ltvRatio = propertyValue > 0 ? (loanAmount / propertyValue) * 100 : 0;
+        const dtiRatio = monthlyIncome > 0 ? (monthlyDebt / monthlyIncome) * 100 : 0;
+        
+        // SMART-Risk formula: Risk Score = (LTV * 0.4) + (DTI * 0.3) + (PD * 0.3)
+        const riskScore = (ltvRatio * 0.4) + (dtiRatio * 0.3) + (probabilityOfDefault * 0.3);
+
+        let riskLevel = 'Low';
+        if (riskScore >= 60) riskLevel = 'High';
+        else if (riskScore >= 30) riskLevel = 'Medium';
+
+        return {
+            application_id: row.application_id,
+            loan_amount: loanAmount,
+            property_value: propertyValue,
+            monthly_debt: monthlyDebt,
+            monthly_income: monthlyIncome,
+            recovery_rate: recoveryRate,
+            probability_of_default: probabilityOfDefault,
+            ltv_ratio: ltvRatio,
+            dti_ratio: dtiRatio,
+            risk_score: riskScore,
+            risk_level: riskLevel
+        };
+    }
+
+    function displayFileInfo(file, data) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileSize').textContent = formatFileSize(file.size);
+        document.getElementById('recordCount').textContent = data.length;
+
+        // Calculate risk distribution
+        const riskCounts = data.reduce((acc, record) => {
+            acc[record.risk_level.toLowerCase()]++;
+            return acc;
+        }, { low: 0, medium: 0, high: 0 });
+
+        document.getElementById('lowRiskCount').textContent = riskCounts.low;
+        document.getElementById('mediumRiskCount').textContent = riskCounts.medium;
+        document.getElementById('highRiskCount').textContent = riskCounts.high;
+
+        document.getElementById('fileInfo').classList.remove('d-none');
+    }
+
+    function displayPreview(data) {
+        console.log('displayPreview called with:', data); // Debug log
+        
+        const tbody = document.getElementById('previewTableBody');
+        const previewSection = document.getElementById('previewSection');
+        
+        if (!tbody || !previewSection) {
+            console.error('Preview table elements not found');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            console.log('No data to display');
+            return;
+        }
+
+        data.forEach((record, index) => {
+            const row = document.createElement('tr');
+            row.style.cursor = 'pointer';
+            row.setAttribute('onclick', `fillFormFromRow(${record.id})`);
+            row.innerHTML = `
+                <td><input type="checkbox" class="row-select" data-id="${record.id}" ${record.selected ? 'checked' : ''} onchange="updateSelectedCount()" onclick="event.stopPropagation()"></td>
+                <td>${record.application_id || 'N/A'}</td>
+                <td>${formatCurrency(record.loan_amount || 0)}</td>
+                <td>${formatCurrency(record.property_value || 0)}</td>
+                <td>${formatCurrency(record.monthly_debt || 0)}</td>
+                <td>${formatCurrency(record.monthly_income || 0)}</td>
+                <td>${(record.recovery_rate || 0).toFixed(2)}%</td>
+                <td>${(record.probability_of_default || 0).toFixed(2)}%</td>
+                <td>${(record.ltv_ratio || 0).toFixed(2)}%</td>
+                <td>${(record.dti_ratio || 0).toFixed(2)}%</td>
+                <td>${(record.risk_score || 0).toFixed(2)}</td>
+                <td><span class="risk-indicator risk-${(record.risk_level || 'low').toLowerCase()}">${record.risk_level || 'Low'}</span></td>
+                <td onclick="event.stopPropagation()">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editRecord(${record.id})" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger ml-1" onclick="deleteRecord(${record.id})" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        // Destroy existing DataTable
+        if (dataTable) {
+            dataTable.destroy();
+            dataTable = null;
+        }
+        
+        // Show the preview section first
+        previewSection.classList.remove('d-none');
+        
+        // Initialize DataTable after a short delay
+        setTimeout(() => {
+            try {
+                dataTable = $('#previewTable').DataTable({
+                    pageLength: 10,
+                    order: [[1, 'asc']],
+                    columnDefs: [
+                        { orderable: false, targets: [0, 12] }
+                    ],
+                    responsive: true
+                });
+                console.log('DataTable initialized successfully');
+            } catch (error) {
+                console.error('DataTable initialization error:', error);
+            }
+        }, 200);
+
+        // Show action buttons
+        const actionButtons = document.getElementById('actionButtons');
+        if (actionButtons) {
+            actionButtons.classList.remove('d-none');
+        }
+
+        // Add clickable row hint to first row
+        setTimeout(() => {
+            const firstRow = document.querySelector('#previewTableBody tr');
+            if (firstRow) {
+                firstRow.classList.add('clickable-row');
+                setTimeout(() => {
+                    firstRow.classList.remove('clickable-row');
+                }, 3500);
+            }
+        }, 500);
+
+        updateSelectedCount();
+        console.log('displayPreview completed');
+    }
+
+    function addToPreview() {
+        const form = document.getElementById('creditRiskForm');
+        const formData = new FormData(form);
+        
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const newRecord = {
+            id: processedData.length + 1,
+            application_id: formData.get('application_id'),
+            loan_amount: parseFloat(formData.get('loan_amount')),
+            property_value: parseFloat(formData.get('property_value')),
+            monthly_debt: parseFloat(formData.get('monthly_debt')),
+            monthly_income: parseFloat(formData.get('monthly_income')),
+            recovery_rate: parseFloat(formData.get('recovery_rate')),
+            probability_of_default: parseFloat(formData.get('probability_of_default')),
+            selected: true
+        };
+
+        // Calculate risk metrics
+        const result = calculateRiskForRow(newRecord);
+        Object.assign(newRecord, result);
+
+        if (editingId) {
+            // Update existing record
+            const index = processedData.findIndex(r => r.id === editingId);
+            if (index !== -1) {
+                newRecord.id = editingId;
+                processedData[index] = newRecord;
+                showToast('Record updated successfully!', 'success');
+            }
+            editingId = null;
+        } else {
+            // Add new record
+            processedData.push(newRecord);
+            showToast('Record added to preview!', 'success');
+        }
+
+        displayPreview(processedData);
+        clearForm();
+        updateRiskDistribution();
+    }
+
+    function clearForm() {
+        // Don't clear the Flask form completely, just reset for new entry
+        const form = document.getElementById('creditRiskForm');
+        const inputs = form.querySelectorAll('input[type="text"], input[type="number"]');
+        inputs.forEach(input => input.value = '');
+        editingId = null;
+        
+        // Reset form button text
+        const addBtn = document.querySelector('button[onclick="addToPreview()"]');
+        if (addBtn) {
+            addBtn.innerHTML = '<i class="fas fa-plus me-2"></i>Add to Preview';
+        }
+    }
+
+            function fillFormFromRow(id) {
+            const record = processedData.find(r => r.id === id);
+            if (record) {
+                // Fill the form with record data (for preview only)
+                const form = document.getElementById('creditRiskForm');
+                form.elements.application_id.value = record.application_id;
+                form.elements.loan_amount.value = record.loan_amount;
+                form.elements.property_value.value = record.property_value;
+                form.elements.monthly_debt.value = record.monthly_debt;
+                form.elements.monthly_income.value = record.monthly_income;
+                form.elements.recovery_rate.value = record.recovery_rate;
+                form.elements.probability_of_default.value = record.probability_of_default;
+                
+                // Scroll to form smoothly
+                document.getElementById('individualForm').scrollIntoView({ behavior: 'smooth' });
+                
+                // Show a toast indicating it's for preview
+                showToast('Record loaded for preview. Click "Add to Preview" to create a copy or "Edit" button to modify.', 'info');
+            }
+        }
+
+        function editRecord(id) {
+        const record = processedData.find(r => r.id === id);
+        if (record) {
+            // Fill the form with record data
+            const form = document.getElementById('creditRiskForm');
+            form.elements.application_id.value = record.application_id;
+            form.elements.loan_amount.value = record.loan_amount;
+            form.elements.property_value.value = record.property_value;
+            form.elements.monthly_debt.value = record.monthly_debt;
+            form.elements.monthly_income.value = record.monthly_income;
+            form.elements.recovery_rate.value = record.recovery_rate;
+            form.elements.probability_of_default.value = record.probability_of_default;
+            
+            // Set editing mode
+            editingId = id;
+            
+            // Change button text
+            const addBtn = document.querySelector('button[onclick="addToPreview()"]');
+            if (addBtn) {
+                addBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Update Record';
+            }
+            
+            // Scroll to form
+            document.getElementById('individualForm').scrollIntoView({ behavior: 'smooth' });
+            showToast('Record loaded for editing.', 'info');
+        }
+    }
+
+    function deleteRecord(id) {
+        if (confirm('Are you sure you want to delete this record?')) {
+            processedData = processedData.filter(record => record.id !== id);
+            displayPreview(processedData);
+            updateRiskDistribution();
+            showToast('Record deleted successfully.', 'success');
+        }
+    }
+
+    function selectAll() {
+        document.querySelectorAll('.row-select').forEach(checkbox => {
+            checkbox.checked = true;
+        });
+        updateSelectAllCheckbox();
+        updateSelectedCount();
+    }
+
+    function clearSelection() {
+        document.querySelectorAll('.row-select').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateSelectAllCheckbox();
+        updateSelectedCount();
+    }
+
+    function toggleAllRows() {
+        const selectAll = document.getElementById('selectAllCheck');
+        document.querySelectorAll('.row-select').forEach(checkbox => {
+            checkbox.checked = selectAll.checked;
+        });
+        updateSelectedCount();
+    }
+
+    function updateSelectAllCheckbox() {
+        const checkboxes = document.querySelectorAll('.row-select');
+        const checkedCount = document.querySelectorAll('.row-select:checked').length;
+        const selectAllCheck = document.getElementById('selectAllCheck');
+        
+        if (selectAllCheck) {
+            selectAllCheck.checked = checkedCount === checkboxes.length;
+            selectAllCheck.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+        }
+    }
+
+    function updateSelectedCount() {
+        const checkedCount = document.querySelectorAll('.row-select:checked').length;
+        const countElement = document.getElementById('selectedCount');
+        if (countElement) {
+            countElement.textContent = checkedCount;
+        }
+        updateSelectAllCheckbox();
+    }
+
+    function recalculateAll() {
+        processedData = processedData.map(record => {
+            const result = calculateRiskForRow(record);
+            return { ...record, ...result };
+        });
+        displayPreview(processedData);
+        updateRiskDistribution();
+        showToast('All records recalculated successfully!', 'success');
+    }
+
+    function processSelectedRecords() {
+        const selectedIds = Array.from(document.querySelectorAll('.row-select:checked')).map(cb => parseInt(cb.getAttribute('data-id')));
+        
+        if (selectedIds.length === 0) {
+            showToast('Please select at least one record to process.', 'warning');
+            return;
+        }
+
+        const selectedRecords = processedData.filter(record => selectedIds.includes(record.id));
+        
+        // Send to Flask backend for processing
+        fetch('{{ url_for("upload_batch_credit") }}', {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ records: selectedRecords })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Autofill the form with the first row data
-                const form = document.getElementById('credit-risk-form');
-                Object.keys(data.data).forEach(key => {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input) {
-                        input.value = data.data[key];
-                    }
-                });
-                
-                // Show preview
-                showPreview(data.preview);
+                showToast(`Successfully processed ${selectedRecords.length} records.`, 'success');
             } else {
-                alert('Error: ' + data.error);
+                showToast('Error processing records: ' + data.error, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error processing file');
+            showToast('Error processing records.', 'error');
         });
     }
-});
 
-function showPreview(preview) {
-    const container = document.getElementById('preview-container');
-    const tbody = container.querySelector('tbody');
-    
-    tbody.innerHTML = '';
-    preview.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${row.application_id || ''}</td>
-            <td>${row.loan_amount || ''}</td>
-            <td>${row.property_value || ''}</td>
-            <td>${row.monthly_debt || ''}</td>
-            <td>${row.monthly_income || ''}</td>
-            <td>${row.recovery_rate || ''}</td>
-            <td>${row.probability_of_default || ''}</td>
-            <td>${row.risk_score || 'Not calculated'}</td>
-            <td>${row.risk_level || 'Not calculated'}</td>
-        `;
-        tbody.appendChild(tr);
-    });
-    
-    container.style.display = 'block';
-}
-
-// Function to reset form for another calculation
-function calculateAnother() {
-    document.getElementById('credit-risk-form').reset();
-    // Hide results section by reloading the page
-    window.location.href = window.location.pathname;
-}
-
-// Form validation
-document.getElementById('credit-risk-form').addEventListener('submit', function(e) {
-    const formData = new FormData(this);
-    const action = e.submitter.value;
-    
-    // Basic validation
-    const requiredFields = ['application_id', 'loan_amount', 'property_value', 'monthly_debt', 'monthly_income', 'recovery_rate', 'probability_of_default'];
-    
-    for (let field of requiredFields) {
-        if (!formData.get(field)) {
-            e.preventDefault();
-            alert(`Please fill in the ${field.replace('_', ' ')} field.`);
+    function downloadResults() {
+        if (processedData.length === 0) {
+            showToast('No data to download.', 'warning');
             return;
         }
-    }
-    
-    // Show loading state
-    const submitBtn = e.submitter;
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    submitBtn.disabled = true;
-    
-    // Re-enable button after a delay (in case of errors)
-    setTimeout(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }, 5000);
-});
 
-// Auto-calculate LTV and DTI as user types
-document.addEventListener('DOMContentLoaded', function() {
-    const loanAmount = document.querySelector('[name="loan_amount"]');
-    const propertyValue = document.querySelector('[name="property_value"]');
-    const monthlyDebt = document.querySelector('[name="monthly_debt"]');
-    const monthlyIncome = document.querySelector('[name="monthly_income"]');
-    
-    function calculateRatios() {
-        if (loanAmount.value && propertyValue.value) {
-            const ltv = (parseFloat(loanAmount.value) / parseFloat(propertyValue.value) * 100).toFixed(2);
-            // You can display this somewhere if needed
-        }
+        // Create CSV content
+        const headers = ['Application ID', 'Loan Amount', 'Property Value', 'Monthly Debt', 'Monthly Income', 'Recovery Rate', 'Probability of Default', 'LTV Ratio', 'DTI Ratio', 'Risk Score', 'Risk Level'];
+        const csvContent = [
+            headers.join(','),
+            ...processedData.map(record => [
+                record.application_id,
+                record.loan_amount,
+                record.property_value,
+                record.monthly_debt,
+                record.monthly_income,
+                record.recovery_rate,
+                record.probability_of_default,
+                record.ltv_ratio.toFixed(2),
+                record.dti_ratio.toFixed(2),
+                record.risk_score.toFixed(2),
+                record.risk_level
+            ].join(','))
+        ].join('\n');
+
+        // Download file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `credit_risk_results_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
         
-        if (monthlyDebt.value && monthlyIncome.value) {
-            const dti = (parseFloat(monthlyDebt.value) / parseFloat(monthlyIncome.value) * 100).toFixed(2);
-            // You can display this somewhere if needed
+        showToast('Results downloaded successfully!', 'success');
+    }
+
+            function forceShowPreview() {
+            console.log('Force show preview called. Data length:', processedData.length);
+            if (processedData.length > 0) {
+                displayPreview(processedData);
+                showToast('Preview table refreshed!', 'success');
+            } else {
+                showToast('No data to preview. Please upload a file first.', 'warning');
+            }
+        }
+
+        function removeUploadedFile() {
+            if (confirm('Are you sure you want to remove the uploaded file and clear all data?')) {
+                // Clear the file input
+                document.getElementById('fileInput').value = '';
+                
+                // Clear processed data
+                processedData = [];
+                
+                // Hide all sections
+                document.getElementById('fileInfo').classList.add('d-none');
+                document.getElementById('previewSection').classList.add('d-none');
+                document.getElementById('actionButtons').classList.add('d-none');
+                
+                // Destroy DataTable if it exists
+                if (dataTable) {
+                    dataTable.destroy();
+                    dataTable = null;
+                }
+                
+                // Clear the table body
+                document.getElementById('previewTableBody').innerHTML = '';
+                
+                // Reset counters
+                document.getElementById('recordCount').textContent = '-';
+                document.getElementById('lowRiskCount').textContent = '0';
+                document.getElementById('mediumRiskCount').textContent = '0';
+                document.getElementById('highRiskCount').textContent = '0';
+                document.getElementById('selectedCount').textContent = '0';
+                
+                showToast('File removed successfully.', 'success');
+            }
+        }
+
+        function clearPreview() {
+        if (confirm('Are you sure you want to clear all data?')) {
+            processedData = [];
+            document.getElementById('previewSection').classList.add('d-none');
+            document.getElementById('actionButtons').classList.add('d-none');
+            document.getElementById('fileInfo').classList.add('d-none');
+            document.getElementById('fileInput').value = '';
+            
+            if (dataTable) {
+                dataTable.destroy();
+                dataTable = null;
+            }
+            
+            showToast('Preview cleared successfully.', 'success');
         }
     }
-    
-    [loanAmount, propertyValue, monthlyDebt, monthlyIncome].forEach(input => {
-        input.addEventListener('input', calculateRatios);
+
+    function updateRiskDistribution() {
+        const riskCounts = processedData.reduce((acc, record) => {
+            acc[record.risk_level.toLowerCase()]++;
+            return acc;
+        }, { low: 0, medium: 0, high: 0 });
+
+        document.getElementById('lowRiskCount').textContent = riskCounts.low;
+        document.getElementById('mediumRiskCount').textContent = riskCounts.medium;
+        document.getElementById('highRiskCount').textContent = riskCounts.high;
+        document.getElementById('recordCount').textContent = processedData.length;
+    }
+
+    // Utility functions
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-MY', {
+            style: 'currency',
+            currency: 'MYR',
+            minimumFractionDigits: 2
+        }).format(amount);
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) {
+            spinner.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        const toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) return;
+        
+        const toast = document.createElement('div');
+        toast.className = `toast show align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="close ml-2 m-auto" onclick="this.parentElement.parentElement.remove()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 5000);
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSelectedCount();
     });
-});
 </script>
 
-<style>
-.badge {
-    font-size: 0.9em;
-    padding: 0.5em 0.8em;
-}
-
-.btn-lg {
-    padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
-}
-
-.card-header h4 {
-    margin: 0;
-}
-
-#preview-container {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    border: 1px solid #dee2e6;
-}
-
-.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-</style>
 {% endblock %}

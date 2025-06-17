@@ -1353,6 +1353,135 @@ def delete_selected_shariah_applications():
     
     return redirect(url_for('shariah_risk_applications'))
 
+# Add these routes to your current app.py file
+
+@app.route('/admin/change-password/<int:user_id>', methods=['GET', 'POST'])
+@admin_required
+def change_user_password(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if request.method == 'POST':
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+        
+        # Validation
+        errors = []
+        
+        if not new_password or not confirm_password:
+            errors.append('Please enter both password fields.')
+        
+        if new_password != confirm_password:
+            errors.append('Passwords do not match.')
+        
+        if not validate_password_strength(new_password):
+            errors.append('Password does not meet security requirements.')
+        
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('admin/change_password.html', user=user)
+        
+        # Change the password
+        try:
+            user.set_password(new_password)
+            user.updated_at = datetime.utcnow()
+            user.updated_by = session['user_id']
+            
+            # Reset failed login attempts when admin changes password
+            user.failed_login_attempts = 0
+            
+            db.session.commit()
+            
+            # Log the password change
+            AuditLog.log_action(
+                user_id=session['user_id'],
+                action='PASSWORD_CHANGED_BY_ADMIN',
+                resource='user',
+                resource_id=user.staff_id,
+                details={
+                    'target_user': user.staff_id,
+                    'changed_by_admin': session['staff_id']
+                },
+                request_obj=request
+            )
+            
+            flash(f'Password successfully changed for user {user.staff_id} ({user.full_name}).', 'success')
+            return redirect(url_for('manage_users'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while changing the password. Please try again.', 'danger')
+            return render_template('admin/change_password.html', user=user)
+    
+    return render_template('admin/change_password.html', user=user)
+
+@app.route('/admin/reset-failed-logins/<int:user_id>')
+@admin_required
+def reset_failed_logins(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if user.failed_login_attempts > 0:
+        old_attempts = user.failed_login_attempts
+        user.failed_login_attempts = 0
+        user.is_active = True  # Reactivate if locked due to failed attempts
+        user.updated_at = datetime.utcnow()
+        user.updated_by = session['user_id']
+        
+        db.session.commit()
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='FAILED_LOGINS_RESET',
+            resource='user',
+            resource_id=user.staff_id,
+            details={
+                'target_user': user.staff_id,
+                'previous_failed_attempts': old_attempts,
+                'reset_by_admin': session['staff_id']
+            },
+            request_obj=request
+        )
+        
+        flash(f'Failed login attempts reset for user {user.staff_id}. Account has been reactivated.', 'success')
+    else:
+        flash(f'User {user.staff_id} has no failed login attempts to reset.', 'info')
+    
+    return redirect(url_for('manage_users'))
+
+# Optional: Fix the existing toggle_user_status route to match template expectations
+# You can either update the route URL or keep your current one and update the template
+# Here's the route that matches what your template expects:
+
+@app.route('/admin/toggle-user/<int:user_id>')
+@admin_required  
+def toggle_user_status_get(user_id):
+    """GET version for template compatibility"""
+    user = User.query.get_or_404(user_id)
+    
+    if user.id == session['user_id']:
+        flash('You cannot deactivate your own account.', 'danger')
+        return redirect(url_for('manage_users'))
+    
+    user.is_active = not user.is_active
+    user.updated_at = datetime.utcnow()
+    user.updated_by = session['user_id']
+    
+    db.session.commit()
+    
+    action = 'USER_ACTIVATED' if user.is_active else 'USER_DEACTIVATED'
+    AuditLog.log_action(
+        user_id=session['user_id'],
+        action=action,
+        resource='user',
+        resource_id=user.staff_id,
+        request_obj=request
+    )
+    
+    status = 'activated' if user.is_active else 'deactivated'
+    flash(f'User {user.staff_id} has been {status}.', 'success')
+    return redirect(url_for('manage_users'))
+
 # ===== GENERATE PDF REPORT ROUTE =====
 @app.route('/generate-pdf-report', methods=['POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
