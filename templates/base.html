@@ -36,20 +36,26 @@
             </div>
           </li>
         
-          <!-- 🕌 Shariah Risk Dropdown -->
-          {% if current_user and (current_user.role.value == 'shariah_officer' or current_user.role.value == 'admin') %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="shariahDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              🕌 SHARIAH RISK
-            </a>
-            <div class="dropdown-menu" aria-labelledby="shariahDropdown">
-              <a class="dropdown-item" href="{{ url_for('shariah_risk_assessment') }}">Assessment</a>
-              <a class="dropdown-item" href="{{ url_for('test_shariah_model') }}">Test Model</a>
-              <a class="dropdown-item" href="{{ url_for('shariah_risk_applications') }}">Saved Applications</a>
-              <a class="dropdown-item" href="{{ url_for('shariah_dashboard') }}">📊 Dashboard</a>
-            </div>
-          </li>
-          {% endif %}
+          <!-- Enhanced Shariah Risk Dropdown -->
+{% if current_user and (current_user.role.value == 'shariah_officer' or current_user.role.value == 'admin') %}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="shariahDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        🕌 SHARIAH RISK
+    </a>
+    <div class="dropdown-menu" aria-labelledby="shariahDropdown">
+        <a class="dropdown-item" href="{{ url_for('shariah.comprehensive_assessment') }}">🔍 Comprehensive Assessment</a>
+        <a class="dropdown-item" href="{{ url_for('shariah.assessment_dashboard') }}">📊 Enhanced Dashboard</a>
+        <a class="dropdown-item" href="{{ url_for('shariah.saved_assessments') }}">📋 Saved Assessments</a>
+        <a class="dropdown-item" href="{{ url_for('shariah.bulk_assessment') }}">📁 Bulk Assessment</a>
+        <a class="dropdown-item" href="{{ url_for('shariah.compliance_summary_report') }}">📈 Compliance Reports</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{{ url_for('test_shariah_model') }}">🧪 Test Legacy Model</a>
+        {% if current_user.role.value == 'admin' %}
+        <a class="dropdown-item" href="{{ url_for('shariah.manage_product_templates') }}">⚙️ Product Templates</a>
+        {% endif %}
+    </div>
+</li>
+{% endif %}
         
           <!-- 💳 Credit Risk Dropdown -->
           {% if current_user and (current_user.role.value == 'credit_officer' or current_user.role.value == 'admin') %}

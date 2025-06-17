@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Enhanced Shariah Risk Assessment{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">🕌 Enhanced Shariah Risk Assessment</h2>
+    
+    {% if assessment_results %}
+        <!-- Display Results -->
+        <div class="alert alert-success">
+            <h4>Assessment Results</h4>
+            <p><strong>Composite Score:</strong> {{ assessment_results.weighted_composite_score }}%</p>
+            <p><strong>Compliance Level:</strong> {{ assessment_results.compliance_level }}</p>
+            <p><strong>Risk Level:</strong> {{ assessment_results.risk_level }}</p>
+            <p><strong>Recommendation:</strong> {{ assessment_results.final_recommendation }}</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Dimension Scores</h5>
+                <ul class="list-group">
+                    {% for dimension, score in assessment_results.dimension_scores.items() %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        {{ dimension.replace('_', ' ').title() }}
+                        <span class="badge badge-primary">{{ "%.1f"|format(score) }}%</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h5>Recommendations</h5>
+                {% if assessment_results.detailed_recommendations %}
+                <ul class="list-group">
+                    {% for rec in assessment_results.detailed_recommendations[:5] %}
+                    <li class="list-group-item">{{ rec }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <form method="POST" class="mt-4">
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6">
+                <h4>Basic Information</h4>
+                <div class="form-group">
+                    <label>Application ID</label>
+                    <input type="text" class="form-control" name="application_id" required>
+                </div>
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" class="form-control" name="customer_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Customer Category</label>
+                    <select class="form-control" name="customer_category" required>
+                        <option value="corporate">Corporate</option>
+                        <option value="sme">SME</option>
+                        <option value="individual">Individual</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Product Type</label>
+                    <select class="form-control" name="product_type" required>
+                        <option value="murabaha">Murabaha</option>
+                        <option value="mudarabah">Mudarabah</option>
+                        <option value="ijara">Ijara</option>
+                        <option value="tawarruq">Tawarruq</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Financing Amount (RM)</label>
+                    <input type="number" class="form-control" name="financing_amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Financing Tenor (months)</label>
+                    <input type="number" class="form-control" name="financing_tenor" min="1" max="300" required>
+                </div>
+            </div>
+            
+            <!-- Shariah Assessment -->
+            <div class="col-md-6">
+                <h4>Shariah Assessment</h4>
+                <div class="form-group">
+                    <label>Purpose of Financing</label>
+                    <textarea class="form-control" name="purpose_of_financing" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Business Description</label>
+                    <textarea class="form-control" name="business_description" rows="3" required></textarea>
+                </div>
+                
+                <h5>Fundamental Compliance</h5>
+                <div class="form-group">
+                    <label>Riba (Interest) Present?</label>
+                    <select class="form-control" name="has_riba">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Gharar Level</label>
+                    <select class="form-control" name="gharar_level">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="excessive">Excessive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Maysir (Gambling) Present?</label>
+                    <select class="form-control" name="has_maysir">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Financial Ratios -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>Financial Ratios</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Cash to Total Assets (%)</label>
+                            <input type="number" class="form-control" name="cash_to_total_assets" step="0.01" min="0" max="100">
+                            <small class="text-muted">Should be ≤33%</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Debt to Total Assets (%)</label>
+                            <input type="number" class="form-control" name="debt_to_total_assets" step="0.01" min="0" max="100">
+                            <small class="text-muted">Should be ≤33%</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Interest Income Ratio (%)</label>
+                            <input type="number" class="form-control" name="interest_income_ratio" step="0.01" min="0" max="100">
+                            <small class="text-muted">Should be ≤5%</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Prohibited Activities -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h5>5% Threshold Activities</h5>
+                <div class="form-group">
+                    <label>Conventional Banking (%)</label>
+                    <input type="number" class="form-control" name="conventional_banking" step="0.01" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Gambling (%)</label>
+                    <input type="number" class="form-control" name="gambling" step="0.01" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Liquor/Tobacco (%)</label>
+                    <input type="number" class="form-control" name="liquor_tobacco" step="0.01" min="0" max="100" value="0">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5>20% Threshold Activities</h5>
+                <div class="form-group">
+                    <label>Share Trading (%)</label>
+                    <input type="number" class="form-control" name="share_trading" step="0.01" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Stockbroking (%)</label>
+                    <input type="number" class="form-control" name="stockbroking" step="0.01" min="0" max="100" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Cinema Entertainment (%)</label>
+                    <input type="number" class="form-control" name="cinema_entertainment" step="0.01" min="0" max="100" value="0">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Governance -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h4>Shariah Governance</h4>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="shariah_board_established" value="true">
+                            <label class="form-check-label">Shariah Board Established</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="internal_shariah_audit" value="true">
+                            <label class="form-check-label">Internal Shariah Audit</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="shariah_compliance_officer" value="true">
+                            <label class="form-check-label">Compliance Officer</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Shariah Board Members</label>
+                            <input type="number" class="form-control" name="shariah_board_members" min="0" max="20" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Buttons -->
+        <div class="text-center mt-4">
+            <button type="submit" name="action" value="analyze" class="btn btn-primary btn-lg mr-3">
+                🔍 Analyze Assessment
+            </button>
+            <button type="submit" name="action" value="save" class="btn btn-success btn-lg">
+                💾 Save Assessment
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.badge {
+    font-size: 0.9em;
+}
+.form-check {
+    padding: 0.5rem 0;
+}
+.alert h4 {
+    color: inherit;
+}
+</style>
+{% endblock %}

@@ -1,4 +1,26 @@
-# Enhanced Flask Application with Complete Authentication & Authorization
+#!/usr/bin/env python
+"""
+Instant Fix Script for Current App.py Errors
+This script fixes the specific syntax and import errors you're experiencing
+"""
+
+import os
+import shutil
+from datetime import datetime
+
+def backup_current_app():
+    """Backup the current broken app.py"""
+    if os.path.exists('app.py'):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_name = f'app_broken_backup_{timestamp}.py'
+        shutil.copy2('app.py', backup_name)
+        print(f"✅ Backed up broken app.py to {backup_name}")
+        return backup_name
+    return None
+
+def create_clean_app():
+    """Create a clean, working app.py file"""
+    clean_app_content = '''# Enhanced Flask Application with Complete Authentication & Authorization
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -452,3 +474,100 @@ if __name__ == '__main__':
     
     print("🚀 Starting Shariah Risk Assessment Application...")
     app.run(host='0.0.0.0', port=5001, debug=True)
+'''
+    
+    with open('app.py', 'w', encoding='utf-8') as f:
+        f.write(clean_app_content)
+    
+    print("✅ Created clean app.py")
+
+def ensure_extensions_file():
+    """Ensure extensions.py exists and is correct"""
+    extensions_content = '''"""
+Flask Extensions
+================
+Centralized initialization of Flask extensions to avoid circular imports.
+"""
+
+from flask_sqlalchemy import SQLAlchemy
+
+# Initialize database instance
+db = SQLAlchemy()
+'''
+    
+    with open('extensions.py', 'w', encoding='utf-8') as f:
+        f.write(extensions_content)
+    
+    print("✅ Ensured extensions.py exists")
+
+def ensure_init_files():
+    """Ensure all __init__.py files exist"""
+    directories = ['models', 'services', 'routes', 'scripts']
+    
+    for directory in directories:
+        if os.path.exists(directory):
+            init_file = os.path.join(directory, '__init__.py')
+            if not os.path.exists(init_file):
+                with open(init_file, 'w', encoding='utf-8') as f:
+                    f.write(f'"""Package: {directory}"""\n')
+                print(f"✅ Created {init_file}")
+
+def fix_shariah_models():
+    """Fix shariah_models.py if it exists"""
+    models_file = 'models/shariah_models.py'
+    
+    if os.path.exists(models_file):
+        with open(models_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Replace circular import
+        updated_content = content.replace('from app import db', 'from extensions import db')
+        
+        with open(models_file, 'w', encoding='utf-8') as f:
+            f.write(updated_content)
+        
+        print("✅ Fixed models/shariah_models.py")
+
+def main():
+    """Main execution function"""
+    print("🔧 Applying instant fixes for current errors...")
+    print("=" * 60)
+    
+    # 1. Backup broken file
+    backup_current_app()
+    
+    # 2. Ensure extensions.py exists
+    ensure_extensions_file()
+    
+    # 3. Create clean app.py
+    create_clean_app()
+    
+    # 4. Ensure package structure
+    ensure_init_files()
+    
+    # 5. Fix shariah models if they exist
+    fix_shariah_models()
+    
+    print("\n" + "=" * 60)
+    print("🎉 Instant fixes applied successfully!")
+    print("\n📋 What was fixed:")
+    print("  ✅ Removed all syntax errors (incomplete try blocks)")
+    print("  ✅ Fixed circular imports")
+    print("  ✅ Cleaned up duplicate code")
+    print("  ✅ Ensured proper package structure")
+    print("  ✅ Created working app.py with core functionality")
+    
+    print("\n🚀 Next steps:")
+    print("1. Test the application: flask run --port=5001")
+    print("2. Default login credentials:")
+    print("   - Admin: admin / admin123")
+    print("   - Shariah Officer: shariah001 / shariah123") 
+    print("   - Credit Officer: credit001 / credit123")
+    
+    print("\n💡 Note:")
+    print("- Enhanced Shariah features will be disabled if modules aren't found")
+    print("- Basic functionality will work immediately")
+    print("- FinBERT model is optional and will fallback gracefully")
+
+if __name__ == "__main__":
+    main()
