@@ -610,20 +610,20 @@ def delete_loan(loan_id):
     flash("Loan record deleted successfully!", "success")
     return redirect(url_for('dashboard'))
 
-# ===== SHARIAH RISK ROUTES (PO-1: Machine Learning Implementation) =====
+## ===== CORRECTED SHARIAH RISK ROUTE (Matches Your Frontend) =====
 @app.route('/shariah-risk-assessment', methods=['GET', 'POST'])
 @role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
 def shariah_risk_assessment():
     risk_score = None
     
     if request.method == 'POST':
-        action = request.form.get('action')
+        action = request.form.get('action')  # 'analyze', 'save', 'approve', 'reject'
         
-        # Get form data
+        # Get form data (matching your frontend field names exactly)
         application_id = request.form['application_id']
         application_date = request.form['application_date']
         customer_name = request.form['customer_name']
-        amount_requested = float(request.form['amount_requested'])
+        loan_amount = float(request.form['loan_amount'])  # Frontend uses 'loan_amount'
         purpose_of_financing = request.form['purpose_of_financing']
         customer_category = request.form['customer_category']
         riba = request.form['riba']
@@ -631,7 +631,7 @@ def shariah_risk_assessment():
         maysir = request.form['maysir']
         business_description = request.form['business_description']
 
-        # PO-1: AI-Powered Shariah Risk Analysis using FinBERT
+        # PO-1: AI-Powered Shariah Risk Analysis using FinBERT (PRESERVED)
         if model and tokenizer:
             try:
                 # Preprocess text for FinBERT
@@ -666,39 +666,115 @@ def shariah_risk_assessment():
             # Fallback rule-based analysis
             risk_score = analyze_shariah_compliance_fallback(riba, gharar, maysir, business_description)
 
-        if action == 'save':
-            new_application = ShariahRiskApplication(
-                application_id=application_id,
-                application_date=datetime.strptime(application_date, '%Y-%m-%d'),
-                customer_name=customer_name,
-                customer_category=customer_category,
-                loan_amount=amount_requested,
-                purpose_of_financing=purpose_of_financing,
-                riba=riba,
-                gharar=gharar,
-                maysir=maysir,
-                business_description=business_description,
-                shariah_risk_score=risk_score,
-                created_by=session['user_id']
-            )
-            
-            db.session.add(new_application)
-            db.session.commit()
-            
-            AuditLog.log_action(
-                user_id=session['user_id'],
-                action='SHARIAH_ASSESSMENT_CREATED',
-                resource='shariah_application',
-                resource_id=application_id,
-                details={'risk_score': risk_score},
-                request_obj=request
-            )
-            
-            flash(f'Shariah assessment saved: {risk_score}', 'success')
-            return redirect(url_for('shariah_risk_applications'))
+        # Handle different actions
+        if action in ['save', 'approve', 'reject']:
+            try:
+                # Check if application already exists
+                existing_application = ShariahRiskApplication.query.filter_by(application_id=application_id).first()
+                
+                if existing_application:
+                    # Update existing application
+                    existing_application.customer_name = customer_name
+                    existing_application.loan_amount = loan_amount
+                    existing_application.purpose_of_financing = purpose_of_financing
+                    existing_application.customer_category = customer_category
+                    existing_application.riba = riba
+                    existing_application.gharar = gharar
+                    existing_application.maysir = maysir
+                    existing_application.business_description = business_description
+                    existing_application.shariah_risk_score = risk_score
+                    
+                    # Set status based on action
+                    if action == 'approve':
+                        existing_application.status = 'Approved'
+                        existing_application.approved_by = session['user_id']
+                        existing_application.approved_at = datetime.utcnow()
+                    elif action == 'reject':
+                        existing_application.status = 'Rejected'
+                        existing_application.approved_by = session['user_id']
+                        existing_application.approved_at = datetime.utcnow()
+                    else:  # save
+                        existing_application.status = 'Assessed'
+                    
+                    application = existing_application
+                else:
+                    # Create new application
+                    status = 'Assessed'
+                    approved_by = None
+                    approved_at = None
+                    
+                    if action == 'approve':
+                        status = 'Approved'
+                        approved_by = session['user_id']
+                        approved_at = datetime.utcnow()
+                    elif action == 'reject':
+                        status = 'Rejected'
+                        approved_by = session['user_id']
+                        approved_at = datetime.utcnow()
+                    
+                    application = ShariahRiskApplication(
+                        application_id=application_id,
+                        application_date=datetime.strptime(application_date, '%Y-%m-%d'),
+                        customer_name=customer_name,
+                        customer_category=customer_category,
+                        loan_amount=loan_amount,
+                        purpose_of_financing=purpose_of_financing,
+                        riba=riba,
+                        gharar=gharar,
+                        maysir=maysir,
+                        business_description=business_description,
+                        shariah_risk_score=risk_score,
+                        status=status,
+                        created_by=session['user_id'],
+                        approved_by=approved_by,
+                        approved_at=approved_at
+                    )
+                    
+                    db.session.add(application)
+                
+                db.session.commit()
+                
+                # Log the action
+                action_map = {
+                    'save': 'SHARIAH_ASSESSMENT_SAVED',
+                    'approve': 'SHARIAH_APPLICATION_APPROVED',
+                    'reject': 'SHARIAH_APPLICATION_REJECTED'
+                }
+                
+                AuditLog.log_action(
+                    user_id=session['user_id'],
+                    action=action_map[action],
+                    resource='shariah_application',
+                    resource_id=application_id,
+                    details={
+                        'risk_score': risk_score,
+                        'status': application.status,
+                        'finbert_used': bool(model and tokenizer)
+                    },
+                    request_obj=request
+                )
+                
+                # Flash appropriate message
+                if action == 'approve':
+                    flash(f'✅ Shariah Application {application_id} has been APPROVED successfully!', 'success')
+                elif action == 'reject':
+                    flash(f'❌ Shariah Application {application_id} has been REJECTED.', 'warning')
+                else:
+                    flash(f'💾 Shariah assessment saved: {risk_score}', 'success')
+                
+                # Redirect to applications list if approved/rejected
+                if action in ['approve', 'reject']:
+                    return redirect(url_for('shariah_risk_applications'))
+                    
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error processing Shariah application: {str(e)}', 'danger')
+        
+        # For 'analyze' action, just show results without saving to database
 
     return render_template('shariah.html', risk_score=risk_score)
 
+# Keep your existing fallback function unchanged
 def analyze_shariah_compliance_fallback(riba, gharar, maysir, business_description):
     """Fallback rule-based Shariah compliance analysis"""
     prohibited_keywords = ['interest', 'gambling', 'alcohol', 'pork', 'insurance', 'conventional banking']
@@ -720,6 +796,89 @@ def analyze_shariah_compliance_fallback(riba, gharar, maysir, business_descripti
             return "Doubtful"
     
     return "Halal"
+
+# ===== ADD THESE QUICK APPROVAL ROUTES TO YOUR APP.PY =====
+
+@app.route('/shariah-applications/quick-approve/<int:app_id>', methods=['POST'])
+@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def quick_approve_shariah_application(app_id):
+    """Quick approve Shariah application from the list"""
+    try:
+        application = ShariahRiskApplication.query.get_or_404(app_id)
+        
+        # Check if already approved/rejected
+        if application.status in ['Approved', 'Rejected']:
+            flash(f'Shariah Application {application.application_id} is already {application.status.lower()}.', 'warning')
+            return redirect(url_for('shariah_risk_applications'))
+        
+        # Update application status
+        application.status = 'Approved'
+        application.approved_by = session['user_id']
+        application.approved_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='SHARIAH_APPLICATION_QUICK_APPROVED',
+            resource='shariah_application',
+            resource_id=application.application_id,
+            details={
+                'shariah_risk_score': application.shariah_risk_score,
+                'approval_method': 'quick_approve'
+            },
+            request_obj=request
+        )
+        
+        flash(f'✅ Shariah Application {application.application_id} has been approved successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error approving Shariah application: {str(e)}', 'danger')
+    
+    return redirect(url_for('shariah_risk_applications'))
+
+
+@app.route('/shariah-applications/quick-reject/<int:app_id>', methods=['POST'])
+@role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def quick_reject_shariah_application(app_id):
+    """Quick reject Shariah application from the list"""
+    try:
+        application = ShariahRiskApplication.query.get_or_404(app_id)
+        
+        # Check if already approved/rejected
+        if application.status in ['Approved', 'Rejected']:
+            flash(f'Shariah Application {application.application_id} is already {application.status.lower()}.', 'warning')
+            return redirect(url_for('shariah_risk_applications'))
+        
+        # Update application status
+        application.status = 'Rejected'
+        application.approved_by = session['user_id']
+        application.approved_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='SHARIAH_APPLICATION_QUICK_REJECTED',
+            resource='shariah_application',
+            resource_id=application.application_id,
+            details={
+                'shariah_risk_score': application.shariah_risk_score,
+                'rejection_method': 'quick_reject'
+            },
+            request_obj=request
+        )
+        
+        flash(f'❌ Shariah Application {application.application_id} has been rejected.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error rejecting Shariah application: {str(e)}', 'danger')
+    
+    return redirect(url_for('shariah_risk_applications'))
 
 @app.route('/shariah-applications')
 @role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
