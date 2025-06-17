@@ -24,7 +24,7 @@
                                 <i class="fas fa-list mr-1"></i>All ({{ applications|length }})
                             </button>
                             <button type="button" class="btn btn-outline-warning" onclick="filterByStatus('pending')">
-                                <i class="fas fa-clock mr-1"></i>Pending ({{ applications|selectattr('status', 'equalto', 'Pending')|list|length }})
+                                <i class="fas fa-clock mr-1"></i>Pending ({{ applications|selectattr('status', 'none')|list|length }})
                             </button>
                             <button type="button" class="btn btn-outline-info" onclick="filterByStatus('assessed')">
                                 <i class="fas fa-calculator mr-1"></i>Assessed ({{ applications|selectattr('status', 'equalto', 'Assessed')|list|length }})
@@ -52,11 +52,12 @@
                             <button type="button" class="btn btn-outline-secondary btn-sm ml-1" onclick="clearSelection()">
                                 <i class="fas fa-square mr-1"></i>Clear All
                             </button>
+                        </form>
                     </div>
 
                     <!-- Applications Table -->
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover" id="applicationsTable">
+                        <table class="table table-striped table-hover" id="creditApplicationsTable">
                             <thead class="bg-primary text-white">
                                 <tr>
                                     <th width="40">
@@ -66,6 +67,8 @@
                                     <th>Loan Amount (RM)</th>
                                     <th>Risk Score</th>
                                     <th>Risk Level</th>
+                                    <th>LTV (%)</th>
+                                    <th>DTI (%)</th>
                                     <th>Status</th>
                                     <th>Assessed By</th>
                                     <th>Approved By</th>
@@ -75,7 +78,9 @@
                             </thead>
                             <tbody>
                                 {% for app in applications %}
-                                <tr data-status="{{ app.status.lower() }}">
+                                <!-- SAFE: Handle None/NULL status values properly -->
+                                {% set safe_status = app.status if app.status else 'pending' %}
+                                <tr data-status="{{ safe_status.lower() }}">
                                     <td>
                                         <input type="checkbox" name="selected_ids" value="{{ app.id }}" class="row-select">
                                     </td>
@@ -84,16 +89,26 @@
                                     </td>
                                     <td>{{ "{:,.2f}".format(app.loan_amount) }}</td>
                                     <td>
-                                        <span class="badge badge-{% if app.risk_score < 30 %}success{% elif app.risk_score < 60 %}warning{% else %}danger{% endif %}">
-                                            {{ app.risk_score|round(2) }}
+                                        <span class="badge 
+                                            {% if app.risk_score <= 30 %}badge-success
+                                            {% elif app.risk_score <= 70 %}badge-warning
+                                            {% else %}badge-danger{% endif %}">
+                                            {{ "{:.2f}".format(app.risk_score) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge badge-{% if app.risk_level == 'Low' %}success{% elif app.risk_level == 'Medium' %}warning{% else %}danger{% endif %}">
-                                            {{ app.risk_level }}
-                                        </span>
+                                        {% if app.risk_level == 'Low' %}
+                                            <span class="badge badge-success">✅ Low</span>
+                                        {% elif app.risk_level == 'Medium' %}
+                                            <span class="badge badge-warning">⚠️ Medium</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">❌ High</span>
+                                        {% endif %}
                                     </td>
+                                    <td>{{ "{:.2f}".format(app.ltv) if app.ltv else 'N/A' }}</td>
+                                    <td>{{ "{:.2f}".format(app.dti) if app.dti else 'N/A' }}</td>
                                     <td>
+                                        <!-- SAFE: Handle None/NULL status values -->
                                         {% if app.status == 'Approved' %}
                                             <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i>Approved</span>
                                         {% elif app.status == 'Rejected' %}
@@ -101,6 +116,7 @@
                                         {% elif app.status == 'Assessed' %}
                                             <span class="badge badge-info"><i class="fas fa-calculator mr-1"></i>Assessed</span>
                                         {% else %}
+                                            <!-- This handles NULL/None values -->
                                             <span class="badge badge-warning"><i class="fas fa-clock mr-1"></i>Pending</span>
                                         {% endif %}
                                     </td>
@@ -147,13 +163,20 @@
                                                 </button>
                                             </form>
                                             {% endif %}
+                                            
+                                            <!-- View Details Button -->
+                                            <button class="btn btn-outline-info btn-sm view-details-btn" 
+                                                    data-app-id="{{ app.id }}" 
+                                                    title="View Details"
+                                                    onclick="viewDetailsFromRow(this)">
+                                                <i class="fas fa-info-circle"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                        </form>
                     </div>
                     {% else %}
                     <div class="text-center py-5">
@@ -171,10 +194,30 @@
     </div>
 </div>
 
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-calculator mr-2"></i>Credit Assessment Details</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Status filtering
+    // Status filtering - handles null status as 'pending'
     function filterByStatus(status) {
-        const rows = document.querySelectorAll('#applicationsTable tbody tr');
+        const rows = document.querySelectorAll('#creditApplicationsTable tbody tr');
         const buttons = document.querySelectorAll('.btn-group .btn');
         
         // Update active button
@@ -194,8 +237,10 @@
 
     // Selection functions
     function selectAll() {
-        document.querySelectorAll('.row-select:not([style*="display: none"])').forEach(checkbox => {
-            checkbox.checked = true;
+        const visibleRows = document.querySelectorAll('#creditApplicationsTable tbody tr:not([style*="display: none"])');
+        visibleRows.forEach(row => {
+            const checkbox = row.querySelector('.row-select');
+            if (checkbox) checkbox.checked = true;
         });
         updateSelectAllCheckbox();
     }
@@ -209,33 +254,93 @@
 
     function toggleAllRows() {
         const selectAll = document.getElementById('selectAllCheck');
-        const visibleCheckboxes = document.querySelectorAll('.row-select:not([style*="display: none"])');
+        const visibleRows = document.querySelectorAll('#creditApplicationsTable tbody tr:not([style*="display: none"])');
         
-        visibleCheckboxes.forEach(checkbox => {
-            checkbox.checked = selectAll.checked;
+        visibleRows.forEach(row => {
+            const checkbox = row.querySelector('.row-select');
+            if (checkbox) checkbox.checked = selectAll.checked;
         });
     }
 
     function updateSelectAllCheckbox() {
-        const checkboxes = document.querySelectorAll('.row-select:not([style*="display: none"])');
-        const checkedCount = document.querySelectorAll('.row-select:not([style*="display: none"]):checked').length;
-        const selectAllCheck = document.getElementById('selectAllCheck');
+        const visibleRows = document.querySelectorAll('#creditApplicationsTable tbody tr:not([style*="display: none"])');
+        const visibleCheckboxes = [];
+        const checkedCheckboxes = [];
         
-        selectAllCheck.checked = checkedCount === checkboxes.length && checkboxes.length > 0;
-        selectAllCheck.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+        visibleRows.forEach(row => {
+            const checkbox = row.querySelector('.row-select');
+            if (checkbox) {
+                visibleCheckboxes.push(checkbox);
+                if (checkbox.checked) checkedCheckboxes.push(checkbox);
+            }
+        });
+        
+        const selectAllCheck = document.getElementById('selectAllCheck');
+        selectAllCheck.checked = checkedCheckboxes.length === visibleCheckboxes.length && visibleCheckboxes.length > 0;
+        selectAllCheck.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < visibleCheckboxes.length;
     }
 
-    // Initialize DataTable
+    // SAFE: View details function that gets data from table row instead of JSON
+    function viewDetailsFromRow(button) {
+        const row = button.closest('tr');
+        const cells = row.querySelectorAll('td');
+        
+        // Extract data directly from table cells (safe approach)
+        const appData = {
+            application_id: cells[1].textContent.trim(),
+            loan_amount: cells[2].textContent.trim(),
+            risk_score: cells[3].textContent.trim(),
+            risk_level: cells[4].textContent.trim(),
+            ltv: cells[5].textContent.trim(),
+            dti: cells[6].textContent.trim(),
+            status: cells[7].textContent.trim(),
+            assessed_by: cells[8].textContent.trim(),
+            approved_by: cells[9].textContent.trim(),
+            date: cells[10].textContent.trim()
+        };
+        
+        // Populate modal
+        const modalBody = document.getElementById('modalBody');
+        modalBody.innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6><i class="fas fa-id-card mr-2"></i>Application Information</h6>
+                    <table class="table table-sm">
+                        <tr><th>Application ID:</th><td>${appData.application_id}</td></tr>
+                        <tr><th>Loan Amount:</th><td>RM ${appData.loan_amount}</td></tr>
+                        <tr><th>Risk Score:</th><td>${appData.risk_score}</td></tr>
+                        <tr><th>Risk Level:</th><td>${appData.risk_level}</td></tr>
+                        <tr><th>LTV Ratio:</th><td>${appData.ltv}</td></tr>
+                        <tr><th>DTI Ratio:</th><td>${appData.dti}</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-chart-line mr-2"></i>Status Information</h6>
+                    <table class="table table-sm">
+                        <tr><th>Status:</th><td>${appData.status}</td></tr>
+                        <tr><th>Assessed By:</th><td>${appData.assessed_by}</td></tr>
+                        <tr><th>Approved By:</th><td>${appData.approved_by}</td></tr>
+                        <tr><th>Date:</th><td>${appData.date}</td></tr>
+                    </table>
+                </div>
+            </div>
+        `;
+        
+        $('#detailsModal').modal('show');
+    }
+
+    // Initialize when document is ready
     $(document).ready(function() {
-        $('#applicationsTable').DataTable({
+        // Initialize DataTable
+        $('#creditApplicationsTable').DataTable({
             pageLength: 25,
-            order: [[8, 'desc']], // Sort by date descending
+            order: [[10, 'desc']], // Sort by date descending
             columnDefs: [
-                { orderable: false, targets: [0, 9] } // Disable sorting on checkbox and actions
+                { orderable: false, targets: [0, 11] } // Disable sorting on checkbox and actions
             ]
         });
         
-        // Update select all when individual checkboxes change
+        // Add event listeners for checkboxes
         document.querySelectorAll('.row-select').forEach(checkbox => {
             checkbox.addEventListener('change', updateSelectAllCheckbox);
         });

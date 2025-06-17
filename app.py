@@ -12,6 +12,7 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from enum import Enum
+from credit_risk import calculate_credit_risk, get_risk_level, CreditRiskCalculator, validate_financial_inputs
 import pandas as pd
 import os
 import json
@@ -1053,45 +1054,44 @@ def credit_risk_page():
 # Add this exact route to your app.py file
 
 @app.route('/credit-applications/delete-selected', methods=['POST'])
-@login_required
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def delete_selected_credit_applications():
     """Delete selected credit applications"""
-    selected_ids = request.form.getlist('selected_ids')
-    
-    if not selected_ids:
-        flash('No applications selected.', 'warning')
-        return redirect(url_for('credit_applications'))
-    
-    deleted_count = 0
     try:
-        for app_id in selected_ids:
-            # Use db.session.get() instead of deprecated .query.get()
-            application = db.session.get(CreditApplication, app_id)
-            if application:
-                # Log the deletion if AuditLog is available
-                try:
-                    AuditLog.log_action(
-                        user_id=session.get('user_id'),
-                        action='CREDIT_APPLICATION_DELETED',
-                        resource='credit_application',
-                        resource_id=str(application.id),
-                        details={'application_id': getattr(application, 'application_id', 'N/A')},
-                        request_obj=request
-                    )
-                except (NameError, AttributeError):
-                    # Skip audit logging if not available
-                    pass
-                
-                db.session.delete(application)
-                deleted_count += 1
+        selected_ids = request.form.getlist('selected_ids')
+        if not selected_ids:
+            flash('No applications selected for deletion.', 'warning')
+            return redirect(url_for('credit_applications'))
+        
+        # Convert to integers
+        app_ids = [int(id) for id in selected_ids]
+        
+        # Get applications to be deleted for logging
+        applications = CreditApplication.query.filter(CreditApplication.id.in_(app_ids)).all()
+        
+        # Delete applications
+        deleted_count = CreditApplication.query.filter(CreditApplication.id.in_(app_ids)).delete(synchronize_session=False)
         
         db.session.commit()
         
-        if deleted_count > 0:
-            flash(f'Successfully deleted {deleted_count} application(s).', 'success')
-        else:
-            flash('No valid applications found to delete.', 'warning')
-            
+        # Log the action
+        for app in applications:
+            AuditLog.log_action(
+                user_id=session['user_id'],
+                action='CREDIT_APPLICATION_DELETED',
+                resource='credit_application',
+                resource_id=app.application_id,
+                details={
+                    'deletion_method': 'bulk_delete',
+                    'risk_level': app.risk_level,
+                    'risk_score': app.risk_score,
+                    'status': app.status or 'Pending'  # Safe status handling
+                },
+                request_obj=request
+            )
+        
+        flash(f'✅ Successfully deleted {deleted_count} credit applications.', 'success')
+        
     except Exception as e:
         db.session.rollback()
         flash(f'Error deleting applications: {str(e)}', 'danger')
@@ -1241,54 +1241,35 @@ def process_credit_batch_file(filepath):
 @app.route('/credit-applications')
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def credit_applications():
-    """View all credit applications"""
-    risk_filter = request.args.get('risk_level')
-    status_filter = request.args.get('status')
-    
-    query = CreditApplication.query
-    
-    if risk_filter:
-        query = query.filter_by(risk_level=risk_filter)
-    
-    if status_filter:
-        query = query.filter_by(status=status_filter)
-    
-    # Use .all() instead of .paginate() to fix the length error
-    applications = query.order_by(CreditApplication.id.desc()).all()
-    
-    return render_template('credit_applications.html', applications=applications)
+    """View all credit applications - safely handle NULL status"""
+    try:
+        # Get filter parameters
+        risk_filter = request.args.get('risk_level')
+        status_filter = request.args.get('status')
+        
+        # Build query
+        query = CreditApplication.query
+        
+        if risk_filter:
+            query = query.filter_by(risk_level=risk_filter)
+        
+        if status_filter:
+            if status_filter == 'pending':
+                # Handle NULL status as pending
+                query = query.filter(CreditApplication.status.is_(None))
+            else:
+                query = query.filter_by(status=status_filter)
+        
+        # Get all applications
+        applications = query.order_by(CreditApplication.id.desc()).all()
+        
+        return render_template('credit_applications.html', applications=applications)
+        
+    except Exception as e:
+        flash(f'Error loading applications: {str(e)}', 'danger')
+        return render_template('credit_applications.html', applications=[])
 
-    # ===== ALTERNATIVE: If you want to keep pagination, here's how to fix the template =====
-
-@app.route('/credit-applications-paginated')
-@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
-def credit_applications_paginated():
-    """View credit applications with pagination (alternative approach)"""
-    page = request.args.get('page', 1, type=int)
-    per_page = 20
-    
-    # Get filter parameters
-    risk_filter = request.args.get('risk_level')
-    status_filter = request.args.get('status')
-    
-    # Build query
-    query = CreditApplication.query
-    
-    if risk_filter:
-        query = query.filter_by(risk_level=risk_filter)
-    
-    if status_filter:
-        query = query.filter_by(status=status_filter)
-    
-    # Paginate
-    pagination = query.order_by(CreditApplication.id.desc()).paginate(
-        page=page, per_page=per_page, error_out=False
-    )
-    
-    # Pass both the pagination object and the items
-    return render_template('credit_applications_paginated.html', 
-                         pagination=pagination,
-                         applications=pagination.items)
+   
 
     # ===== UPLOAD CREDIT FILE FOR PREVIEW =====
 @app.route('/upload-credit-file', methods=['POST'])
@@ -1783,21 +1764,21 @@ def toggle_user_status_get(user_id):
     return redirect(url_for('manage_users'))
 
 
-    # Add these routes to your app.py for quick approve/reject from the applications list
+   # ===== ADD THESE COMPLETE APPROVAL ROUTES TO YOUR APP.PY =====
 
 @app.route('/credit-applications/quick-approve/<int:app_id>', methods=['POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def quick_approve_application(app_id):
-    """Quick approve application from the list"""
+    """Quick approve credit application - safe status handling"""
     try:
         application = CreditApplication.query.get_or_404(app_id)
         
-        # Check if already approved/rejected
+        # Check if already approved/rejected (treat NULL as pending)
         if application.status in ['Approved', 'Rejected']:
             flash(f'Application {application.application_id} is already {application.status.lower()}.', 'warning')
             return redirect(url_for('credit_applications'))
         
-        # Update application status
+        # Update application status (safe update)
         application.status = 'Approved'
         application.approved_by = session['user_id']
         application.approved_at = datetime.utcnow()
@@ -1830,16 +1811,16 @@ def quick_approve_application(app_id):
 @app.route('/credit-applications/quick-reject/<int:app_id>', methods=['POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def quick_reject_application(app_id):
-    """Quick reject application from the list"""
+    """Quick reject credit application - safe status handling"""
     try:
         application = CreditApplication.query.get_or_404(app_id)
         
-        # Check if already approved/rejected
+        # Check if already approved/rejected (treat NULL as pending)
         if application.status in ['Approved', 'Rejected']:
             flash(f'Application {application.application_id} is already {application.status.lower()}.', 'warning')
             return redirect(url_for('credit_applications'))
         
-        # Update application status
+        # Update application status (safe update)
         application.status = 'Rejected'
         application.approved_by = session['user_id']
         application.approved_at = datetime.utcnow()
@@ -1860,7 +1841,7 @@ def quick_reject_application(app_id):
             request_obj=request
         )
         
-        flash(f'❌ Application {application.application_id} has been rejected.', 'warning')
+        flash(f'❌ Application {application.application_id} has been rejected.', 'success')
         
     except Exception as e:
         db.session.rollback()
@@ -1870,45 +1851,145 @@ def quick_reject_application(app_id):
 
 
 # Optional: Add a route to handle pre-filling form from existing application
-@app.route('/credit-risk')
+# ===== ENHANCED CREDIT RISK ASSESSMENT ROUTE =====
+
+@app.route('/credit-risk-assessment', methods=['GET', 'POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
-def credit_risk_page_with_prefill():
-    """Credit risk page with optional pre-fill from existing application"""
-    results = None
-    risk_level = None
-    risk_score = None
-    prefill_data = None
+def credit_risk_assessment():
+    """Enhanced credit risk assessment with approval support"""
+    if request.method == 'POST':
+        action = request.form.get('action')  # 'calculate', 'save', 'approve', 'reject'
+        
+        # Get form data
+        application_id = request.form.get('application_id')
+        loan_amount = float(request.form.get('loan_amount', 0))
+        property_value = float(request.form.get('property_value', 0))
+        monthly_income = float(request.form.get('monthly_income', 0))
+        monthly_debt = float(request.form.get('monthly_debt', 0))
+        recovery_rate = float(request.form.get('recovery_rate', 0))
+        probability_of_default = float(request.form.get('probability_of_default', 0))
+        
+        # Calculate risk metrics
+        ltv = (loan_amount / property_value * 100) if property_value > 0 else 0
+        dti = (monthly_debt / monthly_income * 100) if monthly_income > 0 else 0
+        
+        # Calculate risk score
+        risk_score = calculate_credit_risk(ltv, dti, recovery_rate, probability_of_default)
+        
+        # Determine risk level
+        if risk_score <= 30:
+            risk_level = 'Low'
+        elif risk_score <= 70:
+            risk_level = 'Medium'
+        else:
+            risk_level = 'High'
+        
+        # Handle different actions
+        if action in ['save', 'approve', 'reject']:
+            try:
+                # Check if application already exists
+                existing_app = CreditApplication.query.filter_by(application_id=application_id).first()
+                
+                if existing_app:
+                    # Update existing - safe approach
+                    existing_app.loan_amount = loan_amount
+                    existing_app.property_value = property_value
+                    existing_app.monthly_income = monthly_income
+                    existing_app.monthly_debt = monthly_debt
+                    existing_app.recovery_rate = recovery_rate
+                    existing_app.probability_of_default = probability_of_default
+                    existing_app.ltv = ltv
+                    existing_app.dti = dti
+                    existing_app.risk_score = risk_score
+                    existing_app.risk_level = risk_level
+                    
+                    # Update status only when changing it (preserve existing NULL if just saving)
+                    if action == 'approve':
+                        existing_app.status = 'Approved'
+                        existing_app.approved_by = session['user_id']
+                        existing_app.approved_at = datetime.utcnow()
+                    elif action == 'reject':
+                        existing_app.status = 'Rejected'
+                        existing_app.approved_by = session['user_id']
+                        existing_app.approved_at = datetime.utcnow()
+                    elif action == 'save' and existing_app.status is None:
+                        # Only set to 'Assessed' if it was NULL, otherwise keep existing status
+                        existing_app.status = 'Assessed'
+                    
+                    application = existing_app
+                else:
+                    # Create new application
+                    status = 'Assessed'  # Default for new applications
+                    approved_by = None
+                    approved_at = None
+                    
+                    if action == 'approve':
+                        status = 'Approved'
+                        approved_by = session['user_id']
+                        approved_at = datetime.utcnow()
+                    elif action == 'reject':
+                        status = 'Rejected'
+                        approved_by = session['user_id']
+                        approved_at = datetime.utcnow()
+                    
+                    application = CreditApplication(
+                        application_id=application_id,
+                        loan_amount=loan_amount,
+                        property_value=property_value,
+                        monthly_income=monthly_income,
+                        monthly_debt=monthly_debt,
+                        recovery_rate=recovery_rate,
+                        probability_of_default=probability_of_default,
+                        ltv=ltv,
+                        dti=dti,
+                        risk_score=risk_score,
+                        risk_level=risk_level,
+                        status=status,
+                        created_by=session['user_id'],
+                        approved_by=approved_by,
+                        approved_at=approved_at
+                    )
+                    
+                    db.session.add(application)
+                
+                db.session.commit()
+                
+                # Log action
+                AuditLog.log_action(
+                    user_id=session['user_id'],
+                    action=f'CREDIT_APPLICATION_{action.upper()}',
+                    resource='credit_application',
+                    resource_id=application_id,
+                    details={
+                        'risk_score': risk_score,
+                        'risk_level': risk_level,
+                        'status': application.status or 'Pending'  # Safe status logging
+                    },
+                    request_obj=request
+                )
+                
+                # Flash message and redirect if approved/rejected
+                if action == 'approve':
+                    flash(f'✅ Credit Application {application_id} has been APPROVED!', 'success')
+                    return redirect(url_for('credit_applications'))
+                elif action == 'reject':
+                    flash(f'❌ Credit Application {application_id} has been REJECTED!', 'warning')
+                    return redirect(url_for('credit_applications'))
+                else:
+                    flash(f'💾 Credit assessment saved successfully!', 'success')
+                    
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error processing application: {str(e)}', 'danger')
+        
+        # Return results for display
+        return render_template('credit_risk.html', 
+                             ltv=ltv, 
+                             dti=dti, 
+                             risk_score=risk_score, 
+                             risk_level=risk_level)
     
-    # Check if we need to pre-fill from existing application
-    app_id = request.args.get('app_id')
-    if app_id:
-        existing_app = CreditApplication.query.filter_by(application_id=app_id).first()
-        if existing_app:
-            prefill_data = {
-                'application_id': existing_app.application_id,
-                'loan_amount': existing_app.loan_amount,
-                'property_value': existing_app.property_value,
-                'monthly_debt': existing_app.monthly_debt,
-                'monthly_income': existing_app.monthly_income,
-                'recovery_rate': existing_app.recovery_rate,
-                'probability_of_default': existing_app.probability_of_default
-            }
-            
-            # Also show current results
-            results = {
-                'Loan-to-Value (LTV %)': round((existing_app.loan_amount / existing_app.property_value) * 100, 2),
-                'Debt-to-Income (DTI %)': round((existing_app.monthly_debt / existing_app.monthly_income) * 100, 2),
-                'Risk Score': round(existing_app.risk_score, 2),
-                'Risk Level': existing_app.risk_level
-            }
-            risk_level = existing_app.risk_level
-            risk_score = existing_app.risk_score
-    
-    return render_template('credit_risks.html', 
-                         results=results, 
-                         risk_level=risk_level, 
-                         risk_score=risk_score,
-                         prefill_data=prefill_data)
+    return render_template('credit_risk.html')
 
 
 # Database Migration Commands
