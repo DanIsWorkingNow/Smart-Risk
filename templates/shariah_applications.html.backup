@@ -78,7 +78,7 @@
                             </thead>
                             <tbody>
                                 {% for app in applications %}
-                                <tr data-status="{{ (app.status or 'pending').lower() }}">
+                                <tr data-status="{{ app.status.lower() }}">
                                     <td>
                                         <input type="checkbox" name="selected_ids" value="{{ app.id }}" class="row-select">
                                     </td>
