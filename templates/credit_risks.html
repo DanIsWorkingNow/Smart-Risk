@@ -380,25 +380,77 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Save Button (Flask Integration) -->
+                                    <!-- Save and Approval Section (Flask Integration) -->
                                     <div class="text-center mt-3">
-                                        <form method="POST" style="display: inline;">
-                                            <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
-                                            <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
-                                            <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
-                                            <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
-                                            <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
-                                            <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
-                                            <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
-                                            
-                                            <button type="submit" name="action" value="save" class="btn btn-success btn-lg">
-                                                <i class="fas fa-save"></i> Save This Assessment
-                                            </button>
-                                        </form>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                                    <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                                    <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
+                                                    <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
+                                                    <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
+                                                    <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
+                                                    <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
+                                                    
+                                                    <button type="submit" name="action" value="save" class="btn btn-success btn-lg w-100">
+                                                        <i class="fas fa-save"></i> Save Assessment
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                                    <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                                    <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
+                                                    <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
+                                                    <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
+                                                    <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
+                                                    <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
+                                                    
+                                                    <button type="submit" name="action" value="approve" class="btn btn-primary btn-lg w-100"
+                                                            onclick="return confirm('Are you sure you want to APPROVE this application?')">
+                                                        <i class="fas fa-check-circle"></i> Approve Application
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                                    <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                                    <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
+                                                    <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
+                                                    <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
+                                                    <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
+                                                    <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
+                                                    
+                                                    <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg w-100"
+                                                            onclick="return confirm('Are you sure you want to REJECT this application?')">
+                                                        <i class="fas fa-times-circle"></i> Reject Application
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
                                         
-                                        <a href="{{ url_for('credit_applications') }}" class="btn btn-info btn-lg ml-2">
-                                            <i class="fas fa-list"></i> View Applications
-                                        </a>
+                                        <div class="mt-3">
+                                            <a href="{{ url_for('credit_applications') }}" class="btn btn-info btn-lg">
+                                                <i class="fas fa-list"></i> View All Applications
+                                            </a>
+                                        </div>
+                                        
+                                        <!-- Decision Recommendation -->
+                                        <div class="mt-3">
+                                            <div class="alert alert-{% if risk_level == 'Low' %}success{% elif risk_level == 'Medium' %}warning{% else %}danger{% endif %}" role="alert">
+                                                <h6><i class="fas fa-lightbulb mr-2"></i>System Recommendation:</h6>
+                                                {% if risk_level == 'Low' %}
+                                                    <strong>✅ RECOMMEND APPROVAL</strong> - Low risk score indicates good creditworthiness
+                                                {% elif risk_level == 'Medium' %}
+                                                    <strong>⚠️ REQUIRES REVIEW</strong> - Medium risk requires careful evaluation
+                                                {% else %}
+                                                    <strong>❌ RECOMMEND REJECTION</strong> - High risk score indicates potential default
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

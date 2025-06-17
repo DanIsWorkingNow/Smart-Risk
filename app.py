@@ -6,6 +6,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate  # 🆕 ADD THIS LINE
 from datetime import datetime, timedelta
 from functools import wraps 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -30,6 +31,9 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize database
 db = SQLAlchemy(app)
+
+# 🆕 ADD THIS LINE - Initialize Flask-Migrate
+migrate = Migrate(app, db)
 
 # Load FinBERT model for Shariah risk analysis (PO-1)
 try:
@@ -127,6 +131,8 @@ class Loan(db.Model):
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+# Replace these model sections in your app.py
+
 class CreditApplication(db.Model):
     __tablename__ = 'credit_applications'
     
@@ -140,8 +146,17 @@ class CreditApplication(db.Model):
     probability_of_default = db.Column(db.Float, nullable=False)
     risk_score = db.Column(db.Float, nullable=False)
     risk_level = db.Column(db.String(20), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    
+    # Status fields for approval system with NAMED CONSTRAINTS
+    status = db.Column(db.String(20), default='Pending')  
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_credit_created_by'), nullable=True)
+    approved_by = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_credit_approved_by'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    approved_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    creator = db.relationship('User', foreign_keys=[created_by], backref='created_credit_applications')
+    approver = db.relationship('User', foreign_keys=[approved_by], backref='approved_credit_applications')
 
 class ShariahRiskApplication(db.Model):
     __tablename__ = 'shariah_applications'
@@ -158,8 +173,17 @@ class ShariahRiskApplication(db.Model):
     maysir = db.Column(db.String(10), nullable=False)
     business_description = db.Column(db.Text, nullable=False)
     shariah_risk_score = db.Column(db.String(50), nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    
+    # Status fields for approval system with NAMED CONSTRAINTS
+    status = db.Column(db.String(20), default='Pending')
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_shariah_created_by'), nullable=True)
+    approved_by = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_shariah_approved_by'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    approved_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    creator = db.relationship('User', foreign_keys=[created_by], backref='created_shariah_applications')
+    approver = db.relationship('User', foreign_keys=[approved_by], backref='approved_shariah_applications')
 
 # ===== DECORATORS =====
 def login_required(f):
@@ -719,18 +743,20 @@ def shariah_dashboard():
     )
 
 # ===== CREDIT RISK ROUTES (PO-2: Batch File Upload Feature) =====
+# Add these updates to your existing credit_risk_page route in app.py
+
 @app.route('/credit-risk', methods=['GET', 'POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
 def credit_risk_page():
     results = None
     risk_level = None
     risk_score = None
-
+    
     if request.method == 'POST':
         action = request.form.get('action')
         
         # Get form data
-        application_id = request.form['application_id']
+        application_id = request.form.get('application_id')
         loan_amount = float(request.form['loan_amount'])
         property_value = float(request.form['property_value'])
         monthly_debt = float(request.form['monthly_debt'])
@@ -760,36 +786,110 @@ def credit_risk_page():
             'Risk Level': risk_level
         }
 
-        if action == 'save':
-            new_application = CreditApplication(
-                application_id=application_id,
-                loan_amount=loan_amount,
-                property_value=property_value,
-                monthly_debt=monthly_debt,
-                monthly_income=monthly_income,
-                recovery_rate=recovery_rate,
-                probability_of_default=probability_of_default,
-                risk_score=risk_score,
-                risk_level=risk_level,
-                created_by=session['user_id']
-            )
+        # Handle different actions
+        if action in ['save', 'approve', 'reject']:
+            # Create or update credit application
+            existing_app = CreditApplication.query.filter_by(application_id=application_id).first()
             
-            db.session.add(new_application)
-            db.session.commit()
+            if existing_app:
+                # Update existing application
+                existing_app.loan_amount = loan_amount
+                existing_app.property_value = property_value
+                existing_app.monthly_debt = monthly_debt
+                existing_app.monthly_income = monthly_income
+                existing_app.recovery_rate = recovery_rate
+                existing_app.probability_of_default = probability_of_default
+                existing_app.risk_score = risk_score
+                existing_app.risk_level = risk_level
+                
+                # Update status based on action
+                if action == 'approve':
+                    existing_app.status = 'Approved'
+                    existing_app.approved_by = session['user_id']
+                    existing_app.approved_at = datetime.utcnow()
+                elif action == 'reject':
+                    existing_app.status = 'Rejected'
+                    existing_app.approved_by = session['user_id']
+                    existing_app.approved_at = datetime.utcnow()
+                else:  # save
+                    existing_app.status = 'Assessed'
+                
+                application = existing_app
+            else:
+                # Create new application
+                status = 'Assessed'
+                approved_by = None
+                approved_at = None
+                
+                if action == 'approve':
+                    status = 'Approved'
+                    approved_by = session['user_id']
+                    approved_at = datetime.utcnow()
+                elif action == 'reject':
+                    status = 'Rejected'
+                    approved_by = session['user_id']
+                    approved_at = datetime.utcnow()
+                
+                application = CreditApplication(
+                    application_id=application_id,
+                    loan_amount=loan_amount,
+                    property_value=property_value,
+                    monthly_debt=monthly_debt,
+                    monthly_income=monthly_income,
+                    recovery_rate=recovery_rate,
+                    probability_of_default=probability_of_default,
+                    risk_score=risk_score,
+                    risk_level=risk_level,
+                    status=status,
+                    created_by=session['user_id'],
+                    approved_by=approved_by,
+                    approved_at=approved_at
+                )
+                db.session.add(application)
             
-            AuditLog.log_action(
-                user_id=session['user_id'],
-                action='CREDIT_ASSESSMENT_CREATED',
-                resource='credit_application',
-                resource_id=application_id,
-                details={'risk_level': risk_level, 'risk_score': risk_score},
-                request_obj=request
-            )
-            
-            flash('Credit application saved successfully!', 'success')
-            return redirect(url_for('credit_applications'))
+            try:
+                db.session.commit()
+                
+                # Log the action
+                action_map = {
+                    'save': 'CREDIT_ASSESSMENT_SAVED',
+                    'approve': 'CREDIT_APPLICATION_APPROVED', 
+                    'reject': 'CREDIT_APPLICATION_REJECTED'
+                }
+                
+                AuditLog.log_action(
+                    user_id=session['user_id'],
+                    action=action_map[action],
+                    resource='credit_application',
+                    resource_id=application_id,
+                    details={
+                        'risk_level': risk_level, 
+                        'risk_score': risk_score,
+                        'status': application.status
+                    },
+                    request_obj=request
+                )
+                
+                # Flash appropriate message
+                if action == 'approve':
+                    flash(f'✅ Application {application_id} has been APPROVED successfully!', 'success')
+                elif action == 'reject':
+                    flash(f'❌ Application {application_id} has been REJECTED.', 'warning')
+                else:
+                    flash(f'💾 Credit assessment saved successfully!', 'success')
+                
+                # Redirect to applications list if approved/rejected
+                if action in ['approve', 'reject']:
+                    return redirect(url_for('credit_applications'))
+                    
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error processing application: {str(e)}', 'danger')
 
     return render_template('credit_risks.html', results=results, risk_level=risk_level, risk_score=risk_score)
+
+
+# Update your CreditApplication model to include status field
 
 # Add this exact route to your app.py file
 
