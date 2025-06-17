@@ -159,11 +159,11 @@
                                             
                                             <!-- View Details Button - FIXED -->
                                             <button class="btn btn-outline-info btn-sm view-details-btn" 
-                                                    data-app-id="{{ app.id }}" 
-                                                    data-app-data='{{ app|tojson|safe }}'
-                                                    title="View Details">
-                                                <i class="fas fa-info-circle"></i>
-                                            </button>
+                                                 data-app-id="{{ app.id }}" 
+                                                   title="View Details"
+                                               onclick="viewDetailsFromRow(this)">
+                                              <i class="fas fa-info-circle"></i>
+                                          </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -273,43 +273,55 @@
         selectAllCheck.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < visibleCheckboxes.length;
     }
 
-    // FIXED: View details function using event delegation
-    function viewDetails(appData) {
-        // Populate modal with application data
+    // CORRECTED: Extract data from the actual table columns
+    function viewDetailsFromRow(button) {
+        const row = button.closest('tr');
+        const cells = row.querySelectorAll('td');
+        
+        // Extract data matching your actual table structure
+        const appData = {
+            application_id: cells[1] ? cells[1].textContent.trim() : 'N/A',
+            customer_name: cells[2] ? cells[2].textContent.trim() : 'N/A',
+            customer_category: cells[3] ? cells[3].textContent.trim() : 'N/A',
+            loan_amount: cells[4] ? cells[4].textContent.trim() : 'N/A',
+            purpose_of_financing: cells[5] ? cells[5].textContent.trim() : 'N/A',
+            shariah_risk_score: cells[6] ? cells[6].textContent.trim() : 'N/A',
+            status: cells[7] ? cells[7].textContent.trim() : 'N/A',
+            assessed_by: cells[8] ? cells[8].textContent.trim() : 'N/A',
+            approved_by: cells[9] ? cells[9].textContent.trim() : 'N/A',
+            application_date: cells[10] ? cells[10].textContent.trim() : 'N/A'
+        };
+        
+        showModalWithData(appData);
+    }
+
+    function showModalWithData(appData) {
         const modalBody = document.getElementById('modalBody');
         modalBody.innerHTML = `
             <div class="row">
                 <div class="col-md-6">
                     <h6><i class="fas fa-id-card mr-2"></i>Application Information</h6>
                     <table class="table table-sm">
-                        <tr><th>Application ID:</th><td>${appData.application_id || 'N/A'}</td></tr>
-                        <tr><th>Customer Name:</th><td>${appData.customer_name || 'N/A'}</td></tr>
-                        <tr><th>Category:</th><td>${appData.customer_category || 'N/A'}</td></tr>
-                        <tr><th>Loan Amount:</th><td>RM ${appData.loan_amount ? Number(appData.loan_amount).toLocaleString('en-MY', {minimumFractionDigits: 2}) : 'N/A'}</td></tr>
-                        <tr><th>Purpose:</th><td>${appData.purpose_of_financing || 'N/A'}</td></tr>
+                        <tr><th>Application ID:</th><td>${appData.application_id}</td></tr>
+                        <tr><th>Customer Name:</th><td>${appData.customer_name}</td></tr>
+                        <tr><th>Category:</th><td>${appData.customer_category}</td></tr>
+                        <tr><th>Loan Amount:</th><td>${appData.loan_amount}</td></tr>
+                        <tr><th>Purpose:</th><td>${appData.purpose_of_financing}</td></tr>
                     </table>
                 </div>
                 <div class="col-md-6">
                     <h6><i class="fas fa-chart-line mr-2"></i>Assessment Information</h6>
                     <table class="table table-sm">
-                        <tr><th>Compliance Score:</th><td>${appData.shariah_risk_score || 'N/A'}</td></tr>
-                        <tr><th>Status:</th><td>${appData.status || 'N/A'}</td></tr>
-                        <tr><th>Assessed By:</th><td>${appData.creator ? (appData.creator.full_name || appData.creator.staff_id) : 'N/A'}</td></tr>
-                        <tr><th>Approved By:</th><td>${appData.approver ? (appData.approver.full_name || appData.approver.staff_id) : 'N/A'}</td></tr>
-                        <tr><th>Created Date:</th><td>${appData.created_at ? new Date(appData.created_at).toLocaleDateString() : 'N/A'}</td></tr>
-                        <tr><th>Approved Date:</th><td>${appData.approved_at ? new Date(appData.approved_at).toLocaleDateString() : 'N/A'}</td></tr>
+                        <tr><th>Compliance Score:</th><td>${appData.shariah_risk_score}</td></tr>
+                        <tr><th>Status:</th><td>${appData.status}</td></tr>
+                        <tr><th>Assessed By:</th><td>${appData.assessed_by}</td></tr>
+                        <tr><th>Approved By:</th><td>${appData.approved_by}</td></tr>
+                        <tr><th>Assessment Date:</th><td>${appData.application_date}</td></tr>
                     </table>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <h6><i class="fas fa-info-circle mr-2"></i>Business Description</h6>
-                    <p class="text-muted">${appData.business_description || 'No description provided'}</p>
                 </div>
             </div>
         `;
         
-        // Show modal
         $('#detailsModal').modal('show');
     }
 
@@ -327,15 +339,6 @@
         // Add event listeners for checkboxes
         document.querySelectorAll('.row-select').forEach(checkbox => {
             checkbox.addEventListener('change', updateSelectAllCheckbox);
-        });
-        
-        // FIXED: Add event listener for view details buttons using event delegation
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.view-details-btn')) {
-                const button = e.target.closest('.view-details-btn');
-                const appData = JSON.parse(button.getAttribute('data-app-data'));
-                viewDetails(appData);
-            }
         });
     });
 </script>
