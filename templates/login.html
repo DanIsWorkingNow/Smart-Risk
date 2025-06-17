@@ -1,26 +1,144 @@
-{% extends 'base.html' %}
-{% block title %}Log In{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SMART-Risk</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .logo-section img {
+            max-width: 250px;
+            height: auto;
+            margin-bottom: 1rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .logo-section p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        .login-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .btn-login {
+            background-color: #007bff;
+            border-color: #007bff;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        .btn-login:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .demo-accounts {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        .demo-accounts h6 {
+            margin-bottom: 0.75rem;
+            color: #495057;
+        }
+        .demo-accounts small {
+            color: #6c757d;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='logo.png') }}" 
+                     alt="SMART-Risk Logo" 
+                     style="max-width: 250px; height: auto; margin-bottom: 1rem;">
+                <p>Risk Assessment System</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="login-card">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
-{% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6 text-center">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="SMART-Risk" style="height:120px;">
-    <h2>Log In</h2>
-    <form method="POST" action="{{ url_for('login') }}">
-      <div class="form-group text-left">
-        <label for="staff_id">Staff ID</label>
-        <input type="text" class="form-control" id="staff_id" name="staff_id" required>
-      </div>
-      <div class="form-group text-left">
-        <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-      </div>
-      <button type="submit" class="btn btn-primary">LOG IN</button>
-      <button type="reset" class="btn btn-secondary">RESET</button>
-      <div class="mt-2">
-        <a href="#">Forgot password?</a>
-      </div>
-    </form>
-  </div>
-</div>
-{% endblock %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="staff_id" class="font-weight-medium">Staff ID</label>
+                        <input type="text" class="form-control" id="staff_id" name="staff_id" 
+                               placeholder="Enter your staff ID" required autocomplete="username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="font-weight-medium">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               placeholder="Enter your password" required autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-login btn-block">
+                        Login
+                    </button>
+                </form>
+
+                <!-- Demo Accounts Info -->
+                <div class="demo-accounts">
+                    <h6>Demo Accounts</h6>
+                    <small>
+                        <strong>Admin:</strong> admin / admin123<br>
+                        <strong>Shariah Officer:</strong> shariah001 / shariah123<br>
+                        <strong>Credit Officer:</strong> credit001 / credit123
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
