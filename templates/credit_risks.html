@@ -6,9 +6,9 @@
 <div class="container mt-5">
   <h2 class="text-center">Credit Risk Assessment</h2>
 
- <!-- Batch Upload Form -->
+ <!-- Batch Upload Form - FIXED URL -->
  <div class="my-4">
-    <form action="{{ url_for('upload_batch_credit') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ url_for('credit_batch_upload') }}" method="POST" enctype="multipart/form-data">
       <div class="input-group mb-3">
         <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
         <button class="btn btn-success" type="submit">Batch Upload</button>
@@ -44,216 +44,114 @@
   <button id="confirm-upload" class="btn btn-success">Confirm Upload</button>
 </div>
   
-  
-
   <form method="POST" id="credit-risk-form" novalidate>
     <div class="row">
       <div class="col-md-6 mb-3">
         <label>Application ID</label>
-        <input type="text" class="form-control" name="application_id" pattern="[A-Za-z0-9\-_.]+" title="Only letters, numbers, dash, underscore, dot allowed" value="{{ request.form.get('application_id', '') }}" required>
-        <div class="invalid-feedback">Enter a valid Application ID.</div>
+        <input type="text" class="form-control" name="application_id" pattern="[A-Za-z0-9\-_.]+" required>
       </div>
+
       <div class="col-md-6 mb-3">
-        <label>Loan Amount Requested (RM)</label>
-        <input type="number" step="0.01" min="1000" max="10000000" class="form-control" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}" required>
-        <div class="invalid-feedback">Loan must be between RM1,000 and RM10,000,000.</div>
+        <label>Loan Amount (RM)</label>
+        <input type="number" class="form-control" name="loan_amount" step="0.01" min="0" required>
       </div>
+
       <div class="col-md-6 mb-3">
         <label>Property Value (RM)</label>
-        <input type="number" step="0.01" min="1000" max="10000000" class="form-control" name="property_value" value="{{ request.form.get('property_value', '') }}" required>
-        <div class="invalid-feedback">Value must be between RM1,000 and RM10,000,000.</div>
+        <input type="number" class="form-control" name="property_value" step="0.01" min="0" required>
       </div>
+
       <div class="col-md-6 mb-3">
-        <label>Monthly Debt Obligations (RM)</label>
-        <input type="number" step="0.01" min="0" max="100000" class="form-control" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}" required>
-        <div class="invalid-feedback">Debt must be between RM0 and RM100,000.</div>
+        <label>Monthly Debt (RM)</label>
+        <input type="number" class="form-control" name="monthly_debt" step="0.01" min="0" required>
       </div>
+
       <div class="col-md-6 mb-3">
         <label>Monthly Income (RM)</label>
-        <input type="number" step="0.01" min="500" max="1000000" class="form-control" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}" required>
-        <div class="invalid-feedback">Income must be between RM500 and RM1,000,000.</div>
+        <input type="number" class="form-control" name="monthly_income" step="0.01" min="0" required>
       </div>
+
       <div class="col-md-6 mb-3">
         <label>Recovery Rate (%)</label>
-        <input type="number" step="0.01" min="0" max="100" class="form-control" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}" required>
-        <div class="invalid-feedback">Rate must be between 0% and 100%.</div>
+        <input type="number" class="form-control" name="recovery_rate" step="0.1" min="0" max="100" required>
       </div>
+
       <div class="col-md-6 mb-3">
         <label>Probability of Default (%)</label>
-        <input type="number" step="0.01" min="0" max="100" class="form-control" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}" required>
-        <div class="invalid-feedback">Default probability must be 0–100%.</div>
+        <input type="number" class="form-control" name="probability_of_default" step="0.1" min="0" max="100" required>
+      </div>
+
+      <div class="col-12">
+        <button type="submit" name="action" value="calculate" class="btn btn-primary btn-lg">
+          <i class="fas fa-calculator"></i> Calculate Risk
+        </button>
+        <a href="{{ url_for('credit_applications') }}" class="btn btn-secondary btn-lg ml-2">
+          <i class="fas fa-list"></i> View Applications
+        </a>
       </div>
     </div>
-    <div class="text-center">
-      <button type="submit" name="action" value="analyze" class="btn btn-primary mt-3">Analyze</button>
-      <button type="submit" name="action" value="save" class="btn btn-success mt-3">Save</button>
-      <button type="reset" class="btn btn-secondary mt-3" onclick="window.location.href=window.location.href">Reset</button>
-    </div>
+  </form>
 
-    {% if results %}
-    <hr>
-    <h3 class="text-center">Credit Risk Metrics</h3>
-    <ul class="list-group">
-      {% for key, value in results.items() %}
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        {{ key }}
-        <span class="badge badge-primary badge-pill">{{ value }}</span>
-      </li>
-      {% endfor %}
-    </ul>
-
-    <div class="mt-4 text-center">
-      <h4>Overall Risk Level: <strong>{{ risk_level }}</strong></h4>
-      <div class="gauge">
-        <div class="gauge__body">
-          <div class="gauge__fill"></div>
-          <div class="gauge__cover">
-            <div class="gauge__value">{{ risk_score | round(2) }}%</div>
+  <!-- Results Section -->
+  {% if results %}
+  <div class="mt-5">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h4>Risk Assessment Results</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Risk Score:</strong> {{ risk_score | round(2) }}</p>
+            <p><strong>Risk Level:</strong> 
+              <span class="badge {% if risk_level == 'Low' %}badge-success{% elif risk_level == 'Medium' %}badge-warning{% else %}badge-danger{% endif %}">
+                {{ risk_level }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-6">
+            {% for key, value in results.items() %}
+            <p><strong>{{ key.replace('_', ' ').title() }}:</strong> {{ value }}</p>
+            {% endfor %}
           </div>
         </div>
       </div>
     </div>
-    {% endif %}
-  </form>
+  </div>
+  {% endif %}
 </div>
 
-<!-- Gauge Styles -->
-<style>
-.gauge {
-  width: 200px;
-  height: 100px;
-  position: relative;
-  margin: 0 auto;
-}
-.gauge__body {
-  width: 100%;
-  height: 100%;
-  background: #e6e6e6;
-  border-radius: 100px 100px 0 0;
-  overflow: hidden;
-  position: relative;
-}
-.gauge__fill {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #00ff00;
-  transform-origin: center top;
-  transform: rotate(0.25turn);
-  transition: transform 0.5s ease-out;
-}
-.gauge__cover {
-  width: 75%;
-  height: 150%;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 25%;
-  left: 12.5%;
-}
-
-.gauge__value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  line-height: 100px;
-}
-</style>
-
-<!-- Gauge Script -->
 <script>
-function setGaugeValue(gauge, value) {
-  if (value < 0 || value > 1) return;
-
-  const fill = gauge.querySelector('.gauge__fill');
-  const valueDisplay = gauge.querySelector('.gauge__value');
-
-  fill.style.transform = `rotate(${value / 2}turn)`;
-  valueDisplay.textContent = `${(value * 100).toFixed(2)}%`;
-
-  if (value < 0.33) {
-    fill.style.background = '#00ff00'; // Green
-  } else if (value < 0.66) {
-    fill.style.background = '#ffff00'; // Yellow
-  } else {
-    fill.style.background = '#ff0000'; // Red
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-  const form = document.getElementById('credit-risk-form');
-  form.addEventListener('submit', function (event) {
-    if (!form.checkValidity()) {
-      event.preventDefault();
-      event.stopPropagation();
+document.getElementById('fileUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch('/upload-credit-file', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                // Autofill the form with the first row data
+                document.querySelector('input[name="application_id"]').value = data.application_id || '';
+                document.querySelector('input[name="loan_amount"]').value = data.loan_amount || '';
+                document.querySelector('input[name="property_value"]').value = data.property_value || '';
+                document.querySelector('input[name="monthly_debt"]').value = data.monthly_debt || '';
+                document.querySelector('input[name="monthly_income"]').value = data.monthly_income || '';
+                document.querySelector('input[name="recovery_rate"]').value = data.recovery_rate || '';
+                document.querySelector('input[name="probability_of_default"]').value = data.probability_of_default || '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error uploading file');
+        });
     }
-    form.classList.add('was-validated');
-  }, false);
 });
 </script>
-
-<script>
-    document.getElementById('fileUpload').addEventListener('change', async function () {
-      const file = this.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-    
-      const response = await fetch('/upload-credit-file', {
-        method: 'POST',
-        body: formData
-      });
-    
-      const data = await response.json();
-      for (const [key, value] of Object.entries(data)) {
-        const input = document.querySelector(`[name="${key}"]`);
-        if (input) input.value = value;
-      }
-    });
-</script>
-    
-<script>
-    document.getElementById('fileUpload').addEventListener('change', async function () {
-      const file = this.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-    
-      const response = await fetch('/preview-credit-file', {
-        method: 'POST',
-        body: formData
-      });
-    
-      const data = await response.json();
-      const tbody = document.querySelector('#preview-table tbody');
-      tbody.innerHTML = ''; // Clear existing rows
-    
-      data.forEach(row => {
-        const tr = document.createElement('tr');
-        Object.values(row).forEach(value => {
-          const td = document.createElement('td');
-          td.textContent = value;
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-    
-      document.getElementById('preview-container').style.display = 'block';
-    });
-    
-    document.getElementById('confirm-upload').addEventListener('click', async function () {
-      const file = document.getElementById('fileUpload').files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-    
-      const response = await fetch('/upload-credit-file', {
-        method: 'POST',
-        body: formData
-      });
-    
-      const result = await response.json();
-      alert(result.message);
-    });
-    </script>
 {% endblock %}

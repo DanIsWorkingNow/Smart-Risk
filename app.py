@@ -1242,3 +1242,15 @@ if __name__ == '__main__':
     print("🚀 Starting SMART-Risk System on http://127.0.0.1:5001")
     print("🔗 Access your application at: http://localhost:5001")
     app.run(host='0.0.0.0', port=5001, debug=True)
+
+
+    # Add this route to your app.py file to fix the missing endpoint
+@app.route('/upload-batch-credit', methods=['POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def upload_batch_credit():
+    """
+    Legacy route for batch upload - redirects to new endpoint
+    This maintains compatibility with existing templates
+    """
+    # Redirect to the new credit_batch_upload route
+    return credit_batch_upload()
