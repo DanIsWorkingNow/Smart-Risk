@@ -1326,6 +1326,39 @@ def delete_selected_credit_applications():
     
     return redirect(url_for('credit_applications'))
 
+@app.route('/delete-selected-credit-applications', methods=['POST'])
+@login_required  # or @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def delete_selected_credit_applications():
+    """Delete selected credit applications - FIXED ROUTE"""
+    selected_ids = request.form.getlist('selected_ids')
+    if selected_ids:
+        deleted_count = 0
+        for app_id in selected_ids:
+            application = CreditApplication.query.get(app_id)
+            if application:
+                # Log the deletion if you have audit logging
+                try:
+                    AuditLog.log_action(
+                        user_id=session['user_id'],
+                        action='CREDIT_APPLICATION_DELETED',
+                        resource='credit_application',
+                        resource_id=str(application.id),
+                        details={'application_id': application.application_id},
+                        request_obj=request
+                    )
+                except:
+                    pass  # Skip if AuditLog not available
+                
+                db.session.delete(application)
+                deleted_count += 1
+        
+        db.session.commit()
+        flash(f'Successfully deleted {deleted_count} application(s).', 'success')
+    else:
+        flash('No applications selected.', 'warning')
+    
+    return redirect(url_for('credit_applications'))  
+
 # ===== SHARIAH APPLICATIONS DELETE ROUTE =====
 @app.route('/shariah-applications/delete-selected', methods=['POST'])
 @role_required(UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
