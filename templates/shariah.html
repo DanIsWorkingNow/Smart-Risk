@@ -3,94 +3,244 @@
 {% block title %}Shariah Risk Assessment{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Shariah Risk Assessment</h2>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white text-center">
+                    <h2><i class="fas fa-mosque mr-3"></i>Shariah Risk Assessment</h2>
+                    <p class="mb-0">Comprehensive Shariah compliance evaluation for Islamic finance</p>
+                </div>
+                <div class="card-body">
 
-<!-- Form Layout -->
-<form method="POST">
-  <div class="row">
-    <!-- Personal Details Left Side -->
-    <div class="col-md-6">
-      <div class="form-group">
-        <label for="application_id">Application ID</label>
-        <input type="text" class="form-control" id="application_id" name="application_id" required>
-      </div>
-      <div class="form-group">
-        <label for="amount_requested">Loan Amount Requested (RM)</label>
-        <input type="number" step="0.01" class="form-control" id="amount_requested" name="amount_requested" required>
-      </div>
-      <div class="form-group">
-        <label for="purpose_of_financing">Purpose of Financing</label>
-        <input type="text" class="form-control" id="purpose_of_financing" name="purpose_of_financing" required>
-      </div>
+                    <!-- Shariah Assessment Form -->
+                    <form method="POST" id="shariahRiskForm" action="{{ url_for('shariah_risk_assessment') }}">
+                        <div class="row">
+                            <!-- Personal Details Left Side -->
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-user mr-2 text-success"></i>Application Details</h5>
+                                <div class="form-group">
+                                    <label for="application_id">Application ID *</label>
+                                    <input type="text" class="form-control" id="application_id" name="application_id" 
+                                           value="{{ request.form.get('application_id', '') }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="loan_amount">Loan Amount Requested (RM) *</label>
+                                    <input type="number" step="0.01" class="form-control" id="loan_amount" name="loan_amount" 
+                                           value="{{ request.form.get('loan_amount', '') }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="purpose_of_financing">Purpose of Financing *</label>
+                                    <input type="text" class="form-control" id="purpose_of_financing" name="purpose_of_financing" 
+                                           value="{{ request.form.get('purpose_of_financing', '') }}" required>
+                                </div>
+                            </div>
+
+                            <!-- Personal Details Right Side -->
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-calendar mr-2 text-success"></i>Customer Information</h5>
+                                <div class="form-group">
+                                    <label for="application_date">Application Date *</label>
+                                    <input type="date" class="form-control" id="application_date" name="application_date" 
+                                           value="{{ request.form.get('application_date', '') }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer_name">Customer Name *</label>
+                                    <input type="text" class="form-control" id="customer_name" name="customer_name" 
+                                           value="{{ request.form.get('customer_name', '') }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="customer_category">Customer Category *</label>
+                                    <select class="form-control" id="customer_category" name="customer_category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Corporate" {{ 'selected' if request.form.get('customer_category') == 'Corporate' }}>Corporate</option>
+                                        <option value="Personal" {{ 'selected' if request.form.get('customer_category') == 'Personal' }}>Personal</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Divider for Shariah Risk Parameters -->
+                        <hr class="my-4">
+                        <div class="row">
+                            <div class="col-12">
+                                <h4 class="text-center text-success">
+                                    <i class="fas fa-balance-scale mr-2"></i>Shariah Risk Parameters
+                                </h4>
+                            </div>
+                        </div>
+                        <hr class="mb-4">
+
+                        <!-- Shariah Risk Assessment -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="riba">Riba (Interest) *</label>
+                                    <select class="form-control" id="riba" name="riba" required>
+                                        <option value="">Select Option</option>
+                                        <option value="Yes" {{ 'selected' if request.form.get('riba') == 'Yes' }}>Yes - Contains Interest</option>
+                                        <option value="No" {{ 'selected' if request.form.get('riba') == 'No' }}>No - Interest Free</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gharar">Gharar (Uncertainty) *</label>
+                                    <select class="form-control" id="gharar" name="gharar" required>
+                                        <option value="">Select Option</option>
+                                        <option value="Yes" {{ 'selected' if request.form.get('gharar') == 'Yes' }}>Yes - Excessive Uncertainty</option>
+                                        <option value="No" {{ 'selected' if request.form.get('gharar') == 'No' }}>No - Clear Terms</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maysir">Maysir (Gambling) *</label>
+                                    <select class="form-control" id="maysir" name="maysir" required>
+                                        <option value="">Select Option</option>
+                                        <option value="Present" {{ 'selected' if request.form.get('maysir') == 'Present' }}>Present - Contains Gambling</option>
+                                        <option value="Absent" {{ 'selected' if request.form.get('maysir') == 'Absent' }}>Absent - No Gambling</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="business_description">Business Description *</label>
+                                    <textarea class="form-control" id="business_description" name="business_description" 
+                                              rows="6" required placeholder="Describe the business activities, nature of operations, and compliance considerations...">{{ request.form.get('business_description', '') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="text-center mt-4">
+                            <button type="submit" name="action" value="analyze" class="btn btn-info btn-lg mr-2">
+                                <i class="fas fa-search mr-2"></i>Analyze Compliance
+                            </button>
+                            <button type="submit" name="action" value="save" class="btn btn-secondary btn-lg mr-2">
+                                <i class="fas fa-save mr-2"></i>Save Assessment
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Results Section -->
+                    {% if risk_score %}
+                    <hr class="my-4">
+                    <div class="mt-4">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-chart-line mr-2"></i>Shariah Compliance Results</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <h6>Compliance Status</h6>
+                                        <div class="display-6 text-{% if 'Compliant' in risk_score %}success{% elif 'Doubtful' in risk_score %}warning{% else %}danger{% endif %}">
+                                            {{ risk_score }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h6>Risk Level</h6>
+                                        <div class="display-6 text-{% if 'Compliant' in risk_score %}success{% elif 'Doubtful' in risk_score %}warning{% else %}danger{% endif %}">
+                                            {% if 'Compliant' in risk_score %}Low{% elif 'Doubtful' in risk_score %}Medium{% else %}High{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h6>Application</h6>
+                                        <div class="display-6 text-primary">{{ request.form.get('application_id', 'N/A') }}</div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h6>Amount (RM)</h6>
+                                        <div class="display-6 text-primary">{{ "{:,.0f}".format(request.form.get('loan_amount', 0)|float) }}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Save and Approval Section -->
+                                <div class="text-center mt-4">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <form method="POST" style="display: inline;">
+                                                <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                                <input type="hidden" name="application_date" value="{{ request.form.get('application_date', '') }}">
+                                                <input type="hidden" name="customer_name" value="{{ request.form.get('customer_name', '') }}">
+                                                <input type="hidden" name="customer_category" value="{{ request.form.get('customer_category', '') }}">
+                                                <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                                <input type="hidden" name="purpose_of_financing" value="{{ request.form.get('purpose_of_financing', '') }}">
+                                                <input type="hidden" name="riba" value="{{ request.form.get('riba', '') }}">
+                                                <input type="hidden" name="gharar" value="{{ request.form.get('gharar', '') }}">
+                                                <input type="hidden" name="maysir" value="{{ request.form.get('maysir', '') }}">
+                                                <input type="hidden" name="business_description" value="{{ request.form.get('business_description', '') }}">
+                                                
+                                                <button type="submit" name="action" value="save" class="btn btn-success btn-lg w-100">
+                                                    <i class="fas fa-save"></i> Save Assessment
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <form method="POST" style="display: inline;">
+                                                <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                                <input type="hidden" name="application_date" value="{{ request.form.get('application_date', '') }}">
+                                                <input type="hidden" name="customer_name" value="{{ request.form.get('customer_name', '') }}">
+                                                <input type="hidden" name="customer_category" value="{{ request.form.get('customer_category', '') }}">
+                                                <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                                <input type="hidden" name="purpose_of_financing" value="{{ request.form.get('purpose_of_financing', '') }}">
+                                                <input type="hidden" name="riba" value="{{ request.form.get('riba', '') }}">
+                                                <input type="hidden" name="gharar" value="{{ request.form.get('gharar', '') }}">
+                                                <input type="hidden" name="maysir" value="{{ request.form.get('maysir', '') }}">
+                                                <input type="hidden" name="business_description" value="{{ request.form.get('business_description', '') }}">
+                                                
+                                                <button type="submit" name="action" value="approve" class="btn btn-primary btn-lg w-100"
+                                                        onclick="return confirm('Are you sure you want to APPROVE this Shariah application?')">
+                                                    <i class="fas fa-check-circle"></i> Approve Application
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <form method="POST" style="display: inline;">
+                                                <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+                                                <input type="hidden" name="application_date" value="{{ request.form.get('application_date', '') }}">
+                                                <input type="hidden" name="customer_name" value="{{ request.form.get('customer_name', '') }}">
+                                                <input type="hidden" name="customer_category" value="{{ request.form.get('customer_category', '') }}">
+                                                <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+                                                <input type="hidden" name="purpose_of_financing" value="{{ request.form.get('purpose_of_financing', '') }}">
+                                                <input type="hidden" name="riba" value="{{ request.form.get('riba', '') }}">
+                                                <input type="hidden" name="gharar" value="{{ request.form.get('gharar', '') }}">
+                                                <input type="hidden" name="maysir" value="{{ request.form.get('maysir', '') }}">
+                                                <input type="hidden" name="business_description" value="{{ request.form.get('business_description', '') }}">
+                                                
+                                                <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg w-100"
+                                                        onclick="return confirm('Are you sure you want to REJECT this Shariah application?')">
+                                                    <i class="fas fa-times-circle"></i> Reject Application
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <a href="{{ url_for('shariah_risk_applications') }}" class="btn btn-info btn-lg">
+                                            <i class="fas fa-list"></i> View All Applications
+                                        </a>
+                                    </div>
+                                    
+                                    <!-- Decision Recommendation -->
+                                    <div class="mt-3">
+                                        <div class="alert alert-{% if 'Compliant' in risk_score %}success{% elif 'Doubtful' in risk_score %}warning{% else %}danger{% endif %}" role="alert">
+                                            <h6><i class="fas fa-lightbulb mr-2"></i>System Recommendation:</h6>
+                                            {% if 'Compliant' in risk_score %}
+                                                <strong>✅ RECOMMEND APPROVAL</strong> - Application is Shariah compliant
+                                            {% elif 'Doubtful' in risk_score %}
+                                                <strong>⚠️ REQUIRES REVIEW</strong> - Doubtful compliance requires careful evaluation
+                                            {% else %}
+                                                <strong>❌ RECOMMEND REJECTION</strong> - Application contains non-Shariah elements
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Personal Details Right Side -->
-    <div class="col-md-6">
-      <div class="form-group">
-        <label for="application_date">Application Date</label>
-        <input type="date" class="form-control" id="application_date" name="application_date" required>
-      </div>
-      <div class="form-group">
-        <label for="customer_name">Customer Name</label>
-        <input type="text" class="form-control" id="customer_name" name="customer_name" required>
-      </div>
-      <div class="form-group">
-        <label for="customer_category">Customer Category</label>
-        <select class="form-control" id="customer_category" name="customer_category">
-          <option value="Corporate">Corporate</option>
-          <option value="Personal">Personal</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Divider for Shariah Risk Parameters -->
-    <div class="col-12">
-      <hr>
-      <h4 class="text-center">Shariah Risk Parameters</h4>
-      <hr>
-    </div>
-
-    <!-- Shariah Risk Assessment (Lower Half) -->
-    <div class="col-md-6">
-      <div class="form-group">
-        <label for="riba">Riba (Interest)</label>
-        <select class="form-control" id="riba" name="riba">
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="gharar">Gharar (Uncertainty)</label>
-        <select class="form-control" id="gharar" name="gharar">
-          <option value="Yes">Yes</option>
-          <option value="No">No</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="maysir">Maysir (Gambling)</label>
-        <select class="form-control" id="maysir" name="maysir">
-          <option value="Present">Present</option>
-          <option value="Absent">Absent</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="business_description">Business Description</label>
-        <textarea class="form-control" id="business_description" name="business_description" required></textarea>
-      </div>
-    </div>
-  </div>
-
-    <!-- Submit Buttons -->
-    <div class="text-center mt-4">
-      <button type="submit" name="action" value="analyze" class="btn btn-primary mr-2">Analyze</button>
-      <button type="submit" name="action" value="save" class="btn btn-success">Save</button>
-    </div>
-</form>
-
-{% if risk_score %}
-<div class="mt-5 text-center">
-    <h3>Analysis Result:</h3>
-    <h4 class="text-info">{{ risk_score }}</h4>
 </div>
-{% endif %}
+
 {% endblock %}

@@ -1582,6 +1582,152 @@ def toggle_user_status_get(user_id):
     flash(f'User {user.staff_id} has been {status}.', 'success')
     return redirect(url_for('manage_users'))
 
+
+    # Add these routes to your app.py for quick approve/reject from the applications list
+
+@app.route('/credit-applications/quick-approve/<int:app_id>', methods=['POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def quick_approve_application(app_id):
+    """Quick approve application from the list"""
+    try:
+        application = CreditApplication.query.get_or_404(app_id)
+        
+        # Check if already approved/rejected
+        if application.status in ['Approved', 'Rejected']:
+            flash(f'Application {application.application_id} is already {application.status.lower()}.', 'warning')
+            return redirect(url_for('credit_applications'))
+        
+        # Update application status
+        application.status = 'Approved'
+        application.approved_by = session['user_id']
+        application.approved_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='CREDIT_APPLICATION_QUICK_APPROVED',
+            resource='credit_application',
+            resource_id=application.application_id,
+            details={
+                'risk_level': application.risk_level,
+                'risk_score': application.risk_score,
+                'approval_method': 'quick_approve'
+            },
+            request_obj=request
+        )
+        
+        flash(f'✅ Application {application.application_id} has been approved successfully!', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error approving application: {str(e)}', 'danger')
+    
+    return redirect(url_for('credit_applications'))
+
+
+@app.route('/credit-applications/quick-reject/<int:app_id>', methods=['POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def quick_reject_application(app_id):
+    """Quick reject application from the list"""
+    try:
+        application = CreditApplication.query.get_or_404(app_id)
+        
+        # Check if already approved/rejected
+        if application.status in ['Approved', 'Rejected']:
+            flash(f'Application {application.application_id} is already {application.status.lower()}.', 'warning')
+            return redirect(url_for('credit_applications'))
+        
+        # Update application status
+        application.status = 'Rejected'
+        application.approved_by = session['user_id']
+        application.approved_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        # Log the action
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='CREDIT_APPLICATION_QUICK_REJECTED',
+            resource='credit_application',
+            resource_id=application.application_id,
+            details={
+                'risk_level': application.risk_level,
+                'risk_score': application.risk_score,
+                'rejection_method': 'quick_reject'
+            },
+            request_obj=request
+        )
+        
+        flash(f'❌ Application {application.application_id} has been rejected.', 'warning')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error rejecting application: {str(e)}', 'danger')
+    
+    return redirect(url_for('credit_applications'))
+
+
+# Optional: Add a route to handle pre-filling form from existing application
+@app.route('/credit-risk')
+@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
+def credit_risk_page_with_prefill():
+    """Credit risk page with optional pre-fill from existing application"""
+    results = None
+    risk_level = None
+    risk_score = None
+    prefill_data = None
+    
+    # Check if we need to pre-fill from existing application
+    app_id = request.args.get('app_id')
+    if app_id:
+        existing_app = CreditApplication.query.filter_by(application_id=app_id).first()
+        if existing_app:
+            prefill_data = {
+                'application_id': existing_app.application_id,
+                'loan_amount': existing_app.loan_amount,
+                'property_value': existing_app.property_value,
+                'monthly_debt': existing_app.monthly_debt,
+                'monthly_income': existing_app.monthly_income,
+                'recovery_rate': existing_app.recovery_rate,
+                'probability_of_default': existing_app.probability_of_default
+            }
+            
+            # Also show current results
+            results = {
+                'Loan-to-Value (LTV %)': round((existing_app.loan_amount / existing_app.property_value) * 100, 2),
+                'Debt-to-Income (DTI %)': round((existing_app.monthly_debt / existing_app.monthly_income) * 100, 2),
+                'Risk Score': round(existing_app.risk_score, 2),
+                'Risk Level': existing_app.risk_level
+            }
+            risk_level = existing_app.risk_level
+            risk_score = existing_app.risk_score
+    
+    return render_template('credit_risks.html', 
+                         results=results, 
+                         risk_level=risk_level, 
+                         risk_score=risk_score,
+                         prefill_data=prefill_data)
+
+
+# Database Migration Commands
+"""
+After updating your CreditApplication model, run these commands:
+
+1. Create migration:
+   flask db migrate -m "Add approval status fields to CreditApplication"
+
+2. Apply migration:
+   flask db upgrade
+
+3. If you need to add the fields manually, here's the SQL:
+   ALTER TABLE credit_application ADD COLUMN status VARCHAR(20) DEFAULT 'Pending';
+   ALTER TABLE credit_application ADD COLUMN approved_by INTEGER;
+   ALTER TABLE credit_application ADD COLUMN approved_at DATETIME;
+   ALTER TABLE credit_application ADD FOREIGN KEY (approved_by) REFERENCES user(id);
+"""
+
 # ===== GENERATE PDF REPORT ROUTE =====
 @app.route('/generate-pdf-report', methods=['POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
