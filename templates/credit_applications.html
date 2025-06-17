@@ -1,3 +1,4 @@
+<!-- UPDATED credit_applications.html - OPTION 1: Fix Template -->
 {% extends 'base.html' %}
 
 {% block title %}Saved Credit Applications{% endblock %}
@@ -28,8 +29,8 @@
         <button id="generate-pdf" class="btn btn-primary">Generate PDF Report for Selected Loans</button>
     </div>
 
-    <!-- Delete selected form -->
-    <form method="POST" action="{{ url_for('delete_selected_credit_applications') }}">
+    <!-- Delete selected form - FIXED LINE BELOW -->
+    <form method="POST" action="/credit-applications/delete-selected">
         {% if applications %}
         <div class="text-right mb-2">
             <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete selected applications?');">

@@ -791,6 +791,66 @@ def credit_risk_page():
 
     return render_template('credit_risks.html', results=results, risk_level=risk_level, risk_score=risk_score)
 
+# Add this exact route to your app.py file
+
+@app.route('/credit-applications/delete-selected', methods=['POST'])
+@login_required
+def delete_selected_credit_applications():
+    """Delete selected credit applications"""
+    selected_ids = request.form.getlist('selected_ids')
+    
+    if not selected_ids:
+        flash('No applications selected.', 'warning')
+        return redirect(url_for('credit_applications'))
+    
+    deleted_count = 0
+    try:
+        for app_id in selected_ids:
+            # Use db.session.get() instead of deprecated .query.get()
+            application = db.session.get(CreditApplication, app_id)
+            if application:
+                # Log the deletion if AuditLog is available
+                try:
+                    AuditLog.log_action(
+                        user_id=session.get('user_id'),
+                        action='CREDIT_APPLICATION_DELETED',
+                        resource='credit_application',
+                        resource_id=str(application.id),
+                        details={'application_id': getattr(application, 'application_id', 'N/A')},
+                        request_obj=request
+                    )
+                except (NameError, AttributeError):
+                    # Skip audit logging if not available
+                    pass
+                
+                db.session.delete(application)
+                deleted_count += 1
+        
+        db.session.commit()
+        
+        if deleted_count > 0:
+            flash(f'Successfully deleted {deleted_count} application(s).', 'success')
+        else:
+            flash('No valid applications found to delete.', 'warning')
+            
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting applications: {str(e)}', 'danger')
+    
+    return redirect(url_for('credit_applications'))
+
+# BONUS: Fix for the SQLAlchemy deprecation warnings you're seeing
+# Replace any instances of Model.query.get(id) with db.session.get(Model, id)
+
+# Example fixes for the warnings in your log:
+def get_current_user():
+    """Fixed version to avoid deprecation warning"""
+    if 'user_id' in session:
+        return db.session.get(User, session['user_id'])  # Instead of User.query.get()
+    return None
+
+# Update any other .query.get() calls in your code similarly
+
 # PO-2: Batch File Upload Feature for Credit Risk Assessment
 @app.route('/credit-risk/batch-upload', methods=['GET', 'POST'])
 @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
@@ -998,6 +1058,8 @@ def credit_dashboard():
         high_count=high_count,
         top_ranges=top_ranges
     )
+
+    
 
 # ===== AUDIT AND REPORTING ROUTES =====
 @app.route('/admin/audit-logs')
@@ -1242,44 +1304,6 @@ def create_sample_data():
     except Exception as e:
         print(f"❌ Error creating sample data: {e}")
 
-# ===== APPLICATION STARTUP =====
-if __name__ == '__main__':
-    with app.app_context():
-        try:
-            # Create all database tables
-            db.create_all()
-            print("✅ Database tables created")
-            
-            # Create default users (F-2: Register New User functionality)
-            create_default_users()
-            
-            # Create sample data for testing (PO-3: Testing Use Cases)
-            create_sample_data()
-            
-            print("✅ SMART-Risk System initialized successfully!")
-            print("🎯 Project Objectives Implementation:")
-            print("   PO-1: ✅ Shariah risk assessment with FinBERT ML model")
-            print("   PO-2: ✅ Batch file upload for credit risk assessment")
-            print("   PO-3: ✅ Complete system with all use cases ready for testing")
-            print("📋 Features Implemented:")
-            print("   F-1: ✅ User Login")
-            print("   F-2: ✅ Register New User (Admin)")
-            print("   F-3: ✅ Terminate User Account (Admin)")
-            print("   F-4: ✅ Manage Users (Admin)")
-            print("   F-5: ✅ Calculate Credit Risk")
-            print("   F-6: ✅ Analyse Shariah Risk with ML")
-            print("   F-7: ✅ Upload File Batch")
-            print("   F-8: ✅ View Past Records")
-            print("   F-11: ✅ Save Risk Assessment")
-            print("   F-13: ✅ View Audit Trail & Logs")
-            
-        except Exception as e:
-            print(f"❌ Initialization error: {e}")
-    
-    print("🚀 Starting SMART-Risk System on http://127.0.0.1:5001")
-    print("🔗 Access your application at: http://localhost:5001")
-    app.run(host='0.0.0.0', port=5001, debug=True)
-
 
     # Add this route to your app.py file to fix the missing endpoint
 @app.route('/upload-batch-credit', methods=['POST'])
@@ -1295,69 +1319,8 @@ def upload_batch_credit():
     # Add these routes to your app.py file
 # They are missing and causing the BuildError
 
-# ===== CREDIT APPLICATIONS DELETE ROUTE =====
-@app.route('/credit-applications/delete-selected', methods=['POST'])
-@role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
-def delete_selected_credit_applications():
-    """Delete selected credit applications"""
-    selected_ids = request.form.getlist('selected_ids')
-    if selected_ids:
-        deleted_count = 0
-        for app_id in selected_ids:
-            application = CreditApplication.query.get(app_id)
-            if application:
-                # Log the deletion
-                AuditLog.log_action(
-                    user_id=session['user_id'],
-                    action='CREDIT_APPLICATION_DELETED',
-                    resource='credit_application',
-                    resource_id=str(application.id),
-                    details={'application_id': application.application_id},
-                    request_obj=request
-                )
-                
-                db.session.delete(application)
-                deleted_count += 1
-        
-        db.session.commit()
-        flash(f'Successfully deleted {deleted_count} application(s).', 'success')
-    else:
-        flash('No applications selected.', 'warning')
-    
-    return redirect(url_for('credit_applications'))
 
-@app.route('/delete-selected-credit-applications', methods=['POST'])
-@login_required  # or @role_required(UserRole.CREDIT_OFFICER, UserRole.ADMIN)
-def delete_selected_credit_applications():
-    """Delete selected credit applications - FIXED ROUTE"""
-    selected_ids = request.form.getlist('selected_ids')
-    if selected_ids:
-        deleted_count = 0
-        for app_id in selected_ids:
-            application = CreditApplication.query.get(app_id)
-            if application:
-                # Log the deletion if you have audit logging
-                try:
-                    AuditLog.log_action(
-                        user_id=session['user_id'],
-                        action='CREDIT_APPLICATION_DELETED',
-                        resource='credit_application',
-                        resource_id=str(application.id),
-                        details={'application_id': application.application_id},
-                        request_obj=request
-                    )
-                except:
-                    pass  # Skip if AuditLog not available
-                
-                db.session.delete(application)
-                deleted_count += 1
-        
-        db.session.commit()
-        flash(f'Successfully deleted {deleted_count} application(s).', 'success')
-    else:
-        flash('No applications selected.', 'warning')
-    
-    return redirect(url_for('credit_applications'))  
+
 
 # ===== SHARIAH APPLICATIONS DELETE ROUTE =====
 @app.route('/shariah-applications/delete-selected', methods=['POST'])
@@ -1488,3 +1451,57 @@ def generate_pdf_report():
         return jsonify({'error': 'PDF generation library not installed. Install with: pip install reportlab'}), 500
     except Exception as e:
         return jsonify({'error': f'Error generating PDF: {str(e)}'}), 500
+
+
+@app.route('/debug-routes')
+def debug_routes():
+    """Temporary route to debug all available endpoints"""
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({
+            'endpoint': rule.endpoint,
+            'url': rule.rule,
+            'methods': list(rule.methods)
+        })
+    
+    # Return as JSON or HTML for debugging
+    return '<br>'.join([f"{r['endpoint']}: {r['url']} {r['methods']}" for r in routes])
+
+
+# ===== APPLICATION STARTUP =====
+if __name__ == '__main__':
+    with app.app_context():
+        try:
+            # Create all database tables
+            db.create_all()
+            print("✅ Database tables created")
+            
+            # Create default users (F-2: Register New User functionality)
+            create_default_users()
+            
+            # Create sample data for testing (PO-3: Testing Use Cases)
+            create_sample_data()
+            
+            print("✅ SMART-Risk System initialized successfully!")
+            print("🎯 Project Objectives Implementation:")
+            print("   PO-1: ✅ Shariah risk assessment with FinBERT ML model")
+            print("   PO-2: ✅ Batch file upload for credit risk assessment")
+            print("   PO-3: ✅ Complete system with all use cases ready for testing")
+            print("📋 Features Implemented:")
+            print("   F-1: ✅ User Login")
+            print("   F-2: ✅ Register New User (Admin)")
+            print("   F-3: ✅ Terminate User Account (Admin)")
+            print("   F-4: ✅ Manage Users (Admin)")
+            print("   F-5: ✅ Calculate Credit Risk")
+            print("   F-6: ✅ Analyse Shariah Risk with ML")
+            print("   F-7: ✅ Upload File Batch")
+            print("   F-8: ✅ View Past Records")
+            print("   F-11: ✅ Save Risk Assessment")
+            print("   F-13: ✅ View Audit Trail & Logs")
+            
+        except Exception as e:
+            print(f"❌ Initialization error: {e}")
+    
+    print("🚀 Starting SMART-Risk System on http://127.0.0.1:5001")
+    print("🔗 Access your application at: http://localhost:5001")
+    app.run(host='0.0.0.0', port=5001, debug=True)

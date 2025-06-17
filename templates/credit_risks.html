@@ -6,8 +6,8 @@
 <div class="container mt-5">
   <h2 class="text-center">Credit Risk Assessment</h2>
 
- <!-- Batch Upload Form - FIXED URL -->
- <div class="my-4">
+  <!-- Batch Upload Form -->
+  <div class="my-4">
     <form action="{{ url_for('credit_batch_upload') }}" method="POST" enctype="multipart/form-data">
       <div class="input-group mb-3">
         <input type="file" name="file" class="form-control" accept=".csv,.xlsx" required>
@@ -24,25 +24,25 @@
   </div>
 
   <div id="preview-container" class="mt-4" style="display: none;">
-  <h4>Preview of Credit Risk Applications</h4>
-  <table id="preview-table" class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Application ID</th>
-        <th>Loan Amount</th>
-        <th>Property Value</th>
-        <th>Monthly Debt</th>
-        <th>Monthly Income</th>
-        <th>Recovery Rate</th>
-        <th>Probability of Default</th>
-        <th>Risk Score</th>
-        <th>Risk Level</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <button id="confirm-upload" class="btn btn-success">Confirm Upload</button>
-</div>
+    <h4>Preview of Credit Risk Applications</h4>
+    <table id="preview-table" class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Application ID</th>
+          <th>Loan Amount</th>
+          <th>Property Value</th>
+          <th>Monthly Debt</th>
+          <th>Monthly Income</th>
+          <th>Recovery Rate</th>
+          <th>Probability of Default</th>
+          <th>Risk Score</th>
+          <th>Risk Level</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button id="confirm-upload" class="btn btn-success">Confirm Upload</button>
+  </div>
   
   <form method="POST" id="credit-risk-form" novalidate>
     <div class="row">
@@ -85,6 +85,14 @@
         <button type="submit" name="action" value="calculate" class="btn btn-primary btn-lg">
           <i class="fas fa-calculator"></i> Calculate Risk
         </button>
+        
+        <!-- ADDED SAVE BUTTON - THIS WAS MISSING -->
+        {% if results %}
+        <button type="submit" name="action" value="save" class="btn btn-success btn-lg ml-2">
+          <i class="fas fa-save"></i> Save Assessment
+        </button>
+        {% endif %}
+        
         <a href="{{ url_for('credit_applications') }}" class="btn btn-secondary btn-lg ml-2">
           <i class="fas fa-list"></i> View Applications
         </a>
@@ -115,6 +123,28 @@
             {% endfor %}
           </div>
         </div>
+        
+        <!-- SAVE BUTTON ALSO HERE FOR CONVENIENCE -->
+        <div class="mt-3">
+          <form method="POST" style="display: inline;">
+            <!-- Hidden fields to preserve the calculated values -->
+            <input type="hidden" name="application_id" value="{{ request.form.get('application_id', '') }}">
+            <input type="hidden" name="loan_amount" value="{{ request.form.get('loan_amount', '') }}">
+            <input type="hidden" name="property_value" value="{{ request.form.get('property_value', '') }}">
+            <input type="hidden" name="monthly_debt" value="{{ request.form.get('monthly_debt', '') }}">
+            <input type="hidden" name="monthly_income" value="{{ request.form.get('monthly_income', '') }}">
+            <input type="hidden" name="recovery_rate" value="{{ request.form.get('recovery_rate', '') }}">
+            <input type="hidden" name="probability_of_default" value="{{ request.form.get('probability_of_default', '') }}">
+            
+            <button type="submit" name="action" value="save" class="btn btn-success btn-lg">
+              <i class="fas fa-save"></i> Save This Assessment
+            </button>
+          </form>
+          
+          <button onclick="calculateAnother()" class="btn btn-info btn-lg ml-2">
+            <i class="fas fa-redo"></i> Calculate Another
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -122,36 +152,157 @@
 </div>
 
 <script>
+// File upload functionality
 document.getElementById('fileUpload').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         const formData = new FormData();
         formData.append('file', file);
-        
+
         fetch('/upload-credit-file', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            if (data.error) {
-                alert('Error: ' + data.error);
-            } else {
+            if (data.success) {
                 // Autofill the form with the first row data
-                document.querySelector('input[name="application_id"]').value = data.application_id || '';
-                document.querySelector('input[name="loan_amount"]').value = data.loan_amount || '';
-                document.querySelector('input[name="property_value"]').value = data.property_value || '';
-                document.querySelector('input[name="monthly_debt"]').value = data.monthly_debt || '';
-                document.querySelector('input[name="monthly_income"]').value = data.monthly_income || '';
-                document.querySelector('input[name="recovery_rate"]').value = data.recovery_rate || '';
-                document.querySelector('input[name="probability_of_default"]').value = data.probability_of_default || '';
+                const form = document.getElementById('credit-risk-form');
+                Object.keys(data.data).forEach(key => {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        input.value = data.data[key];
+                    }
+                });
+                
+                // Show preview
+                showPreview(data.preview);
+            } else {
+                alert('Error: ' + data.error);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Error uploading file');
+            alert('Error processing file');
         });
     }
 });
+
+function showPreview(preview) {
+    const container = document.getElementById('preview-container');
+    const tbody = container.querySelector('tbody');
+    
+    tbody.innerHTML = '';
+    preview.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${row.application_id || ''}</td>
+            <td>${row.loan_amount || ''}</td>
+            <td>${row.property_value || ''}</td>
+            <td>${row.monthly_debt || ''}</td>
+            <td>${row.monthly_income || ''}</td>
+            <td>${row.recovery_rate || ''}</td>
+            <td>${row.probability_of_default || ''}</td>
+            <td>${row.risk_score || 'Not calculated'}</td>
+            <td>${row.risk_level || 'Not calculated'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    
+    container.style.display = 'block';
+}
+
+// Function to reset form for another calculation
+function calculateAnother() {
+    document.getElementById('credit-risk-form').reset();
+    // Hide results section by reloading the page
+    window.location.href = window.location.pathname;
+}
+
+// Form validation
+document.getElementById('credit-risk-form').addEventListener('submit', function(e) {
+    const formData = new FormData(this);
+    const action = e.submitter.value;
+    
+    // Basic validation
+    const requiredFields = ['application_id', 'loan_amount', 'property_value', 'monthly_debt', 'monthly_income', 'recovery_rate', 'probability_of_default'];
+    
+    for (let field of requiredFields) {
+        if (!formData.get(field)) {
+            e.preventDefault();
+            alert(`Please fill in the ${field.replace('_', ' ')} field.`);
+            return;
+        }
+    }
+    
+    // Show loading state
+    const submitBtn = e.submitter;
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    submitBtn.disabled = true;
+    
+    // Re-enable button after a delay (in case of errors)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 5000);
+});
+
+// Auto-calculate LTV and DTI as user types
+document.addEventListener('DOMContentLoaded', function() {
+    const loanAmount = document.querySelector('[name="loan_amount"]');
+    const propertyValue = document.querySelector('[name="property_value"]');
+    const monthlyDebt = document.querySelector('[name="monthly_debt"]');
+    const monthlyIncome = document.querySelector('[name="monthly_income"]');
+    
+    function calculateRatios() {
+        if (loanAmount.value && propertyValue.value) {
+            const ltv = (parseFloat(loanAmount.value) / parseFloat(propertyValue.value) * 100).toFixed(2);
+            // You can display this somewhere if needed
+        }
+        
+        if (monthlyDebt.value && monthlyIncome.value) {
+            const dti = (parseFloat(monthlyDebt.value) / parseFloat(monthlyIncome.value) * 100).toFixed(2);
+            // You can display this somewhere if needed
+        }
+    }
+    
+    [loanAmount, propertyValue, monthlyDebt, monthlyIncome].forEach(input => {
+        input.addEventListener('input', calculateRatios);
+    });
+});
 </script>
+
+<style>
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.card-header h4 {
+    margin: 0;
+}
+
+#preview-container {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
 {% endblock %}
