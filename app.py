@@ -695,59 +695,6 @@ def toggle_user_status(user_id):
     flash(f'User {user.full_name} has been {status}.', 'success')
     return redirect(url_for('manage_users'))
 
-# ===== LOAN MANAGEMENT ROUTES =====
-@app.route('/loan/create', methods=['GET', 'POST'])
-@login_required
-def create_loan():
-    if request.method == 'POST':
-        customer_name = request.form.get('customer_name', '').strip()
-        amount_requested = request.form.get('amount_requested', '0')
-        remarks = request.form.get('remarks', '').strip()
-
-        if not customer_name:
-            flash("Customer name is required!", "danger")
-            return redirect(url_for('create_loan'))
-
-        try:
-            amount = float(amount_requested)
-            if amount <= 0:
-                flash("Loan amount must be greater than 0!", "danger")
-                return redirect(url_for('create_loan'))
-                
-            # Simple risk calculation
-            risk_score = "High Risk" if amount > 50000 else "Low Risk"
-        except ValueError:
-            flash("Invalid loan amount!", "danger")
-            return redirect(url_for('create_loan'))
-
-        new_loan = Loan(
-            customer_name=customer_name,
-            amount_requested=amount,
-            risk_score=risk_score,
-            remarks=remarks,
-            created_by=session['user_id']
-        )
-        
-        try:
-            db.session.add(new_loan)
-            db.session.commit()
-            
-            AuditLog.log_action(
-                user_id=session['user_id'],
-                action='LOAN_CREATED',
-                resource='loan',
-                resource_id=str(new_loan.id),
-                request_obj=request
-            )
-            
-            flash(f"Loan record created successfully for {customer_name}!", "success")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error creating loan: {str(e)}", "danger")
-        
-        return redirect(url_for('dashboard'))
-    
-    return render_template('create.html')
 
 
 
