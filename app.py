@@ -749,33 +749,7 @@ def create_loan():
     
     return render_template('create.html')
 
-@app.route('/loan/edit/<int:loan_id>', methods=['GET', 'POST'])
-@login_required
-def edit_loan(loan_id):
-    loan = Loan.query.get_or_404(loan_id)
-    
-    if request.method == 'POST':
-        loan.customer_name = request.form['customer_name']
-        loan.amount_requested = float(request.form['amount_requested'])
-        loan.remarks = request.form.get('remarks', '')
-        
-        # Recalculate risk
-        loan.risk_score = "High Risk" if loan.amount_requested > 50000 else "Low Risk"
-        
-        db.session.commit()
-        
-        AuditLog.log_action(
-            user_id=session['user_id'],
-            action='LOAN_UPDATED',
-            resource='loan',
-            resource_id=str(loan.id),
-            request_obj=request
-        )
-        
-        flash("Loan record updated successfully!", "success")
-        return redirect(url_for('dashboard'))
-    
-    return render_template('edit.html', loan=loan)
+
 
 @app.route('/loan/delete/<int:loan_id>', methods=['POST'])
 @login_required
@@ -2405,28 +2379,7 @@ def reject_loan(loan_id):
     
     return render_template('reject_loan.html', loan=loan)
 
-@app.route('/loans/<int:loan_id>/delete', methods=['POST'])
-@admin_required
-def delete_loan(loan_id):
-    """Delete a loan application (admin only)"""
-    
-    loan = Loan.query.get_or_404(loan_id)
-    
-    # Create audit log before deletion
-    AuditLog.log_action(
-        user_id=session['user_id'],
-        action='LOAN_DELETED',
-        resource='loan',
-        resource_id=loan.application_id,
-        details={'customer_name': loan.customer_name, 'amount': float(loan.amount_requested)},
-        request_obj=request
-    )
-    
-    db.session.delete(loan)
-    db.session.commit()
-    
-    flash(f'Loan application {loan.application_id} deleted.', 'info')
-    return redirect(url_for('view_loans'))
+
 
 @app.route('/loans/bulk-approve', methods=['POST'])
 @role_required(UserRole.ADMIN, UserRole.CREDIT_OFFICER)
