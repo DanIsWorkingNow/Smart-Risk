@@ -1,0 +1,30 @@
+# Update existing shariah_scoring_engine.py
+from services.openai_shariah_analyzer import OpenAIShariahAnalyzer
+
+
+
+class EnhancedShariahEngine:
+    def __init__(self):
+        self.openai_analyzer = OpenAIShariahAnalyzer()
+        # Keep existing FinBERT integration
+        
+    def comprehensive_analysis(self, input_data, document_path=None):
+        """Combine traditional scoring with AI analysis"""
+        
+        # Existing quantitative analysis
+        traditional_score = self._assess_financial_structure(input_data)
+        
+        # AI-powered document analysis if document provided
+        ai_analysis = None
+        if document_path:
+            document_text = self.openai_analyzer.extract_text_from_file(document_path)
+            ai_analysis = self.openai_analyzer.analyze_shariah_compliance(document_text)
+        
+        # Combine results
+        final_assessment = {
+            'traditional_score': traditional_score,
+            'ai_analysis': ai_analysis,
+            'combined_recommendation': self._get_combined_recommendation(traditional_score, ai_analysis)
+        }
+        
+        return final_assessment

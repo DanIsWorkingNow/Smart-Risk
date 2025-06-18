@@ -13,6 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from enum import Enum
 from credit_risk import calculate_credit_risk, get_risk_level, CreditRiskCalculator, validate_financial_inputs
+from services.openai_shariah_analyzer import OpenAIShariahAnalyzer
 import pandas as pd
 import os
 import json
@@ -35,6 +36,9 @@ db = SQLAlchemy(app)
 
 # 🆕 ADD THIS LINE - Initialize Flask-Migrate
 migrate = Migrate(app, db)
+
+# Initialize OpenAI analyzer
+openai_analyzer = OpenAIShariahAnalyzer()
 
 # Load FinBERT model for Shariah risk analysis (PO-1)
 try:
@@ -370,6 +374,22 @@ class ShariahRiskApplication(db.Model):
     creator = db.relationship('User', foreign_keys=[created_by], backref='created_shariah_applications')
     approver = db.relationship('User', foreign_keys=[approved_by], backref='approved_shariah_applications')
 
+    class ShariahAnalysis(db.Model):
+    __tablename__ = 'shariah_analysis'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    document_name = db.Column(db.String(255), nullable=False)
+    classification = db.Column(db.Enum('HALAL', 'DOUBTFUL', 'HARAM'), nullable=False)
+    confidence_score = db.Column(db.Integer, nullable=False)
+    key_findings = db.Column(db.Text)  # JSON string
+    recommendations = db.Column(db.Text)  # JSON string
+    analysis_data = db.Column(db.Text)  # Complete analysis JSON
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='shariah_analyses')
+
 # ===== DECORATORS =====
 def login_required(f):
     @wraps(f)
@@ -696,6 +716,123 @@ def toggle_user_status(user_id):
     return redirect(url_for('manage_users'))
 
 
+@app.route('/api/shariah/analyze-document', methods=['POST'])
+@login_required
+def analyze_shariah_document():
+    """Enhanced Shariah analysis with OpenAI"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        # Validate file type
+        allowed_extensions = ['pdf', 'docx', 'txt']
+        file_extension = file.filename.rsplit('.', 1)[1].lower()
+        
+        if file_extension not in allowed_extensions:
+            return jsonify({'error': 'File type not supported'}), 400
+        
+        # Save uploaded file
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        
+        try:
+            # Extract text from file
+            document_text = openai_analyzer.extract_text_from_file(file_path)
+            
+            # Perform OpenAI analysis
+            openai_result = openai_analyzer.analyze_shariah_compliance(document_text)
+            
+            # Combine with existing FinBERT analysis if available
+            combined_analysis = {
+                'openai_analysis': openai_result,
+                'finbert_sentiment': None,  # Add FinBERT analysis here
+                'final_classification': openai_result['classification'],
+                'analysis_timestamp': datetime.utcnow().isoformat(),
+                'analyzed_by': current_user.username
+            }
+            
+            # Save analysis to database
+            analysis_record = ShariahAnalysis(
+                user_id=current_user.id,
+                document_name=filename,
+                classification=openai_result['classification'],
+                confidence_score=openai_result['confidence_score'],
+                key_findings=json.dumps(openai_result['key_findings']),
+                recommendations=json.dumps(openai_result['recommendations']),
+                analysis_data=json.dumps(combined_analysis)
+            )
+            
+            db.session.add(analysis_record)
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'analysis': combined_analysis
+            })
+            
+        finally:
+            # Clean up uploaded file
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/shariah/batch-analyze', methods=['POST'])
+@login_required
+def batch_analyze_documents():
+    """Batch analysis of multiple documents"""
+    try:
+        files = request.files.getlist('files')
+        
+        if not files:
+            return jsonify({'error': 'No files uploaded'}), 400
+        
+        results = []
+        
+        for file in files:
+            if file.filename == '':
+                continue
+                
+            try:
+                # Process each file
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                
+                document_text = openai_analyzer.extract_text_from_file(file_path)
+                analysis_result = openai_analyzer.analyze_shariah_compliance(document_text)
+                
+                results.append({
+                    'filename': filename,
+                    'analysis': analysis_result,
+                    'status': 'success'
+                })
+                
+                # Clean up
+                os.remove(file_path)
+                
+            except Exception as e:
+                results.append({
+                    'filename': file.filename,
+                    'error': str(e),
+                    'status': 'failed'
+                })
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'total_files': len(files),
+            'successful_analyses': len([r for r in results if r['status'] == 'success'])
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/loan/delete/<int:loan_id>', methods=['POST'])
@@ -2371,6 +2508,12 @@ def bulk_reject_loans():
     db.session.commit()
     flash(f'{rejected_count} loans rejected.', 'info')
     return redirect(url_for('view_loans'))
+
+@app.route('/shariah/ai-analysis')
+@login_required
+def ai_shariah_analysis():
+    """Dedicated AI Shariah analysis page"""
+    return render_template('shariah_ai_analysis.html')
 
 @app.route('/loans/export')
 @login_required
