@@ -28,8 +28,10 @@
       </a>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
-          {% if session.user_id %}
-          <!-- 🏦 Loan Management Dropdown -->
+          {% if current_user %}
+          
+          <!-- 🏦 Loan Management Dropdown - Only for Credit Officers and Shariah Officers -->
+          {% if current_user.role.value in ['credit_officer', 'shariah_officer'] %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="loanDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               🏦 LOAN MANAGEMENT
@@ -39,9 +41,10 @@
               <a class="dropdown-item" href="{{ url_for('create_loan') }}">➕ Add Loan</a>
             </div>
           </li>
+          {% endif %}
 
-          <!-- 🕌 Shariah Risk Dropdown -->
-          {% if current_user and (current_user.role.value == 'shariah_officer' or current_user.role.value == 'admin') %}
+          <!-- 🕌 Shariah Risk Dropdown - Only for Shariah Officers -->
+          {% if current_user.role.value == 'shariah_officer' %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="shariahDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               🕌 SHARIAH RISK
@@ -54,8 +57,8 @@
           </li>
           {% endif %}
 
-          <!-- 💳 Credit Risk Dropdown -->
-          {% if current_user and (current_user.role.value == 'credit_officer' or current_user.role.value == 'admin') %}
+          <!-- 💳 Credit Risk Dropdown - Only for Credit Officers -->
+          {% if current_user.role.value == 'credit_officer' %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="creditDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               💳 CREDIT RISK
@@ -68,14 +71,14 @@
           </li>
           {% endif %}
 
-          <!-- 🔧 Admin Tools -->
-          {% if current_user and current_user.role.value == 'admin' %}
+          <!-- 🔧 Admin Tools - Only for Admins -->
+          {% if current_user.role.value == 'admin' %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               🔧 ADMIN
             </a>
             <div class="dropdown-menu" aria-labelledby="adminDropdown">
-              <a class="dropdown-item" href="{{ url_for('dashboard') }}">📊 Dashboard</a>
+              <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">📊 Admin Dashboard</a>
               <div class="dropdown-divider"></div>
               <span class="dropdown-item-text text-muted">User Management</span>
               <a class="dropdown-item" href="{{ url_for('manage_users') }}">👥 Manage Users</a>
@@ -83,23 +86,20 @@
             </div>
           </li>
           {% endif %}
-        
+          
           <!-- 🔐 Account Dropdown -->
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               🔐 ACCOUNT
             </a>
             <div class="dropdown-menu" aria-labelledby="accountDropdown">
-              {% if session.user_id %}
-                <span class="dropdown-item-text">Welcome, {{ session.full_name or session.staff_id }}!</span>
-                <span class="dropdown-item-text text-muted">Role: {{ session.role or 'User' }}</span>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{{ url_for('logout') }}">🚪 Logout</a>
-              {% else %}
-                <a class="dropdown-item" href="{{ url_for('login') }}">🔑 Login</a>
-              {% endif %}
+              <span class="dropdown-item-text">Welcome, {{ current_user.full_name }}!</span>
+              <span class="dropdown-item-text text-muted">Role: {{ current_user.role.value|title }}</span>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{{ url_for('logout') }}">🚪 Logout</a>
             </div>
           </li>
+          
           {% else %}
           <!-- Show login option if not logged in -->
           <li class="nav-item">
