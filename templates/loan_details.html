@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+{% block title %}Loan Details - {{ loan.application_id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0"><i class="fas fa-file-alt mr-2"></i>Loan Application Details</h3>
+                            <small>{{ loan.application_id }} - {{ loan.customer_name }}</small>
+                        </div>
+                        <div>
+                            <span class="badge {{ loan.status_badge_class }} badge-lg">
+                                {{ loan.status|title|replace('_', ' ') }}
+                            </span>
+                            <span class="badge {{ loan.risk_badge_class }} badge-lg ml-2">
+                                {{ loan.risk_category|title }} Risk
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Details -->
+        <div class="col-md-8">
+            <!-- Application Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle mr-2"></i>Application Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Application ID:</strong></td>
+                                    <td>{{ loan.application_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Application Date:</strong></td>
+                                    <td>{{ loan.application_date.strftime('%d/%m/%Y') if loan.application_date else 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Branch Code:</strong></td>
+                                    <td>{{ loan.branch_code or 'N/A' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Days Since Application:</strong></td>
+                                    <td>{{ loan.days_since_application }} days</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Priority:</strong></td>
+                                    <td>
+                                        {% if loan.priority == 'high' %}
+                                        <span class="badge badge-danger">High</span>
+                                        {% elif loan.priority == 'urgent' %}
+                                        <span class="badge badge-warning">Urgent</span>
+                                        {% else %}
+                                        <span class="badge badge-secondary">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Relationship Manager:</strong></td>
+                                    <td>{{ loan.relationship_manager or 'Not assigned' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Created By:</strong></td>
+                                    <td>{{ loan.creator.full_name if loan.creator else 'System' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Last Updated:</strong></td>
+                                    <td>{{ loan.updated_at.strftime('%d/%m/%Y %H:%M') if loan.updated_at else 'N/A' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-user mr-2"></i>Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Full Name:</strong></td>
+                                    <td>{{ loan.customer_name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>IC/Passport:</strong></td>
+                                    <td>{{ loan.ic_number }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Customer Type:</strong></td>
+                                    <td>{{ loan.customer_type|title }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Employment:</strong></td>
+                                    <td>{{ loan.employment_type|title|replace('_', ' ') if loan.employment_type else 'N/A' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Phone:</strong></td>
+                                    <td>{{ loan.phone or 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>{{ loan.email or 'Not provided' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Address:</strong></td>
+                                    <td>{{ loan.address or 'Not provided' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financing Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-dollar-sign mr-2"></i>Financing Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Product Type:</strong></td>
+                                    <td><span class="badge badge-info">{{ loan.product_type|title }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Amount Requested:</strong></td>
+                                    <td><strong class="text-success">{{ loan.currency }} {{ "{:,.2f}".format(loan.amount_requested) }}</strong></td>
+                                </tr>
+                                {% if loan.approved_amount and loan.approved_amount != loan.amount_requested %}
+                                <tr>
+                                    <td><strong>Approved Amount:</strong></td>
+                                    <td><strong class="text-primary">{{ loan.currency }} {{ "{:,.2f}".format(loan.approved_amount) }}</strong></td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td><strong>Financing Term:</strong></td>
+                                    <td>{{ loan.loan_term_months }} months ({{ (loan.loan_term_months/12)|round(1) }} years)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Profit Rate:</strong></td>
+                                    <td>{{ "{:.2f}".format(loan.interest_rate) }}% per annum</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Purpose:</strong></td>
+                                    <td>{{ loan.purpose_of_financing|title|replace('_', ' ') if loan.purpose_of_financing else 'Not specified' }}</td>
+                                </tr>
+                                {% if loan.monthly_payment %}
+                                <tr>
+                                    <td><strong>Monthly Payment:</strong></td>
+                                    <td>{{ loan.currency }} {{ "{:,.2f}".format(loan.monthly_payment) }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if loan.total_payment %}
+                                <tr>
+                                    <td><strong>Total Payment:</strong></td>
+                                    <td>{{ loan.currency }} {{ "{:,.2f}".format(loan.total_payment) }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if loan.total_interest %}
+                                <tr>
+                                    <td><strong>Total Profit:</strong></td>
+                                    <td>{{ loan.currency }} {{ "{:,.2f}".format(loan.total_interest) }}</td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Analysis -->
+            {% if loan.monthly_income or loan.existing_commitments %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar mr-2"></i>Financial Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                {% if loan.monthly_income %}
+                                <tr>
+                                    <td><strong>Monthly Income:</strong></td>
+                                    <td>{{ loan.currency }} {{ "{:,.2f}".format(loan.monthly_income) }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if loan.existing_commitments %}
+                                <tr>
+                                    <td><strong>Existing Commitments:</strong></td>
+                                    <td>{{ loan.currency }} {{ "{:,.2f}".format(loan.existing_commitments) }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if loan.debt_to_income_ratio > 0 %}
+                                <tr>
+                                    <td><strong>Debt-to-Income Ratio:</strong></td>
+                                    <td>
+                                        <span class="badge {% if loan.debt_to_income_ratio <= 40 %}badge-success{% elif loan.debt_to_income_ratio <= 60 %}badge-warning{% else %}badge-danger{% endif %}">
+                                            {{ "{:.1f}".format(loan.debt_to_income_ratio) }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            {% if loan.collateral_type %}
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Collateral Type:</strong></td>
+                                    <td>{{ loan.collateral_type|title }}</td>
+                                </tr>
+                                {% if loan.collateral_value %}
+                                <tr>
+                                    <td><strong>Collateral Value:</strong></td>
+                                    <td>{{ loan.currency }} {{ "{:,.2f}".format(loan.collateral_value) }}</td>
+                                </tr>
+                                {% endif %}
+                                {% if loan.ltv_ratio %}
+                                <tr>
+                                    <td><strong>LTV Ratio:</strong></td>
+                                    <td>
+                                        <span class="badge {% if loan.ltv_ratio <= 70 %}badge-success{% elif loan.ltv_ratio <= 90 %}badge-warning{% else %}badge-danger{% endif %}">
+                                            {{ "{:.1f}".format(loan.ltv_ratio) }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </table>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Additional Information -->
+            {% if loan.business_description or loan.remarks %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard mr-2"></i>Additional Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if loan.business_description %}
+                    <div class="mb-3">
+                        <strong>Business/Investment Description:</strong>
+                        <p class="mt-2">{{ loan.business_description }}</p>
+                    </div>
+                    {% endif %}
+                    {% if loan.remarks %}
+                    <div>
+                        <strong>Remarks/Notes:</strong>
+                        <p class="mt-2">{{ loan.remarks|replace('\n', '<br>')|safe }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Panel -->
+        <div class="col-md-4">
+            <div class="card sticky-top">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs mr-2"></i>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Quick Status Update -->
+                    <div class="mb-3">
+                        <strong>Current Status:</strong>
+                        <br>
+                        <span class="badge {{ loan.status_badge_class }} badge-lg">
+                            {{ loan.status|title|replace('_', ' ') }}
+                        </span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        {% if current_user.role.value in ['credit_officer', 'shariah_officer'] and loan.status in ['pending', 'under_review'] %}
+                        <a href="{{ url_for('edit_loan', loan_id=loan.id) }}" class="btn btn-primary btn-block">
+                            <i class="fas fa-edit mr-2"></i>Edit Application
+                        </a>
+                        {% endif %}
+
+                        {% if current_user.role.value in ['admin', 'credit_officer'] and loan.status in ['pending', 'under_review'] %}
+                        <div class="btn-group btn-block" role="group">
+                            <a href="{{ url_for('approve_loan', loan_id=loan.id) }}" class="btn btn-success">
+                                <i class="fas fa-check mr-1"></i>Approve
+                            </a>
+                            <a href="{{ url_for('reject_loan', loan_id=loan.id) }}" class="btn btn-danger">
+                                <i class="fas fa-times mr-1"></i>Reject
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <a href="{{ url_for('view_loans') }}" class="btn btn-secondary btn-block">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Loans
+                        </a>
+
+                        {% if current_user.role.value == 'admin' %}
+                        <form method="POST" action="{{ url_for('delete_loan', loan_id=loan.id) }}" 
+                              onsubmit="return confirm('Are you sure you want to delete this loan application?')">
+                            <button type="submit" class="btn btn-outline-danger btn-block">
+                                <i class="fas fa-trash mr-2"></i>Delete Application
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Approval Information -->
+                    {% if loan.approved_by or loan.approved_at %}
+                    <hr>
+                    <div class="small">
+                        <strong>Approval Details:</strong><br>
+                        {% if loan.approver %}
+                        <strong>Approved by:</strong> {{ loan.approver.full_name }}<br>
+                        {% endif %}
+                        {% if loan.approved_at %}
+                        <strong>Approved on:</strong> {{ loan.approved_at.strftime('%d/%m/%Y %H:%M') }}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Audit Trail -->
+                    <hr>
+                    <div class="small text-muted">
+                        <strong>Audit Trail:</strong><br>
+                        <strong>Created:</strong> {{ loan.created_at.strftime('%d/%m/%Y %H:%M') if loan.created_at else 'N/A' }}<br>
+                        {% if loan.creator %}by {{ loan.creator.full_name }}<br>{% endif %}
+                        {% if loan.updated_at and loan.updated_at != loan.created_at %}
+                        <strong>Last Updated:</strong> {{ loan.updated_at.strftime('%d/%m/%Y %H:%M') }}<br>
+                        {% if loan.updater %}by {{ loan.updater.full_name }}{% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

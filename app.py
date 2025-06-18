@@ -120,17 +120,201 @@ class AuditLog(db.Model):
         except Exception as e:
             print(f"Error logging action: {e}")
 
+# Updated Loan Model - Replace your existing Loan class in app.py
+
 class Loan(db.Model):
     __tablename__ = 'loans'
     
+    # Primary Key
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Application Details
+    application_id = db.Column(db.String(50), unique=True, nullable=False)
     application_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
-    customer_name = db.Column(db.String(100), nullable=False)
-    amount_requested = db.Column(db.Float, nullable=False)
-    risk_score = db.Column(db.String(50), nullable=True)
-    remarks = db.Column(db.String(500), nullable=True)
-    created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    branch_code = db.Column(db.String(10))
+    
+    # Customer Information
+    ic_number = db.Column(db.String(20), nullable=False)
+    customer_name = db.Column(db.String(200), nullable=False)
+    phone = db.Column(db.String(20))
+    email = db.Column(db.String(100))
+    customer_type = db.Column(db.String(20), default='individual')
+    address = db.Column(db.Text)
+    
+    # Financing Details
+    product_type = db.Column(db.String(50), nullable=False)
+    amount_requested = db.Column(db.Numeric(15, 2), nullable=False)
+    loan_term_months = db.Column(db.Integer)
+    interest_rate = db.Column(db.Numeric(5, 2))
+    purpose_of_financing = db.Column(db.String(100))
+    currency = db.Column(db.String(5), default='MYR')
+    
+    # Calculated Fields
+    monthly_payment = db.Column(db.Numeric(15, 2))
+    total_interest = db.Column(db.Numeric(15, 2))
+    total_payment = db.Column(db.Numeric(15, 2))
+    
+    # Financial Information
+    monthly_income = db.Column(db.Numeric(15, 2))
+    existing_commitments = db.Column(db.Numeric(15, 2))
+    employment_type = db.Column(db.String(50))
+    
+    # Collateral Information
+    collateral_type = db.Column(db.String(50))
+    collateral_value = db.Column(db.Numeric(15, 2))
+    ltv_ratio = db.Column(db.Numeric(5, 2))
+    
+    # Additional Information
+    business_description = db.Column(db.Text)
+    remarks = db.Column(db.Text)
+    risk_category = db.Column(db.String(20), default='medium')
+    priority = db.Column(db.String(20), default='normal')
+    relationship_manager = db.Column(db.String(100))
+    
+    # Status and Workflow
+    status = db.Column(db.String(50), default='pending')
+    risk_score = db.Column(db.String(50))
+    credit_score = db.Column(db.Integer)
+    approval_status = db.Column(db.String(50), default='pending')
+    approved_amount = db.Column(db.Numeric(15, 2))
+    
+    # Audit Fields
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    approved_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    approved_at = db.Column(db.DateTime)
+    
+    # Relationships
+    creator = db.relationship('User', foreign_keys=[created_by], backref='created_loans')
+    updater = db.relationship('User', foreign_keys=[updated_by], backref='updated_loans')
+    approver = db.relationship('User', foreign_keys=[approved_by], backref='approved_loans')
+    
+    def __init__(self, **kwargs):
+        super(Loan, self).__init__(**kwargs)
+        if not self.application_id:
+            self.application_id = self.generate_application_id()
+    
+    def generate_application_id(self):
+        """Generate unique application ID"""
+        from datetime import datetime
+        now = datetime.now()
+        timestamp = now.strftime('%Y%m%d%H%M')
+        # Get next sequence number for the day
+        today_count = Loan.query.filter(
+            Loan.application_date == now.date()
+        ).count()
+        sequence = str(today_count + 1).zfill(3)
+        return f"LA{timestamp}{sequence}"
+    
+    @property
+    def status_badge_class(self):
+        """Return Bootstrap badge class based on status"""
+        status_classes = {
+            'pending': 'badge-warning',
+            'under_review': 'badge-info',
+            'approved': 'badge-success',
+            'rejected': 'badge-danger',
+            'disbursed': 'badge-primary',
+            'completed': 'badge-secondary'
+        }
+        return status_classes.get(self.status, 'badge-light')
+    
+    @property
+    def risk_badge_class(self):
+        """Return Bootstrap badge class based on risk category"""
+        risk_classes = {
+            'low': 'badge-success',
+            'medium': 'badge-warning',
+            'high': 'badge-danger'
+        }
+        return risk_classes.get(self.risk_category, 'badge-secondary')
+    
+    @property
+    def days_since_application(self):
+        """Calculate days since application"""
+        if self.application_date:
+            return (datetime.now().date() - self.application_date).days
+        return 0
+    
+    @property
+    def debt_to_income_ratio(self):
+        """Calculate debt-to-income ratio"""
+        if self.monthly_income and self.monthly_income > 0:
+            total_commitments = (self.existing_commitments or 0) + (self.monthly_payment or 0)
+            return (total_commitments / self.monthly_income) * 100
+        return 0
+    
+    def can_be_approved(self):
+        """Check if loan can be approved based on business rules"""
+        if self.status not in ['pending', 'under_review']:
+            return False
+        
+        # Check DTI ratio (should be less than 60%)
+        if self.debt_to_income_ratio > 60:
+            return False
+        
+        # Check LTV ratio (should be less than 90% for most products)
+        if self.ltv_ratio and self.ltv_ratio > 90:
+            return False
+        
+        return True
+    
+    def update_status(self, new_status, updated_by_user_id, remarks=None):
+        """Update loan status with audit trail"""
+        self.status = new_status
+        self.updated_by = updated_by_user_id
+        self.updated_at = datetime.utcnow()
+        
+        if remarks:
+            existing_remarks = self.remarks or ""
+            timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+            self.remarks = f"{existing_remarks}\n[{timestamp}] Status changed to {new_status}: {remarks}".strip()
+    
+    def approve(self, approved_by_user_id, approved_amount=None, remarks=None):
+        """Approve the loan"""
+        self.approval_status = 'approved'
+        self.status = 'approved'
+        self.approved_by = approved_by_user_id
+        self.approved_at = datetime.utcnow()
+        self.approved_amount = approved_amount or self.amount_requested
+        
+        if remarks:
+            existing_remarks = self.remarks or ""
+            timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+            self.remarks = f"{existing_remarks}\n[{timestamp}] APPROVED: {remarks}".strip()
+    
+    def reject(self, rejected_by_user_id, reason):
+        """Reject the loan"""
+        self.approval_status = 'rejected'
+        self.status = 'rejected'
+        self.updated_by = rejected_by_user_id
+        self.updated_at = datetime.utcnow()
+        
+        existing_remarks = self.remarks or ""
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        self.remarks = f"{existing_remarks}\n[{timestamp}] REJECTED: {reason}".strip()
+    
+    def to_dict(self):
+        """Convert loan object to dictionary"""
+        return {
+            'id': self.id,
+            'application_id': self.application_id,
+            'application_date': self.application_date.isoformat() if self.application_date else None,
+            'customer_name': self.customer_name,
+            'ic_number': self.ic_number,
+            'amount_requested': float(self.amount_requested) if self.amount_requested else 0,
+            'product_type': self.product_type,
+            'status': self.status,
+            'approval_status': self.approval_status,
+            'risk_category': self.risk_category,
+            'priority': self.priority,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+    
+    def __repr__(self):
+        return f'<Loan {self.application_id} - {self.customer_name} - RM{self.amount_requested}>'
 
 # Replace these model sections in your app.py
 
@@ -610,6 +794,8 @@ def delete_loan(loan_id):
     db.session.commit()
     flash("Loan record deleted successfully!", "success")
     return redirect(url_for('dashboard'))
+
+
 
 ## ===== CORRECTED SHARIAH RISK ROUTE (Matches Your Frontend) =====
 @app.route('/shariah-risk-assessment', methods=['GET', 'POST'])
@@ -1849,6 +2035,7 @@ def quick_reject_application(app_id):
     
     return redirect(url_for('credit_applications'))
 
+   
 
 # Optional: Add a route to handle pre-filling form from existing application
 # ===== ENHANCED CREDIT RISK ASSESSMENT ROUTE =====
@@ -2008,6 +2195,424 @@ After updating your CreditApplication model, run these commands:
    ALTER TABLE credit_application ADD COLUMN approved_at DATETIME;
    ALTER TABLE credit_application ADD FOREIGN KEY (approved_by) REFERENCES user(id);
 """
+
+
+# Add these routes to your app.py
+
+@app.route('/loans')
+@login_required
+def view_loans():
+    """View all loan applications with filtering and statistics"""
+    
+    # Get filter parameters
+    status_filter = request.args.get('status', '')
+    search = request.args.get('search', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 25
+    
+    # Base query
+    query = Loan.query
+    
+    # Apply role-based filtering
+    user = get_current_user()
+    if user.role == UserRole.CREDIT_OFFICER:
+        # Credit officers see all loans
+        pass
+    elif user.role == UserRole.SHARIAH_OFFICER:
+        # Shariah officers see loans that need Shariah review
+        query = query.filter(Loan.product_type.in_(['murabaha', 'musharakah', 'mudarabah', 'ijara', 'tawarruq', 'bba']))
+    elif user.role == UserRole.ADMIN:
+        # Admins see all loans
+        pass
+    
+    # Apply filters
+    if status_filter:
+        query = query.filter(Loan.status == status_filter)
+    
+    if search:
+        query = query.filter(
+            or_(
+                Loan.application_id.contains(search),
+                Loan.customer_name.contains(search),
+                Loan.ic_number.contains(search)
+            )
+        )
+    
+    # Get paginated results
+    loans = query.order_by(Loan.application_date.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    # Calculate statistics
+    stats = {
+        'pending': Loan.query.filter_by(status='pending').count(),
+        'under_review': Loan.query.filter_by(status='under_review').count(),
+        'approved': Loan.query.filter_by(status='approved').count(),
+        'rejected': Loan.query.filter_by(status='rejected').count(),
+        'total_amount': db.session.query(func.sum(Loan.amount_requested)).scalar() or 0
+    }
+    
+    return render_template('view_loans.html', 
+                         loans=loans.items, 
+                         pagination=loans,
+                         stats=stats,
+                         status_filter=status_filter,
+                         search=search)
+
+@app.route('/loans/<int:loan_id>')
+@login_required
+def view_loan_details(loan_id):
+    """View detailed information for a specific loan"""
+    
+    loan = Loan.query.get_or_404(loan_id)
+    
+    # Check permissions
+    user = get_current_user()
+    if user.role not in [UserRole.ADMIN, UserRole.CREDIT_OFFICER, UserRole.SHARIAH_OFFICER]:
+        flash('You do not have permission to view loan details.', 'danger')
+        return redirect(url_for('view_loans'))
+    
+    return render_template('loan_details.html', loan=loan)
+
+@app.route('/loans/<int:loan_id>/edit', methods=['GET', 'POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def edit_loan(loan_id):
+    """Edit an existing loan application"""
+    
+    loan = Loan.query.get_or_404(loan_id)
+    
+    # Check if loan can be edited
+    if loan.status in ['approved', 'rejected', 'disbursed']:
+        flash('This loan cannot be edited as it has been processed.', 'warning')
+        return redirect(url_for('view_loan_details', loan_id=loan_id))
+    
+    if request.method == 'POST':
+        try:
+            # Update loan fields from form
+            loan.customer_name = request.form.get('customer_name', loan.customer_name)
+            loan.ic_number = request.form.get('ic_number', loan.ic_number)
+            loan.phone = request.form.get('phone', loan.phone)
+            loan.email = request.form.get('email', loan.email)
+            loan.address = request.form.get('address', loan.address)
+            loan.customer_type = request.form.get('customer_type', loan.customer_type)
+            
+            loan.product_type = request.form.get('product_type', loan.product_type)
+            loan.amount_requested = float(request.form.get('amount_requested', loan.amount_requested))
+            loan.loan_term_months = int(request.form.get('loan_term_months', loan.loan_term_months or 36))
+            loan.interest_rate = float(request.form.get('interest_rate', loan.interest_rate or 8.5))
+            loan.purpose_of_financing = request.form.get('purpose_of_financing', loan.purpose_of_financing)
+            
+            loan.monthly_income = float(request.form.get('monthly_income', 0)) or None
+            loan.existing_commitments = float(request.form.get('existing_commitments', 0)) or None
+            loan.employment_type = request.form.get('employment_type', loan.employment_type)
+            
+            loan.collateral_type = request.form.get('collateral_type', loan.collateral_type)
+            loan.collateral_value = float(request.form.get('collateral_value', 0)) or None
+            loan.ltv_ratio = float(request.form.get('ltv_ratio', 0)) or None
+            
+            loan.business_description = request.form.get('business_description', loan.business_description)
+            loan.remarks = request.form.get('remarks', loan.remarks)
+            loan.risk_category = request.form.get('risk_category', loan.risk_category)
+            loan.priority = request.form.get('priority', loan.priority)
+            
+            # Recalculate loan payments
+            if loan.amount_requested and loan.loan_term_months and loan.interest_rate:
+                monthly_rate = loan.interest_rate / 100 / 12
+                if monthly_rate > 0:
+                    loan.monthly_payment = loan.amount_requested * (monthly_rate * (1 + monthly_rate)**loan.loan_term_months) / ((1 + monthly_rate)**loan.loan_term_months - 1)
+                    loan.total_payment = loan.monthly_payment * loan.loan_term_months
+                    loan.total_interest = loan.total_payment - loan.amount_requested
+            
+            # Update audit fields
+            loan.updated_by = session['user_id']
+            loan.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            
+            flash('Loan application updated successfully!', 'success')
+            return redirect(url_for('view_loan_details', loan_id=loan_id))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating loan: {str(e)}', 'danger')
+    
+    return render_template('edit_loan.html', loan=loan)
+
+@app.route('/loans/<int:loan_id>/approve', methods=['GET', 'POST'])
+@role_required(UserRole.ADMIN, UserRole.CREDIT_OFFICER)
+def approve_loan(loan_id):
+    """Approve a loan application"""
+    
+    loan = Loan.query.get_or_404(loan_id)
+    
+    if loan.status not in ['pending', 'under_review']:
+        flash('This loan cannot be approved.', 'warning')
+        return redirect(url_for('view_loan_details', loan_id=loan_id))
+    
+    if request.method == 'POST':
+        approved_amount = float(request.form.get('approved_amount', loan.amount_requested))
+        remarks = request.form.get('remarks', '')
+        
+        # Approve the loan
+        loan.approve(session['user_id'], approved_amount, remarks)
+        
+        # Create audit log
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='LOAN_APPROVED',
+            resource='loan',
+            resource_id=loan.application_id,
+            details={'approved_amount': approved_amount, 'original_amount': float(loan.amount_requested)},
+            request_obj=request
+        )
+        
+        db.session.commit()
+        flash(f'Loan {loan.application_id} approved successfully!', 'success')
+        return redirect(url_for('view_loans'))
+    
+    return render_template('approve_loan.html', loan=loan)
+
+@app.route('/loans/<int:loan_id>/reject', methods=['GET', 'POST'])
+@role_required(UserRole.ADMIN, UserRole.CREDIT_OFFICER)
+def reject_loan(loan_id):
+    """Reject a loan application"""
+    
+    loan = Loan.query.get_or_404(loan_id)
+    
+    if loan.status not in ['pending', 'under_review']:
+        flash('This loan cannot be rejected.', 'warning')
+        return redirect(url_for('view_loan_details', loan_id=loan_id))
+    
+    if request.method == 'POST':
+        reason = request.form.get('reason', 'No reason provided')
+        
+        # Reject the loan
+        loan.reject(session['user_id'], reason)
+        
+        # Create audit log
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='LOAN_REJECTED',
+            resource='loan',
+            resource_id=loan.application_id,
+            details={'reason': reason},
+            request_obj=request
+        )
+        
+        db.session.commit()
+        flash(f'Loan {loan.application_id} rejected.', 'info')
+        return redirect(url_for('view_loans'))
+    
+    return render_template('reject_loan.html', loan=loan)
+
+@app.route('/loans/<int:loan_id>/delete', methods=['POST'])
+@admin_required
+def delete_loan(loan_id):
+    """Delete a loan application (admin only)"""
+    
+    loan = Loan.query.get_or_404(loan_id)
+    
+    # Create audit log before deletion
+    AuditLog.log_action(
+        user_id=session['user_id'],
+        action='LOAN_DELETED',
+        resource='loan',
+        resource_id=loan.application_id,
+        details={'customer_name': loan.customer_name, 'amount': float(loan.amount_requested)},
+        request_obj=request
+    )
+    
+    db.session.delete(loan)
+    db.session.commit()
+    
+    flash(f'Loan application {loan.application_id} deleted.', 'info')
+    return redirect(url_for('view_loans'))
+
+@app.route('/loans/bulk-approve', methods=['POST'])
+@role_required(UserRole.ADMIN, UserRole.CREDIT_OFFICER)
+def bulk_approve_loans():
+    """Bulk approve multiple loans"""
+    
+    selected_loans = request.form.getlist('selected_loans')
+    
+    if not selected_loans:
+        flash('No loans selected for approval.', 'warning')
+        return redirect(url_for('view_loans'))
+    
+    approved_count = 0
+    for loan_id in selected_loans:
+        loan = Loan.query.get(loan_id)
+        if loan and loan.status in ['pending', 'under_review'] and loan.can_be_approved():
+            loan.approve(session['user_id'], remarks='Bulk approval')
+            approved_count += 1
+    
+    db.session.commit()
+    flash(f'{approved_count} loans approved successfully!', 'success')
+    return redirect(url_for('view_loans'))
+
+@app.route('/loans/bulk-reject', methods=['POST'])
+@role_required(UserRole.ADMIN, UserRole.CREDIT_OFFICER)
+def bulk_reject_loans():
+    """Bulk reject multiple loans"""
+    
+    selected_loans = request.form.getlist('selected_loans')
+    
+    if not selected_loans:
+        flash('No loans selected for rejection.', 'warning')
+        return redirect(url_for('view_loans'))
+    
+    rejected_count = 0
+    for loan_id in selected_loans:
+        loan = Loan.query.get(loan_id)
+        if loan and loan.status in ['pending', 'under_review']:
+            loan.reject(session['user_id'], 'Bulk rejection')
+            rejected_count += 1
+    
+    db.session.commit()
+    flash(f'{rejected_count} loans rejected.', 'info')
+    return redirect(url_for('view_loans'))
+
+@app.route('/loans/export')
+@login_required
+def export_loans():
+    """Export loans to CSV"""
+    
+    import csv
+    from io import StringIO
+    
+    # Get loans based on user role
+    user = get_current_user()
+    query = Loan.query
+    
+    if user.role == UserRole.SHARIAH_OFFICER:
+        query = query.filter(Loan.product_type.in_(['murabaha', 'musharakah', 'mudarabah', 'ijara', 'tawarruq', 'bba']))
+    
+    loans = query.order_by(Loan.application_date.desc()).all()
+    
+    # Create CSV
+    output = StringIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow([
+        'Application ID', 'Application Date', 'Customer Name', 'IC Number',
+        'Product Type', 'Amount Requested', 'Term (Months)', 'Interest Rate',
+        'Monthly Payment', 'Status', 'Risk Category', 'Priority',
+        'Monthly Income', 'DTI Ratio', 'Created Date'
+    ])
+    
+    # Write data
+    for loan in loans:
+        writer.writerow([
+            loan.application_id,
+            loan.application_date.strftime('%Y-%m-%d') if loan.application_date else '',
+            loan.customer_name,
+            loan.ic_number,
+            loan.product_type,
+            float(loan.amount_requested) if loan.amount_requested else 0,
+            loan.loan_term_months or '',
+            float(loan.interest_rate) if loan.interest_rate else '',
+            float(loan.monthly_payment) if loan.monthly_payment else '',
+            loan.status,
+            loan.risk_category,
+            loan.priority,
+            float(loan.monthly_income) if loan.monthly_income else '',
+            f"{loan.debt_to_income_ratio:.1f}%" if loan.debt_to_income_ratio > 0 else '',
+            loan.created_at.strftime('%Y-%m-%d %H:%M') if loan.created_at else ''
+        ])
+    
+    # Create response
+    from flask import make_response
+    response = make_response(output.getvalue())
+    response.headers['Content-Type'] = 'text/csv'
+    response.headers['Content-Disposition'] = f'attachment; filename=loans_export_{datetime.now().strftime("%Y%m%d_%H%M")}.csv'
+    
+    return response
+
+# Update your create_loan route to handle the new form fields
+@app.route('/loan/create', methods=['GET', 'POST'])
+@role_required(UserRole.CREDIT_OFFICER, UserRole.SHARIAH_OFFICER, UserRole.ADMIN)
+def create_loan():
+    if request.method == 'GET':
+        return render_template('create.html')
+    
+    try:
+        # Create new loan with all the comprehensive fields
+        new_loan = Loan(
+            # Application details
+            application_id=request.form.get('application_id'),
+            branch_code=request.form.get('branch_code'),
+            
+            # Customer information
+            ic_number=request.form.get('ic_number'),
+            customer_name=request.form.get('customer_name'),
+            phone=request.form.get('phone'),
+            email=request.form.get('email'),
+            customer_type=request.form.get('customer_type', 'individual'),
+            address=request.form.get('address'),
+            
+            # Financing details
+            product_type=request.form.get('product_type'),
+            amount_requested=float(request.form.get('amount_requested')),
+            loan_term_months=int(request.form.get('loan_term_months', 36)),
+            interest_rate=float(request.form.get('interest_rate', 8.5)),
+            purpose_of_financing=request.form.get('purpose_of_financing'),
+            currency=request.form.get('currency', 'MYR'),
+            
+            # Calculated fields
+            monthly_payment=float(request.form.get('monthly_payment', 0)) or None,
+            total_interest=float(request.form.get('total_interest', 0)) or None,
+            total_payment=float(request.form.get('total_payment', 0)) or None,
+            
+            # Financial information
+            monthly_income=float(request.form.get('monthly_income', 0)) or None,
+            existing_commitments=float(request.form.get('existing_commitments', 0)) or None,
+            employment_type=request.form.get('employment_type'),
+            
+            # Collateral information
+            collateral_type=request.form.get('collateral_type'),
+            collateral_value=float(request.form.get('collateral_value', 0)) or None,
+            ltv_ratio=float(request.form.get('ltv_ratio', 0)) or None,
+            
+            # Additional information
+            business_description=request.form.get('business_description'),
+            remarks=request.form.get('remarks'),
+            risk_category=request.form.get('risk_category', 'medium'),
+            priority=request.form.get('priority', 'normal'),
+            relationship_manager=request.form.get('relationship_manager'),
+            
+            # Audit fields
+            created_by=session['user_id'],
+            status='pending',
+            approval_status='pending'
+        )
+        
+        db.session.add(new_loan)
+        db.session.commit()
+        
+        # Create audit log
+        AuditLog.log_action(
+            user_id=session['user_id'],
+            action='LOAN_CREATED',
+            resource='loan',
+            resource_id=new_loan.application_id,
+            details={
+                'customer_name': new_loan.customer_name,
+                'amount': float(new_loan.amount_requested),
+                'product_type': new_loan.product_type
+            },
+            request_obj=request
+        )
+        
+        flash(f'Loan application {new_loan.application_id} created successfully!', 'success')
+        return redirect(url_for('view_loans'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error creating loan application: {str(e)}', 'danger')
+        return render_template('create.html')
+
+
 
 # ===== GENERATE PDF REPORT ROUTE =====
 @app.route('/generate-pdf-report', methods=['POST'])
