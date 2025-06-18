@@ -1,21 +1,512 @@
 {% extends 'base.html' %}
-{% block title %}Add New Loan{% endblock %}
+{% block title %}New Loan Application{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generate Application ID and set current date
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const time = String(today.getHours()).padStart(2, '0') + String(today.getMinutes()).padStart(2, '0');
+    const appId = 'LA' + year + month + day + time;
+    
+    // Set application ID
+    document.getElementById('application_id').value = appId;
+    
+    // Set current date in header
+    document.getElementById('currentDate').textContent = day + '/' + month + '/' + year;
+    
+    // Set application date field
+    const dateString = year + '-' + month + '-' + day;
+    document.getElementById('application_date').value = dateString;
+});
+
+// Real-time loan calculation
+function calculateLoan() {
+    const amount = parseFloat(document.getElementById('amount_requested').value) || 0;
+    const term = parseInt(document.getElementById('loan_term_months').value) || 0;
+    const rate = parseFloat(document.getElementById('interest_rate').value) || 0;
+    
+    if (amount > 0 && term > 0 && rate > 0) {
+        const monthlyRate = rate / 100 / 12;
+        const monthlyPayment = amount * (monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+        const totalPayment = monthlyPayment * term;
+        const totalInterest = totalPayment - amount;
+        
+        document.getElementById('monthly_payment').value = monthlyPayment.toFixed(2);
+        document.getElementById('total_interest').value = totalInterest.toFixed(2);
+        document.getElementById('total_payment').value = totalPayment.toFixed(2);
+    }
+}
+
+// Update profit rate based on product type
+function updateProfitRate() {
+    const productType = document.getElementById('product_type').value;
+    const rateField = document.getElementById('interest_rate');
+    
+    const rates = {
+        'murabaha': '8.50',
+        'musharakah': '9.25',
+        'mudarabah': '10.00',
+        'ijara': '7.75',
+        'tawarruq': '8.25',
+        'bba': '7.50'
+    };
+    
+    if (rates[productType]) {
+        rateField.value = rates[productType];
+        calculateLoan();
+    }
+}
+
+// Auto-fill customer info (simulation)
+function searchCustomer() {
+    const icNumber = document.getElementById('ic_number').value;
+    if (icNumber.length === 12) {
+        // Simulate customer lookup
+        document.getElementById('customer_name').value = 'Ahmad Bin Abdullah';
+        document.getElementById('phone').value = '+60123456789';
+        document.getElementById('email').value = 'ahmad@email.com';
+        document.getElementById('address').value = 'No. 123, Jalan Merdeka, 50000 Kuala Lumpur';
+    }
+}
+
+// Validate form before submission
+function validateForm() {
+    const requiredFields = ['application_id', 'customer_name', 'ic_number', 'amount_requested', 'product_type'];
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        const element = document.getElementById(field);
+        if (!element.value.trim()) {
+            element.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            element.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        alert('Please fill in all required fields marked with *');
+        return false;
+    }
+    
+    return true;
+}
+</script>
+
+<style>
+.form-section {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 20px;
+    margin-bottom: 25px;
+    border-radius: 5px;
+}
+
+.form-section h4 {
+    color: #007bff;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.required-field {
+    color: #dc3545;
+}
+
+.calculation-result {
+    background: #e7f3ff;
+    border: 1px solid #b3d7ff;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-calculate {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    font-weight: 600;
+}
+
+.btn-calculate:hover {
+    background: linear-gradient(45deg, #218838, #1ea69a);
+    color: white;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<h2 class="mb-4">Add New Loan Record</h2>
-<form method="POST" action="{{ url_for('create_loan') }}">
-  <div class="form-group">
-    <label for="customer_name">Customer Name</label>
-    <input type="text" class="form-control" id="customer_name" name="customer_name" required>
-  </div>
-  <div class="form-group">
-    <label for="amount_requested">Loan Amount</label>
-    <input type="number" step="0.01" class="form-control" id="amount_requested" name="amount_requested" required>
-  </div>
-  <div class="form-group">
-    <label for="remarks">Remarks</label>
-    <textarea class="form-control" id="remarks" name="remarks"></textarea>
-  </div>
-  <button type="submit" class="btn btn-success">Create</button>
-  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-0"><i class="fas fa-file-contract mr-2"></i>New Loan Application</h3>
+                            <small>Complete all required fields to submit loan application</small>
+                        </div>
+                        <div class="text-right">
+                            <div class="badge badge-light badge-lg">
+                                <i class="fas fa-calendar mr-1"></i><span id="currentDate"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('create_loan') }}" onsubmit="return validateForm()">
+                        
+                        <!-- Application Details Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-info-circle mr-2"></i>Application Details</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="application_id"><strong>Application ID <span class="required-field">*</span></strong></label>
+                                        <input type="text" class="form-control" id="application_id" name="application_id" readonly>
+                                        <small class="form-text text-muted">Auto-generated unique identifier</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="application_date"><strong>Application Date</strong></label>
+                                        <input type="date" class="form-control" id="application_date" name="application_date" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="branch_code"><strong>Branch Code</strong></label>
+                                        <select class="form-control" id="branch_code" name="branch_code">
+                                            <option value="KL001">KL001 - Kuala Lumpur Main</option>
+                                            <option value="PJ002">PJ002 - Petaling Jaya</option>
+                                            <option value="SB003">SB003 - Shah Alam</option>
+                                            <option value="JB004">JB004 - Johor Bahru</option>
+                                            <option value="PN005">PN005 - Penang</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Information Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-user mr-2"></i>Customer Information</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="ic_number"><strong>IC/Passport Number <span class="required-field">*</span></strong></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="ic_number" name="ic_number" placeholder="e.g., 901201-14-5678" onchange="searchCustomer()" required>
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-outline-secondary" onclick="searchCustomer()">
+                                                    <i class="fas fa-search"></i> Search
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="customer_name"><strong>Full Name <span class="required-field">*</span></strong></label>
+                                        <input type="text" class="form-control" id="customer_name" name="customer_name" placeholder="As per IC/Passport" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="phone"><strong>Phone Number</strong></label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="+60123456789">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="email"><strong>Email Address</strong></label>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="customer@email.com">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="customer_type"><strong>Customer Type</strong></label>
+                                        <select class="form-control" id="customer_type" name="customer_type">
+                                            <option value="individual">Individual</option>
+                                            <option value="sme">SME</option>
+                                            <option value="corporate">Corporate</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="address"><strong>Address</strong></label>
+                                        <textarea class="form-control" id="address" name="address" rows="2" placeholder="Full address as per IC"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financing Details Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-dollar-sign mr-2"></i>Financing Details</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="product_type"><strong>Product Type <span class="required-field">*</span></strong></label>
+                                        <select class="form-control" id="product_type" name="product_type" onchange="updateProfitRate()" required>
+                                            <option value="">Select Product</option>
+                                            <option value="murabaha">Murabaha (Sale-based)</option>
+                                            <option value="musharakah">Musharakah (Partnership)</option>
+                                            <option value="mudarabah">Mudarabah (Profit-sharing)</option>
+                                            <option value="ijara">Ijara (Leasing)</option>
+                                            <option value="tawarruq">Tawarruq (Monetization)</option>
+                                            <option value="bba">BBA (Home Financing)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="amount_requested"><strong>Financing Amount (RM) <span class="required-field">*</span></strong></label>
+                                        <input type="number" class="form-control" id="amount_requested" name="amount_requested" 
+                                               placeholder="0.00" min="1000" max="10000000" step="0.01" onchange="calculateLoan()" required>
+                                        <small class="form-text text-muted">Minimum: RM 1,000 | Maximum: RM 10,000,000</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="loan_term_months"><strong>Financing Term (Months)</strong></label>
+                                        <select class="form-control" id="loan_term_months" name="loan_term_months" onchange="calculateLoan()">
+                                            <option value="12">12 months (1 year)</option>
+                                            <option value="24">24 months (2 years)</option>
+                                            <option value="36" selected>36 months (3 years)</option>
+                                            <option value="48">48 months (4 years)</option>
+                                            <option value="60">60 months (5 years)</option>
+                                            <option value="84">84 months (7 years)</option>
+                                            <option value="120">120 months (10 years)</option>
+                                            <option value="180">180 months (15 years)</option>
+                                            <option value="240">240 months (20 years)</option>
+                                            <option value="300">300 months (25 years)</option>
+                                            <option value="360">360 months (30 years)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="interest_rate"><strong>Profit Rate (% per annum)</strong></label>
+                                        <input type="number" class="form-control" id="interest_rate" name="interest_rate" 
+                                               placeholder="8.50" min="3" max="20" step="0.01" onchange="calculateLoan()">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="purpose_of_financing"><strong>Purpose of Financing</strong></label>
+                                        <select class="form-control" id="purpose_of_financing" name="purpose_of_financing">
+                                            <option value="home_purchase">Home Purchase</option>
+                                            <option value="business_expansion">Business Expansion</option>
+                                            <option value="working_capital">Working Capital</option>
+                                            <option value="vehicle_purchase">Vehicle Purchase</option>
+                                            <option value="education">Education</option>
+                                            <option value="renovation">Property Renovation</option>
+                                            <option value="refinancing">Debt Refinancing</option>
+                                            <option value="investment">Investment</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="currency"><strong>Currency</strong></label>
+                                        <select class="form-control" id="currency" name="currency">
+                                            <option value="MYR" selected>MYR - Malaysian Ringgit</option>
+                                            <option value="USD">USD - US Dollar</option>
+                                            <option value="SGD">SGD - Singapore Dollar</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loan Calculation Results -->
+                            <div class="calculation-result">
+                                <h5><i class="fas fa-calculator mr-2"></i>Financing Calculation</h5>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="monthly_payment"><strong>Monthly Payment (RM)</strong></label>
+                                        <input type="text" class="form-control" id="monthly_payment" name="monthly_payment" readonly>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="total_interest"><strong>Total Profit (RM)</strong></label>
+                                        <input type="text" class="form-control" id="total_interest" name="total_interest" readonly>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="total_payment"><strong>Total Payment (RM)</strong></label>
+                                        <input type="text" class="form-control" id="total_payment" name="total_payment" readonly>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" class="btn btn-calculate btn-block mt-4" onclick="calculateLoan()">
+                                            <i class="fas fa-calculator mr-1"></i>Calculate
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Information Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-chart-line mr-2"></i>Financial Information</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="monthly_income"><strong>Monthly Income (RM)</strong></label>
+                                        <input type="number" class="form-control" id="monthly_income" name="monthly_income" 
+                                               placeholder="0.00" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="existing_commitments"><strong>Existing Monthly Commitments (RM)</strong></label>
+                                        <input type="number" class="form-control" id="existing_commitments" name="existing_commitments" 
+                                               placeholder="0.00" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="employment_type"><strong>Employment Type</strong></label>
+                                        <select class="form-control" id="employment_type" name="employment_type">
+                                            <option value="permanent">Permanent Employee</option>
+                                            <option value="contract">Contract Employee</option>
+                                            <option value="self_employed">Self-Employed</option>
+                                            <option value="business_owner">Business Owner</option>
+                                            <option value="retired">Retired</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Collateral Information Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-home mr-2"></i>Collateral Information</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="collateral_type"><strong>Collateral Type</strong></label>
+                                        <select class="form-control" id="collateral_type" name="collateral_type">
+                                            <option value="">No Collateral</option>
+                                            <option value="property">Property</option>
+                                            <option value="vehicle">Vehicle</option>
+                                            <option value="fixed_deposit">Fixed Deposit</option>
+                                            <option value="shares">Shares/Securities</option>
+                                            <option value="gold">Gold</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="collateral_value"><strong>Collateral Value (RM)</strong></label>
+                                        <input type="number" class="form-control" id="collateral_value" name="collateral_value" 
+                                               placeholder="0.00" min="0" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="ltv_ratio"><strong>Loan-to-Value Ratio (%)</strong></label>
+                                        <input type="number" class="form-control" id="ltv_ratio" name="ltv_ratio" 
+                                               placeholder="90" min="0" max="100" step="0.1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-clipboard mr-2"></i>Additional Information</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="business_description"><strong>Business/Investment Description</strong></label>
+                                        <textarea class="form-control" id="business_description" name="business_description" 
+                                                  rows="3" placeholder="Describe the business or investment purpose"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="remarks"><strong>Remarks/Notes</strong></label>
+                                        <textarea class="form-control" id="remarks" name="remarks" 
+                                                  rows="3" placeholder="Additional notes or special requirements"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="risk_category"><strong>Risk Category</strong></label>
+                                        <select class="form-control" id="risk_category" name="risk_category">
+                                            <option value="low">Low Risk</option>
+                                            <option value="medium" selected>Medium Risk</option>
+                                            <option value="high">High Risk</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="priority"><strong>Application Priority</strong></label>
+                                        <select class="form-control" id="priority" name="priority">
+                                            <option value="normal" selected>Normal</option>
+                                            <option value="urgent">Urgent</option>
+                                            <option value="high">High Priority</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="relationship_manager"><strong>Relationship Manager</strong></label>
+                                        <input type="text" class="form-control" id="relationship_manager" name="relationship_manager" 
+                                               placeholder="Staff name or ID">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary btn-lg">
+                                        <i class="fas fa-times mr-2"></i>Cancel
+                                    </a>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-primary btn-lg mr-3" onclick="calculateLoan()">
+                                            <i class="fas fa-calculator mr-2"></i>Calculate
+                                        </button>
+                                        <button type="submit" class="btn btn-success btn-lg">
+                                            <i class="fas fa-paper-plane mr-2"></i>Submit Application
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
