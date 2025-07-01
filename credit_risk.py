@@ -1,10 +1,4 @@
 # ===== credit_risk.py - Business Logic Module =====
-
-"""
-Credit Risk Assessment Module
-Contains all credit risk calculation logic and related functions
-"""
-
 from typing import Dict, Tuple, Optional
 import logging
 
@@ -13,17 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 class CreditRiskCalculator:
-    """
-    Credit Risk Calculator class with configurable parameters
-    """
+   
     
     def __init__(self, weights: Optional[Dict[str, float]] = None):
-        """
-        Initialize calculator with custom weights
-        
-        Args:
-            weights: Dictionary of weights for each factor
-        """
+      
         self.weights = weights or {
             'ltv': 0.30,        # 30% weight for Loan-to-Value
             'dti': 0.25,        # 25% weight for Debt-to-Income  
@@ -96,16 +83,7 @@ class CreditRiskCalculator:
             return 'High'
     
     def get_recommendation(self, risk_score: float, risk_level: str) -> Dict[str, str]:
-        """
-        Get recommendation based on risk assessment
-        
-        Args:
-            risk_score: Risk score (0-100)
-            risk_level: Risk level ('Low', 'Medium', 'High')
-        
-        Returns:
-            Dictionary with recommendation details
-        """
+       
         recommendations = {
             'Low': {
                 'action': 'APPROVE',
