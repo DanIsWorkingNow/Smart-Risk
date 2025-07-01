@@ -2326,7 +2326,27 @@ def reject_loan(loan_id):
     
     return render_template('reject_loan.html', loan=loan)
 
-
+@app.route('/admin/audit-logs')
+@admin_required
+def admin_audit_logs():  # ← Changed from view_audit_logs
+    # Simple filtering
+    user_filter = request.args.get('user_id')
+    action_filter = request.args.get('action')
+    date_from = request.args.get('date_from')
+    
+    query = AuditLog.query
+    
+    if user_filter:
+        query = query.filter_by(user_id=user_filter)
+    if action_filter:
+        query = query.filter_by(action=action_filter)
+    if date_from:
+        query = query.filter(AuditLog.timestamp >= date_from)
+    
+    logs = query.order_by(AuditLog.timestamp.desc()).limit(100).all()
+    users = User.query.all()  # For dropdown filter
+    
+    return render_template('admin/audit_logs.html', logs=logs, users=users)
 
 @app.route('/loans/bulk-approve', methods=['POST'])
 @role_required(UserRole.ADMIN, UserRole.CREDIT_OFFICER)

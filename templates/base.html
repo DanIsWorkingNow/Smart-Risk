@@ -74,23 +74,26 @@
           {% endif %}
 
           <!-- 🔧 Admin Tools - Only for Admins -->
-          {% if current_user.role.value == 'admin' %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              🔧 ADMIN
-            </a>
-            <div class="dropdown-menu" aria-labelledby="adminDropdown">
-              <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">📊 Admin Dashboard</a>
-              <div class="dropdown-divider"></div>
-              <span class="dropdown-item-text text-muted">Loan Management</span>
-              <a class="dropdown-item" href="{{ url_for('view_loans') }}">📋 All Loan Applications</a>
-              <div class="dropdown-divider"></div>
-              <span class="dropdown-item-text text-muted">User Management</span>
-              <a class="dropdown-item" href="{{ url_for('manage_users') }}">👥 Manage Users</a>
-              <a class="dropdown-item" href="{{ url_for('create_user') }}">➕ Create User</a>
-            </div>
-          </li>
-          {% endif %}
+{% if current_user.role.value == 'admin' %}
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle font-weight-bold" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    🔧 ADMIN
+  </a>
+  <div class="dropdown-menu" aria-labelledby="adminDropdown">
+    <a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">📊 Admin Dashboard</a>
+    <div class="dropdown-divider"></div>
+    <span class="dropdown-item-text text-muted">Loan Management</span>
+    <a class="dropdown-item" href="{{ url_for('view_loans') }}">📋 All Loan Applications</a>
+    <div class="dropdown-divider"></div>
+    <span class="dropdown-item-text text-muted">User Management</span>
+    <a class="dropdown-item" href="{{ url_for('manage_users') }}">👥 Manage Users</a>
+    <a class="dropdown-item" href="{{ url_for('create_user') }}">➕ Create User</a>
+    <div class="dropdown-divider"></div>
+    <span class="dropdown-item-text text-muted">System Monitoring</span>
+    <a class="dropdown-item" href="{{ url_for('admin_audit_logs') }}">📋 Audit Logs</a>
+  </div>
+</li>
+{% endif %}
           
           <!-- 🔐 Account Dropdown -->
           <li class="nav-item dropdown">

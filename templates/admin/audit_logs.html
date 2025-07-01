@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Audit Logs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">📋 System Audit Logs</h2>
+    
+    <!-- Add some basic filters -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="form-inline">
+                        <div class="form-group mr-3">
+                            <label for="user_filter" class="mr-2">User:</label>
+                            <select name="user_id" id="user_filter" class="form-control">
+                                <option value="">All Users</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.staff_id }} - {{ user.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group mr-3">
+                            <label for="action_filter" class="mr-2">Action:</label>
+                            <select name="action" id="action_filter" class="form-control">
+                                <option value="">All Actions</option>
+                                <option value="LOGIN_SUCCESS">Login Success</option>
+                                <option value="LOGIN_FAILED">Login Failed</option>
+                                <option value="CREATE">Create</option>
+                                <option value="UPDATE">Update</option>
+                                <option value="DELETE">Delete</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <a href="{{ url_for('admin_audit_logs') }}" class="btn btn-secondary ml-2">Clear</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Logs Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5>📊 Recent Activity ({{ logs|length }} records)</h5>
+        </div>
+        <div class="card-body">
+            {% if logs %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Resource</th>
+                            <th>IP Address</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>
+                                {% if log.user %}
+                                    <span class="badge badge-primary">{{ log.user.staff_id }}</span><br>
+                                    <small>{{ log.user.full_name }}</small>
+                                {% else %}
+                                    <span class="badge badge-secondary">System</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.action == 'LOGIN_SUCCESS' %}
+                                    <span class="badge badge-success">{{ log.action }}</span>
+                                {% elif log.action == 'LOGIN_FAILED' %}
+                                    <span class="badge badge-danger">{{ log.action }}</span>
+                                {% elif log.action in ['CREATE', 'UPDATE'] %}
+                                    <span class="badge badge-info">{{ log.action }}</span>
+                                {% elif log.action == 'DELETE' %}
+                                    <span class="badge badge-warning">{{ log.action }}</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ log.action }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.resource }}</td>
+                            <td>
+                                {% if log.ip_address %}
+                                    <code>{{ log.ip_address }}</code>
+                                {% else %}
+                                    <small class="text-muted">N/A</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.details %}
+                                    <small>{{ log.details }}</small>
+                                {% else %}
+                                    <small class="text-muted">No details</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> No audit logs found.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
