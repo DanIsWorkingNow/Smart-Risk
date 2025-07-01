@@ -885,36 +885,24 @@ def shariah_risk_assessment():
 # Keep your existing fallback function unchanged
 def analyze_shariah_compliance_fallback(riba, gharar, maysir, business_description):
     """Fallback rule-based Shariah compliance analysis"""
-    
-    # ADD THESE DEBUG PRINTS
-    print(f"🔍 FALLBACK FUNCTION CALLED!")
-    print(f"🔍 Riba received: '{riba}'")
-    print(f"🔍 Gharar received: '{gharar}'")
-    print(f"🔍 Maysir received: '{maysir}'")
-    print(f"🔍 Business received: '{business_description}'")
-    
     prohibited_keywords = ['interest', 'gambling', 'alcohol', 'pork', 'insurance', 'conventional banking']
     
     # Check explicit prohibitions
     if riba.lower() == 'yes' or gharar.lower() == 'yes' or maysir.lower() == 'present':
-        print(f"🔍 EXPLICIT PROHIBITION FOUND - returning Haram")
         return "Haram"
     
     # Check business description for prohibited activities
     business_lower = business_description.lower()
     for keyword in prohibited_keywords:
         if keyword in business_lower:
-            print(f"🔍 PROHIBITED KEYWORD FOUND: {keyword} - returning Haram")
             return "Haram"
     
     # Check for doubtful activities
     doubtful_keywords = ['uncertain', 'speculation', 'derivative', 'hedge']
     for keyword in doubtful_keywords:
         if keyword in business_lower:
-            print(f"🔍 DOUBTFUL KEYWORD FOUND: {keyword} - returning Doubtful")
             return "Doubtful"
     
-    print(f"🔍 NO ISSUES FOUND - returning Halal")
     return "Halal"
 
 # ===== ADD THESE QUICK APPROVAL ROUTES TO YOUR APP.PY =====
